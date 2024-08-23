@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
     GithubAuthProvider,
     signInWithPopup,
 } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -19,6 +20,16 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+// Fonction pour ajouter l'utilisateur à Firestore
+const addUserToFirestore = async (userId: string, userData: any) => {
+    try {
+        await setDoc(doc(db, 'users', userId), userData);
+        console.log('Utilisateur ajouté à Firestore');
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout de l\'utilisateur à Firestore : ', error);
+    }
+};
 
 export function SignUpForm() {
     const [firstName, setFirstName] = useState('');
@@ -32,8 +43,19 @@ export function SignUpForm() {
         setError('');
 
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            alert('Compte créé avec succès !');
+            // Création de l'utilisateur avec email et mot de passe
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Enregistrement des informations supplémentaires dans Firestore
+            await addUserToFirestore(user.uid, {
+                firstName,
+                lastName,
+                email,
+                createdAt: new Date().toISOString(),
+            });
+
+            alert('Compte créé avec succès et utilisateur ajouté à Firestore !');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la création du compte. Veuillez réessayer.');
@@ -43,8 +65,18 @@ export function SignUpForm() {
     const handleGoogleSignUp = async () => {
         const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
-            alert('Inscription avec Google réussie !');
+            const userCredential = await signInWithPopup(auth, provider);
+            const user = userCredential.user;
+
+            // Enregistrement des informations supplémentaires dans Firestore
+            await addUserToFirestore(user.uid, {
+                firstName: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ')[1] || '',
+                email: user.email,
+                createdAt: new Date().toISOString(),
+            });
+
+            alert('Inscription avec Google réussie et utilisateur ajouté à Firestore !');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de l\'inscription avec Google.');
@@ -54,8 +86,18 @@ export function SignUpForm() {
     const handleGithubSignUp = async () => {
         const provider = new GithubAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
-            alert('Inscription avec GitHub réussie !');
+            const userCredential = await signInWithPopup(auth, provider);
+            const user = userCredential.user;
+
+            // Enregistrement des informations supplémentaires dans Firestore
+            await addUserToFirestore(user.uid, {
+                firstName: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ')[1] || '',
+                email: user.email,
+                createdAt: new Date().toISOString(),
+            });
+
+            alert('Inscription avec GitHub réussie et utilisateur ajouté à Firestore !');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de l\'inscription avec GitHub.');
