@@ -21,13 +21,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-// Fonction pour ajouter l'utilisateur à Firestore
+// Fonction pour ajouter l'utilisateur à Firestore avec un rôle par défaut
 const addUserToFirestore = async (userId: string, userData: any) => {
     try {
         await setDoc(doc(db, 'users', userId), userData);
         console.log('Utilisateur ajouté à Firestore');
     } catch (error) {
-        console.error('Erreur lors de l\'ajout de l\'utilisateur à Firestore : ', error);
+        console.error("Erreur lors de l'ajout de l'utilisateur à Firestore : ", error);
     }
 };
 
@@ -47,11 +47,12 @@ export function SignUpForm() {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Enregistrement des informations supplémentaires dans Firestore
+            // Enregistrement des informations supplémentaires dans Firestore avec rôle par défaut
             await addUserToFirestore(user.uid, {
                 firstName,
                 lastName,
                 email,
+                role: 'user', // Rôle par défaut "user"
                 createdAt: new Date().toISOString(),
             });
 
@@ -68,18 +69,19 @@ export function SignUpForm() {
             const userCredential = await signInWithPopup(auth, provider);
             const user = userCredential.user;
 
-            // Enregistrement des informations supplémentaires dans Firestore
+            // Enregistrement des informations supplémentaires dans Firestore avec rôle par défaut
             await addUserToFirestore(user.uid, {
                 firstName: user.displayName?.split(' ')[0] || '',
                 lastName: user.displayName?.split(' ')[1] || '',
                 email: user.email,
+                role: 'user', // Rôle par défaut "user"
                 createdAt: new Date().toISOString(),
             });
 
             alert('Inscription avec Google réussie et utilisateur ajouté à Firestore !');
         } catch (error) {
             console.error(error);
-            setError('Erreur lors de l\'inscription avec Google.');
+            setError("Erreur lors de l'inscription avec Google.");
         }
     };
 
@@ -89,18 +91,19 @@ export function SignUpForm() {
             const userCredential = await signInWithPopup(auth, provider);
             const user = userCredential.user;
 
-            // Enregistrement des informations supplémentaires dans Firestore
+            // Enregistrement des informations supplémentaires dans Firestore avec rôle par défaut
             await addUserToFirestore(user.uid, {
                 firstName: user.displayName?.split(' ')[0] || '',
                 lastName: user.displayName?.split(' ')[1] || '',
                 email: user.email,
+                role: 'user', // Rôle par défaut "user"
                 createdAt: new Date().toISOString(),
             });
 
             alert('Inscription avec GitHub réussie et utilisateur ajouté à Firestore !');
         } catch (error) {
             console.error(error);
-            setError('Erreur lors de l\'inscription avec GitHub.');
+            setError("Erreur lors de l'inscription avec GitHub.");
         }
     };
 
