@@ -1,0 +1,228 @@
+datasource db {
+    provider = 'postgresql'
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum AccountType {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model API_Key {
+  id         Int      @id() @default(autoincrement())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    Int
+  name       String
+  key        String   @unique()
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+}
+
+model User {
+  id                   Int           @id @default(autoincrement())
+  username             String        @unique
+  first_name                String?
+  last_name               String?
+  email                String        @unique
+  password             String
+  profilePicture       String?
+  bio                  String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  accountType          AccountType   @default(USER)
+  api_key                               API_Key[]
+  groups               Group[]
+  comments             Comment[]
+  ratings              Rating[]
+  rewards              Reward[]
+  statistics           Statistic[]
+  invitationsSent      Invitation[]  @relation("InvitationsSent")
+  invitationsReceived  Invitation[]  @relation("InvitationsReceived")
+  wishlists            Wishlist[]
+  userBadges           UserBadge[]
+  messagesSent         Message[]     @relation("MessagesSent")
+  messagesReceived     Message[]     @relation("MessagesReceived")
+  hostedSessions       Session[]     @relation("UserHostedSessions")
+  participations       Participation[]
+  characters           Character[]
+}
+
+model Group {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  members     User[]
+}
+
+model Game {
+  id          Int       @id @default(autoincrement())
+  name        String
+  type        String
+  description String
+  coverImage  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sessions    Session[]
+  ratings     Rating[]
+  wishlists   Wishlist[]
+}
+
+model Session {
+  id          Int       @id @default(autoincrement())
+  gameId      Int
+  hostId      Int
+  startTime   DateTime
+  endTime     DateTime
+  location    String
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  participations Participation[]
+  comments    Comment[]
+  characters  Character[]
+  statistics  Statistic[]
+  invitations Invitation[]
+  specialEvents SpecialEvent[]
+  game        Game      @relation(fields: [gameId], references: [id])
+  host        User      @relation("UserHostedSessions", fields: [hostId], references: [id])
+}
+
+model Participation {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  userId      Int
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Character {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  sessionId   Int
+  name        String
+  class       String
+  level       Int
+  stats       Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Comment {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  userId      Int
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Rating {
+  id          Int       @id @default(autoincrement())
+  gameId      Int
+  userId      Int
+  rating      Float
+  review      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  game        Game      @relation(fields: [gameId], references: [id])
+}
+
+model Reward {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  points      Int
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Statistic {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  sessionId   Int
+  data        Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Invitation {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  inviterId   Int
+  inviteeId   Int
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  inviter     User      @relation("InvitationsSent", fields: [inviterId], references: [id])
+  invitee     User      @relation("InvitationsReceived", fields: [inviteeId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id])
+}
+
+model Wishlist {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  gameId      Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  game        Game      @relation(fields: [gameId], references: [id])
+}
+
+model Badge {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  icon        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  badgeId     Int
+  achievedAt  DateTime
+  user        User      @relation(fields: [userId], references: [id])
+  badge       Badge     @relation(fields: [badgeId], references: [id])
+}
+
+model SpecialEvent {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sessions    Session[]
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  senderId    Int
+  receiverId  Int
+  content     String
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+  sender      User      @relation("MessagesSent", fields: [senderId], references: [id])
+  receiver    User      @relation("MessagesReceived", fields: [receiverId], references: [id])
+}
