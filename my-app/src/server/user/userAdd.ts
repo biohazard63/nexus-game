@@ -1,4 +1,5 @@
 'use server';
+// @ts-ignore
 import bcrypt from 'bcryptjs';
 import { prisma } from '../db/db';
 import { userWithRelations } from "@/type/userWithRelations";
