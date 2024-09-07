@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // Importation du hook useRouter
 import { signInWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,14 @@ export function LoginForm() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
+    const router = useRouter(); // Initialisation du hook useRouter
+
     const handleLogin = async () => {
         setError('');
         try {
             await signInWithEmailAndPassword(auth, email, password);
             alert('Connexion réussie!');
+            router.push('/account'); // Redirection vers la page Account après connexion
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion. Veuillez vérifier vos informations.');
@@ -30,6 +34,7 @@ export function LoginForm() {
         try {
             await signInWithPopup(auth, provider);
             alert('Connexion avec Google réussie!');
+            router.push('/account'); // Redirection après connexion avec Google
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion avec Google.');
@@ -41,6 +46,7 @@ export function LoginForm() {
         try {
             await signInWithPopup(auth, provider);
             alert('Connexion avec GitHub réussie!');
+            router.push('/account'); // Redirection après connexion avec GitHub
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion avec GitHub.');
