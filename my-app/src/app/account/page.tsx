@@ -59,59 +59,80 @@ export default function AccountPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
-                <h1 className="text-2xl font-bold mb-4">Mon Compte</h1>
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-purple-900">
+            <div
+                className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-3xl text-white border border-purple-500 hover:shadow-purple-700 transition-shadow">
+                <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">
+                    Mon Compte
+                </h1>
                 {userDetails && (
-                    <div className="space-y-6">
-                        <div>
-                            <h2 className="text-lg font-semibold">Informations du compte</h2>
-                            <p><strong>Email :</strong> {user.email}</p>
-                            <p><strong>Nom d'utilisateur :</strong> {userDetails.username}</p>
-                            <p><strong>Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
-                            <p><strong>Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
+                    <div className="space-y-8">
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Informations du
+                                compte</h2>
+                            <p><strong className="text-pink-400">Email :</strong> {user.email}</p>
+                            <p><strong className="text-pink-400">Nom d'utilisateur :</strong> {userDetails.username}</p>
+                            <p><strong className="text-pink-400">Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
+                            <p><strong className="text-pink-400">Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
+                            <p><strong className="text-pink-400">Rôle :</strong> {userDetails.role || 'Utilisateur'}</p> {/* Affichage du rôle */}
                             {userDetails.profilePicture && (
-                                <Image
-                                    src={userDetails.profilePicture}
-                                    alt="Photo de profil"
-                                    width={100}
-                                    height={100}
-                                    className="rounded-full"
-                                />
+                                <div className="mt-4 flex justify-center">
+                                    <Image
+                                        src={userDetails.profilePicture}
+                                        alt="Photo de profil"
+                                        width={120}
+                                        height={120}
+                                        className="rounded-full border-4 border-purple-500 shadow-md"
+                                    />
+                                </div>
                             )}
                         </div>
 
-                        {/* Groupes, Commentaires, Ratings, etc. */}
-                        <div>
-                            <h2 className="text-lg font-semibold">Relations</h2>
-                            <h3>Groupes :</h3>
-                            {userDetails.groups?.length > 0 ? (
-                                userDetails.groups.map((group: any) => <p key={group.id}>{group.name}</p>)
-                            ) : (
-                                <p>Aucun groupe</p>
-                            )}
+                        {/* Groupes, Commentaires, Ratings */}
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Relations</h2>
 
-                            <h3>Commentaires :</h3>
-                            {userDetails.comments?.length > 0 ? (
-                                userDetails.comments.map((comment: any) => <p key={comment.id}>{comment.content}</p>)
-                            ) : (
-                                <p>Aucun commentaire</p>
-                            )}
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-purple-400">Groupes :</h3>
+                                {userDetails.groups?.length > 0 ? (
+                                    userDetails.groups.map((group: any) => <p key={group.id}
+                                                                              className="pl-2 text-gray-300">{group.name}</p>)
+                                ) : (
+                                    <p className="text-gray-400">Aucun groupe</p>
+                                )}
+                            </div>
 
-                            <h3>Ratings :</h3>
-                            {userDetails.ratings?.length > 0 ? (
-                                userDetails.ratings.map((rating: any) => (
-                                    <p key={rating.id}>Note : {rating.rating}/5 - {rating.review}</p>
-                                ))
-                            ) : (
-                                <p>Aucun avis</p>
-                            )}
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-purple-400">Commentaires :</h3>
+                                {userDetails.comments?.length > 0 ? (
+                                    userDetails.comments.map((comment: any) => <p key={comment.id}
+                                                                                  className="pl-2 text-gray-300">{comment.content}</p>)
+                                ) : (
+                                    <p className="text-gray-400">Aucun commentaire</p>
+                                )}
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-purple-400">Ratings :</h3>
+                                {userDetails.ratings?.length > 0 ? (
+                                    userDetails.ratings.map((rating: any) => (
+                                        <p key={rating.id} className="pl-2 text-gray-300">
+                                            Note : <span className="text-yellow-400">{rating.rating}/5</span> - {rating.review}
+                                        </p>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-400">Aucun avis</p>
+                                )}
+                            </div>
                         </div>
 
                         {/* Formulaire de mise à jour du profil */}
-                        <UpdateProfileForm onProfileUpdate={refreshUserData} />
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <UpdateProfileForm onProfileUpdate={refreshUserData} />
+                        </div>
 
-                        <Button onClick={handleLogout} className="w-full bg-red-500 text-white">
+                        <Button onClick={handleLogout}
+                                className="w-full bg-red-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors">
                             Déconnexion
                         </Button>
                     </div>

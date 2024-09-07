@@ -127,7 +127,6 @@ export default function UpdateProfileModal({ onProfileUpdate }: { onProfileUpdat
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="w-full border border-gray-300 p-2 rounded"
-                            required
                         />
                     </div>
 

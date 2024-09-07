@@ -4,7 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth'; // Plus besoin de getAuth ici
-import { auth } from '@/lib/firebase'; // Utilisez l'instance auth exportée de firebase.ts
+import { auth, db } from '@/lib/firebase'; // Utilisez l'instance auth exportée de firebase.ts
+import { doc, getDoc } from 'firebase/firestore'; // Pour récupérer les données utilisateur depuis Firestore
 import { cn } from '@/lib/utils';
 import {
     NavigationMenu,
@@ -30,11 +31,34 @@ const navItems = [
 
 export function NavBar() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false); // Pour vérifier si l'utilisateur est admin ou superadmin
+
+    // Fonction pour récupérer le rôle de l'utilisateur connecté
+    const checkUserRole = async (userId: string) => {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', userId));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const role = userData.role;
+                if (role === 'admin' || role === 'superadmin') {
+                    setIsAdmin(true);
+                }
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération du rôle utilisateur : ', error);
+        }
+    };
 
     // Écoute de l'état d'authentification de l'utilisateur
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setIsLoggedIn(!!user); // Si l'utilisateur est connecté, définissez l'état sur "true"
+            if (user) {
+                setIsLoggedIn(true);
+                checkUserRole(user.uid); // Vérifier le rôle de l'utilisateur connecté
+            } else {
+                setIsLoggedIn(false);
+                setIsAdmin(false);
+            }
         });
 
         // Cleanup subscription on unmount
@@ -67,6 +91,13 @@ export function NavBar() {
                             <ListItem href="/account" title="Mon Compte">
                                 Accédez à votre compte.
                             </ListItem>
+
+                            {/* Lien vers le dashboard pour admin ou superadmin */}
+                            {isAdmin && (
+                                <ListItem href="/dashboard" title="Dashboard">
+                                    Accédez au tableau de bord administrateur.
+                                </ListItem>
+                            )}
 
                             {/* Dynamique : Afficher Connexion/Inscription ou Déconnexion */}
                             {!isLoggedIn ? (
