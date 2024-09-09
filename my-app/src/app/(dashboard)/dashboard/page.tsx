@@ -1,10 +1,9 @@
-// components/AdminDashboard.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth, db } from '@/lib/firebase';
-import { getDoc, doc, collection, getDocs } from 'firebase/firestore';
+import { auth } from '@/lib/firebase';
+import { getUsersFromPostgreSQL } from '@/lib/actions/userActions'; // Nouvelle fonction pour récupérer depuis PostgreSQL
 import Link from 'next/link';
 import {
     Avatar,
@@ -20,16 +19,7 @@ import {
     CardTitle,
     CardDescription,
 } from '@/components/ui/card';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+
 import {
     Table,
     TableBody,
@@ -38,35 +28,27 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Users, Search, Menu, ArrowUpRight } from 'lucide-react';
+import { Users, ArrowUpRight } from 'lucide-react';
 import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminDashboard() {
-    const [user, setUser] = useState<any>(null); // Utilisateur Firebase
-    const [userData, setUserData] = useState<any>(null); // Détails de l'utilisateur Firestore
-    const [users, setUsers] = useState<any[]>([]); // Liste des utilisateurs
+    const [userData, setUserData] = useState<any>(null); // Détails de l'utilisateur actuel
+    const [users, setUsers] = useState<any[]>([]); // Liste des utilisateurs depuis PostgreSQL
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
-                setUser(user);
+                setUsers(user);
                 try {
-                    // Récupérer les détails de l'utilisateur depuis Firestore
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) {
-                        setUserData(userDoc.data());
-                    }
-
-                    // Récupérer les utilisateurs depuis Firestore
-                    const usersCollection = collection(db, 'users');
-                    const usersSnapshot = await getDocs(usersCollection);
-                    const usersList = usersSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
+                    // Récupérer les utilisateurs depuis PostgreSQL
+                    const usersList = await getUsersFromPostgreSQL();
                     setUsers(usersList);
+
+                    // Si besoin, récupérer les détails de l'utilisateur connecté depuis PostgreSQL aussi
+                    const currentUser = usersList.find(u => u.email === user.email);
+                    setUserData(currentUser || {});
                 } catch (error) {
                     console.error('Erreur lors de la récupération des informations utilisateur :', error);
                 } finally {
@@ -84,6 +66,8 @@ export default function AdminDashboard() {
         return <p>Chargement...</p>;
     }
 
+    console.log('Users:', users);
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
             <AdminHeader />
@@ -97,9 +81,9 @@ export default function AdminDashboard() {
                         <Users className="h-6 w-6 text-blue-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-yellow-400">{userData?.username || user?.email}</div>
+                        <div className="text-2xl font-bold text-yellow-400">{userData?.username || userData?.email}</div>
                         <p className="text-sm text-gray-300">
-                            Rôle: <span className="font-semibold text-yellow-400">{userData?.role || 'Utilisateur'}</span>
+                            Rôle: <span className="font-semibold text-yellow-400">{userData.accountType }</span>
                         </p>
                     </CardContent>
                 </Card>
@@ -147,7 +131,7 @@ export default function AdminDashboard() {
                                             {new Date(user.createdAt).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Badge className="bg-yellow-500 text-black">{user.role || 'Utilisateur'}</Badge>
+                                            <Badge className="bg-yellow-500 text-black">{user.accountType }</Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}

@@ -2,6 +2,7 @@
 
 import { prisma } from '@/server/db/db';
 
+
 // Fonction pour récupérer tous les utilisateurs depuis PostgreSQL
 export async function getUsersFromPostgreSQL() {
     try {
@@ -15,6 +16,8 @@ export async function getUsersFromPostgreSQL() {
                 email: true,
                 createdAt: true,
                 accountType: true, // Inclure le rôle de l'utilisateur
+                firebase_id: true,
+                profilePicture: true,
             },
         });
         return users;
@@ -35,4 +38,20 @@ export async function getUserRole(uid: string): Promise<string> {
         return userData.role || 'user'; // Retourner le rôle ou 'user' par défaut
     }
     throw new Error('Utilisateur non trouvé');
+}
+
+
+// Récupérer un utilisateur spécifique par son ID
+export async function getUserById(userId: number) {
+    return prisma.user.findUnique({
+        where: {id: userId},
+    });
+}
+
+// Mettre à jour un utilisateur dans PostgreSQL
+export async function updateUser(userId: number, data: any) {
+    return prisma.user.update({
+        where: {id: userId},
+        data,
+    });
 }
