@@ -4,6 +4,7 @@ import { prisma } from '../db/db';
 import { redirect } from 'next/navigation';
 // @ts-ignore
 import bcrypt from 'bcryptjs';
+import { AccountType } from '@prisma/client';
 
 export async function createUserOnServer(data: {
     username: string;
@@ -11,7 +12,8 @@ export async function createUserOnServer(data: {
     password: string;
     firstName: string;
     lastName: string;
-    accountType: 'USER';
+    accountType: AccountType;
+    firebase_id: string; // Assurez-vous d'inclure firebase_id ici
 }) {
     try {
         const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -24,6 +26,7 @@ export async function createUserOnServer(data: {
                 first_name: data.firstName,
                 last_name: data.lastName,
                 accountType: data.accountType,
+                firebase_id: data.firebase_id, // Ajout du firebase_id dans la base de données
                 createdAt: new Date(),
             },
         });

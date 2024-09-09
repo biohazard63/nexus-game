@@ -1,9 +1,10 @@
+// components/UsersPage.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { getUsersFromPostgreSQL } from '@/lib/actions/userActions'; // Récupère uniquement depuis PostgreSQL
+import { getUsersFromPostgreSQL } from '@/lib/actions/userActions';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -31,24 +32,20 @@ export default function UsersPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Vérifier si l'utilisateur est connecté et récupérer ses informations
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('Utilisateur connecté : ', user);
                 setUser(user);
                 try {
-                    // Récupérer les utilisateurs depuis PostgreSQL avec Prisma
                     const usersList = await getUsersFromPostgreSQL();
                     console.log('Liste des utilisateurs récupérés depuis PostgreSQL :', usersList);
                     setUsers(usersList);
 
-                    // Vérifier le rôle de l'utilisateur actuel
                     const currentUser = usersList.find(u => u.email === user.email);
-                    const userRole = currentUser?.accountType?.toLowerCase(); // Normaliser le rôle en minuscules
+                    const userRole = currentUser?.accountType?.toLowerCase();
 
                     console.log('Rôle de l\'utilisateur connecté (normalisé) : ', userRole);
 
-                    // Si l'utilisateur n'est pas admin ou superadmin, le rediriger
                     if (userRole !== 'admin' && userRole !== 'superadmin') {
                         console.warn('Redirection, utilisateur sans autorisation');
                         router.push('/'); // Rediriger si non admin
@@ -61,7 +58,7 @@ export default function UsersPage() {
                 }
             } else {
                 console.log('Utilisateur non connecté, redirection vers /login');
-                router.push('/login'); // Rediriger si non connecté
+                router.push('/login');
             }
         });
 
@@ -77,37 +74,42 @@ export default function UsersPage() {
     }
 
     return (
-        <div className="flex min-h-screen w-full flex-col">
-            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-                <AdminHeader  />
-                <Card>
+        <div className="flex min-h-screen w-full flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white">
+            <AdminHeader />
+
+            <main className="flex flex-1 flex-col gap-8 p-6 md:p-12">
+                <Card className="bg-gray-800 shadow-lg shadow-purple-800/50">
                     <CardHeader>
-                        <CardTitle>Liste des utilisateurs</CardTitle>
-                        <CardDescription>Gestion des utilisateurs enregistrés dans la base de données.</CardDescription>
+                        <CardTitle className="text-yellow-400 text-2xl font-extrabold">Liste des utilisateurs</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Gestion des utilisateurs enregistrés dans la base de données.
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Table>
+                        <Table className="table-auto">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Nom d'utilisateur</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Date de création</TableHead>
-                                    <TableHead>Rôle</TableHead>
-                                    <TableHead>Actions</TableHead>
+                                    <TableHead className="text-yellow-400">Nom d'utilisateur</TableHead>
+                                    <TableHead className="text-yellow-400">Email</TableHead>
+                                    <TableHead className="text-yellow-400">Date de création</TableHead>
+                                    <TableHead className="text-yellow-400">Rôle</TableHead>
+                                    <TableHead className="text-yellow-400">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {users.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell>{user.username}</TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                                        <TableCell>
-                                            <Badge>{user.accountType}</Badge>
+                                    <TableRow key={user.id} className="hover:bg-purple-700/30">
+                                        <TableCell className="text-white">{user.username}</TableCell>
+                                        <TableCell className="text-gray-300">{user.email}</TableCell>
+                                        <TableCell className="text-gray-300">
+                                            {new Date(user.createdAt).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell>
-                                            <Button className='mr-4' variant="default">Modifier</Button>
-                                            <Button variant="destructive">Supprimer</Button>
+                                            <Badge className="bg-yellow-500 text-black">{user.accountType}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button className="mr-4 bg-blue-600 hover:bg-blue-500 text-white">Modifier</Button>
+                                            <Button variant="destructive" className="bg-red-600 hover:bg-red-500 text-white">Supprimer</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}

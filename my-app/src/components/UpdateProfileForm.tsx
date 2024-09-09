@@ -1,46 +1,43 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { auth, storage } from '@/lib/firebase'; // Importez Firebase Storage
+import { auth, storage } from '@/lib/firebase';
 import { updateProfile } from 'firebase/auth';
-import { updateDocument, getDocumentById } from '@/lib/firestore'; // Mises à jour dans Firestore
+import { updateDocument } from '@/lib/firestore';
+import { getUserByFirebaseId, updateUser } from '@/server/user/updateUserAction';
 import { Button } from '@/components/ui/button';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Pour gérer le téléchargement d'image
-import Image from 'next/image';
-import {
-    Dialog,
-    DialogTrigger,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogClose,
-} from '@/components/ui/dialog'; // Assurez-vous d'avoir ces composants pour gérer la modale
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
-export default function UpdateProfileModal({ onProfileUpdate }: { onProfileUpdate: () => void }) {
-    const [user, setUser] = useState<any>(null); // Utilisateur Firebase
-    const [username, setUsername] = useState(''); // Nom d'utilisateur
-    const [bio, setBio] = useState(''); // Bio
-    const [profilePicture, setProfilePicture] = useState<File | null>(null); // Fichier image pour la photo de profil
-    const [previewImage, setPreviewImage] = useState(''); // Prévisualisation de l'image
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState(''); // Message de confirmation ou d'erreur
+export default function UpdateProfileForm({ onProfileUpdate }: { onProfileUpdate: () => void }) {
+    const [user, setUser] = useState<any>(null);
+    const [username, setUsername] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [bio, setBio] = useState('');
+    const [profilePicture, setProfilePicture] = useState<File | null>(null);
+    const [previewImage, setPreviewImage] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [userId, setUserId] = useState<number | null>(null);
+    const [open, setOpen] = useState(false);  // Pour gérer l'état de la boîte de dialogue
 
-    // Récupération des informations de l'utilisateur connecté
     useEffect(() => {
         const fetchUserData = async () => {
             const currentUser = auth.currentUser;
             if (currentUser) {
                 setUser(currentUser);
-                try {
-                    // Récupérer les informations supplémentaires de Firestore
-                    const userDetails = await getDocumentById('users', currentUser.uid);
-                    setUsername(userDetails.username || '');
-                    setBio(userDetails.bio || '');
-                    setPreviewImage(userDetails.profilePicture || ''); // Charger l'image actuelle si elle existe
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des informations utilisateur :', error);
-                } finally {
-                    setLoading(false);
+                setEmail(currentUser.email || '');
+                setUsername(currentUser.displayName || '');
+
+                const postgresUser = await getUserByFirebaseId(currentUser.uid);
+                if (postgresUser) {
+                    setUserId(postgresUser.id);
+                    setFirstName(postgresUser.first_name || '');
+                    setLastName(postgresUser.last_name || '');
+                    setBio(postgresUser.bio || '');
+                    setPreviewImage(postgresUser.profilePicture || '');
                 }
             }
         };
@@ -48,132 +45,134 @@ export default function UpdateProfileModal({ onProfileUpdate }: { onProfileUpdat
         fetchUserData();
     }, []);
 
-    // Gérer la sélection d'image et la prévisualisation
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setProfilePicture(file); // Stocke le fichier image
-            setPreviewImage(URL.createObjectURL(file)); // Prévisualise l'image
+            setProfilePicture(file);
+            setPreviewImage(URL.createObjectURL(file));
         }
     };
 
-    // Gérer la mise à jour du profil utilisateur
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMessage('');
+        setLoading(true);
 
         try {
-            let profilePictureURL = previewImage; // Utilise l'image actuelle si elle n'a pas été changée
+            let profilePictureURL = previewImage;
 
-            // Si une nouvelle image est sélectionnée, téléchargez-la
             if (profilePicture) {
-                const storageRef = ref(storage, `profilePictures/${user.uid}`); // Créer une référence dans Firebase Storage
-                await uploadBytes(storageRef, profilePicture); // Télécharge l'image
-                profilePictureURL = await getDownloadURL(storageRef); // Récupère l'URL de l'image téléchargée
+                const storageRef = ref(storage, `profilePictures/${user.uid}`);
+                await uploadBytes(storageRef, profilePicture);
+                profilePictureURL = await getDownloadURL(storageRef);
             }
 
-            // Mise à jour dans Firebase Authentication (par exemple, si vous modifiez le displayName)
-            if (user) {
-                await updateProfile(user, {
-                    displayName: username,
-                    photoURL: profilePictureURL,
-                });
-            }
+            await updateProfile(user, {
+                displayName: username,
+                photoURL: profilePictureURL,
+            });
 
-            // Mise à jour dans Firestore
             await updateDocument('users', user.uid, {
                 username,
+                firstName,
+                lastName,
                 bio,
                 profilePicture: profilePictureURL,
                 updatedAt: new Date(),
             });
 
-            setMessage('Profil mis à jour avec succès !');
-            onProfileUpdate(); // Appeler la fonction de rappel pour rafraîchir les données
+            if (userId) {
+                await updateUser(userId, {
+                    firstName,
+                    lastName,
+                    email,
+                    username,
+                    bio,
+                    profilePicture: profilePictureURL,
+                });
+            }
+
+            setLoading(false);
+            onProfileUpdate();  // Mise à jour des données dans le composant parent
+            setOpen(false);     // Fermer la boîte de dialogue
         } catch (error) {
             console.error('Erreur lors de la mise à jour du profil :', error);
-            setMessage('Erreur lors de la mise à jour du profil. Veuillez réessayer.');
+            setLoading(false);
         }
     };
 
-    if (loading) {
-        return <p>Chargement des informations...</p>;
-    }
-
     return (
-        <Dialog>
-            {/* Bouton pour ouvrir la modale */}
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-500 text-white">Modifier le profil</Button>
+                <Button
+                    onClick={() => setOpen(true)}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition-all"
+                >
+                    Modifier le profil
+                </Button>
             </DialogTrigger>
-
-            {/* Contenu de la modale */}
-            <DialogContent className="max-w-md p-6">
+            <DialogContent className="bg-gray-800 text-white border border-gray-700 shadow-2xl rounded-lg p-6">
                 <DialogHeader>
-                    <DialogTitle>Mettre à jour mon profil</DialogTitle>
-                    <DialogClose />
+                    <DialogTitle className="text-2xl font-bold text-indigo-400">Mettre à jour votre profil</DialogTitle>
                 </DialogHeader>
-
-                {/* Formulaire de mise à jour du profil */}
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
-                    {/* Nom d'utilisateur */}
-                    <div>
-                        <label htmlFor="username" className="block text-sm font-medium">
-                            Nom d'utilisateur
-                        </label>
-                        <input
-                            id="username"
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full border border-gray-300 p-2 rounded"
-                        />
-                    </div>
+                    <Input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Nom d'utilisateur"
+                        className="bg-gray-700 border border-gray-600 text-white"
+                        required
+                    />
+                    <Input
+                        id="firstName"
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Prénom"
+                        className="bg-gray-700 border border-gray-600 text-white"
+                        required
+                    />
+                    <Input
+                        id="lastName"
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Nom"
+                        className="bg-gray-700 border border-gray-600 text-white"
+                        required
+                    />
+                    <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        className="bg-gray-700 border border-gray-600 text-white"
+                        required
+                    />
+                    <textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Bio"
+                        rows={3}
+                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2"
+                    />
+                    <Input
+                        id="profilePicture"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="text-white bg-gray-700 border border-gray-600"
+                    />
+                    {previewImage && <img src={previewImage} alt="Prévisualisation" className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500" />}
 
-                    {/* Bio */}
-                    <div>
-                        <label htmlFor="bio" className="block text-sm font-medium">
-                            Bio
-                        </label>
-                        <textarea
-                            id="bio"
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
-                            className="w-full border border-gray-300 p-2 rounded"
-                            rows={4}
-                        />
-                    </div>
-
-                    {/* Téléchargement de la photo de profil */}
-                    <div>
-                        <label htmlFor="profilePicture" className="block text-sm font-medium">
-                            Photo de profil
-                        </label>
-                        <input
-                            id="profilePicture"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="w-full border border-gray-300 p-2 rounded"
-                        />
-                        {previewImage && (
-                            <Image
-                                src={previewImage}
-                                alt="Prévisualisation de la photo de profil"
-                                width={100}
-                                height={100}
-                                className="rounded-full mt-2"
-                            />
-                        )}
-                    </div>
-
-                    {/* Message de confirmation */}
-                    {message && <p className="text-green-600">{message}</p>}
-
-                    {/* Bouton de soumission */}
-                    <Button type="submit" className="w-full bg-blue-500 text-white">
-                        Mettre à jour le profil
-                    </Button>
+                    <DialogFooter className="flex justify-end">
+                        <Button type="submit" disabled={loading} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all">
+                            {loading ? 'Mise à jour...' : 'Mettre à jour'}
+                        </Button>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>

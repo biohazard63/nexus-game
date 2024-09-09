@@ -40,6 +40,7 @@ model User {
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt()
   accountType         AccountType     @default(USER)
+  firebase_id         String?         @unique()
   api_key             API_Key[]
   groups              Group[]
   comments            Comment[]

@@ -3,37 +3,24 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { signOut, onAuthStateChanged } from 'firebase/auth'; // Plus besoin de getAuth ici
-import { auth, db } from '@/lib/firebase'; // Utilisez l'instance auth exportée de firebase.ts
-import { doc, getDoc } from 'firebase/firestore'; // Pour récupérer les données utilisateur depuis Firestore
-import { cn } from '@/lib/utils';
-import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Menu, User, LogOut, Sun, Moon } from 'lucide-react';
 
-const navItems = [
-    {
-        title: 'Accueil',
-        href: '/',
-        description: 'Revenez à la page d\'accueil.',
-    },
-    {
-        title: 'Contact',
-        href: '/contact',
-        description: 'Contactez-nous pour plus d\'informations.',
-    },
-];
-
-export function NavBar() {
+export function Header() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false); // Pour vérifier si l'utilisateur est admin ou superadmin
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-    // Fonction pour récupérer le rôle de l'utilisateur connecté
+    const toggleTheme = () => {
+        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    };
+
     const checkUserRole = async (userId: string) => {
         try {
             const userDoc = await getDoc(doc(db, 'users', userId));
@@ -43,29 +30,26 @@ export function NavBar() {
                 if (role === 'admin' || role === 'superadmin') {
                     setIsAdmin(true);
                 }
+                setUser(userData);
             }
         } catch (error) {
             console.error('Erreur lors de la récupération du rôle utilisateur : ', error);
         }
     };
 
-    // Écoute de l'état d'authentification de l'utilisateur
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIsLoggedIn(true);
-                checkUserRole(user.uid); // Vérifier le rôle de l'utilisateur connecté
+                checkUserRole(user.uid);
             } else {
                 setIsLoggedIn(false);
                 setIsAdmin(false);
             }
         });
-
-        // Cleanup subscription on unmount
         return () => unsubscribe();
     }, []);
 
-    // Fonction de déconnexion
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -76,79 +60,67 @@ export function NavBar() {
     };
 
     return (
-        <NavigationMenu>
-            <NavigationMenuList>
-                {/* Premier item - Sections principales */}
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-1">
-                            {navItems.map((item) => (
-                                <ListItem key={item.title} href={item.href} title={item.title}>
-                                    {item.description}
-                                </ListItem>
-                            ))}
-                            <ListItem href="/account" title="Mon Compte">
-                                Accédez à votre compte.
-                            </ListItem>
+        <header className="flex justify-between items-center p-6 bg-gray-800 shadow-lg border-b border-purple-500">
+            {/* Logo */}
+            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">
+                Nexus
+            </h1>
 
-                            {/* Lien vers le dashboard pour admin ou superadmin */}
-                            {isAdmin && (
-                                <ListItem href="/dashboard" title="Dashboard">
-                                    Accédez au tableau de bord administrateur.
-                                </ListItem>
-                            )}
+            {/* Navigation and User Info */}
+            <nav className="flex items-center gap-6">
+                <Link href="/" className="text-white hover:text-yellow-400 transition-colors">
+                    Accueil
+                </Link>
+                <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
+                    Contact
+                </Link>
+                {isAdmin && (
+                    <Link href="/dashboard" className="text-white hover:text-yellow-400 transition-colors">
+                        Admin Dashboard
+                    </Link>
+                )}
 
-                            {/* Dynamique : Afficher Connexion/Inscription ou Déconnexion */}
-                            {!isLoggedIn ? (
-                                <>
-                                    <ListItem href="/login" title="Connexion">
-                                        Connectez-vous à votre compte.
-                                    </ListItem>
-                                    <ListItem href="/signup" title="Inscription">
-                                        Créez un nouveau compte.
-                                    </ListItem>
-                                </>
-                            ) : (
-                                <li>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                    >
-                                        <div className="text-sm font-medium leading-none">Déconnexion</div>
-                                    </button>
-                                </li>
-                            )}
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
+                {/* User Profile & Dropdown Menu */}
+                {isLoggedIn ? (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={user?.profilePicture || ''} alt={user?.username || 'User Avatar'} />
+                                    <AvatarFallback>{user?.username?.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
+                            <DropdownMenuItem className="flex items-center gap-2">
+                                <User className="h-4 w-4" />
+                                <Link href="/account">Mon Compte</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                                <LogOut className="h-4 w-4" />
+                                Déconnexion
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <div className="flex space-x-4">
+                        <Link href="/login" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                            Connexion
+                        </Link>
+                        <Link href="/signup" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                            Inscription
+                        </Link>
+                    </div>
+                )}
+            </nav>
+
+            {/* Theme Toggle Button */}
+            <Button
+                onClick={toggleTheme}
+                className="p-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white rounded-lg font-bold transition-all"
+            >
+                {theme === 'light' ? <Sun /> : <Moon />}
+            </Button>
+        </header>
     );
 }
-
-const ListItem = React.forwardRef<
-    React.ElementRef<'a'>,
-    React.ComponentPropsWithoutRef<'a'>
->(({ className, title, children, ...props }, ref) => {
-    return (
-        <li>
-            <NavigationMenuLink asChild>
-                <a
-                    ref={ref}
-                    className={cn(
-                        'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-                        className
-                    )}
-                    {...props}
-                >
-                    <div className="text-sm font-medium leading-none">{title}</div>
-                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        {children}
-                    </p>
-                </a>
-            </NavigationMenuLink>
-        </li>
-    );
-});
-ListItem.displayName = 'ListItem';

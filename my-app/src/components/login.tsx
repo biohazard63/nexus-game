@@ -1,3 +1,4 @@
+// components/LoginForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -54,71 +55,71 @@ export function LoginForm() {
     };
 
     return (
-        <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
-            <div className="flex items-center justify-center py-12">
-                <div className="mx-auto grid w-[350px] gap-6">
-                    <div className="grid gap-2 text-center">
-                        <h1 className="text-3xl font-bold">Login</h1>
-                        <p className="text-muted-foreground">
-                            Enter your email below to login to your account
-                        </p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-black via-purple-900 to-black">
+            <div className="mx-auto grid gap-6 p-6 bg-gray-800 rounded-lg shadow-2xl border border-purple-600">
+                <div className="grid gap-2 text-center">
+                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                        Login
+                    </h1>
+                    <p className="text-gray-400">Entrez vos informations pour accéder à votre compte.</p>
+                </div>
+                <div className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="email" className="text-gray-300">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="bg-gray-900 text-white placeholder-gray-500"
+                        />
                     </div>
-                    <div className="grid gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="m@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
+                    <div className="grid gap-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="password" className="text-gray-300">Mot de passe</Label>
+                            <Link
+                                href="/forgot-password"
+                                className="text-sm text-indigo-400 hover:text-indigo-600 transition-colors"
+                            >
+                                Mot de passe oublié ?
+                            </Link>
                         </div>
-                        <div className="grid gap-2">
-                            <div className="flex items-center">
-                                <Label htmlFor="password">Password</Label>
-                                <Link
-                                    href="/forgot-password"
-                                    className="ml-auto inline-block text-sm underline"
-                                >
-                                    Forgot your password?
-                                </Link>
-                            </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        {error && <p className="text-red-500">{error}</p>}
-                        <Button onClick={handleLogin} className="w-full">
-                            Login
-                        </Button>
-                        <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-                            Login with Google
-                        </Button>
-                        <Button variant="outline" className="w-full" onClick={handleGithubLogin}>
-                            Login with GitHub
-                        </Button>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="bg-gray-900 text-white placeholder-gray-500"
+                        />
                     </div>
-                    <div className="mt-4 text-center text-sm">
-                        Don&apos;t have an account?{' '}
-                        <Link href="/signup" className="underline">
-                            Sign up
-                        </Link>
-                    </div>
+                    {error && <p className="text-red-500">{error}</p>}
+                    <Button onClick={handleLogin} className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition-all">
+                        Se connecter
+                    </Button>
+                    <Button variant="outline" className="w-full border border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white transition-colors" onClick={handleGoogleLogin}>
+                        Connexion avec Google
+                    </Button>
+                    <Button variant="outline" className="w-full border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors" onClick={handleGithubLogin}>
+                        Connexion avec GitHub
+                    </Button>
+                </div>
+                <div className="mt-4 text-center text-sm text-gray-400">
+                    Pas encore de compte ?{' '}
+                    <Link href="/signup" className="text-indigo-400 hover:text-indigo-600 transition-colors">
+                        Inscrivez-vous
+                    </Link>
                 </div>
             </div>
-            <div className="hidden bg-muted lg:block">
+            <div className="hidden lg:block lg:w-1/2 lg:h-screen">
                 <Image
-                    src="/placeholder.svg"
-                    alt="Image"
+                    src="/login.jpg"
+                    alt="Gaming Background"
                     width={1920}
                     height={1080}
-                    className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                    className="h-full w-full object-cover opacity-50"
                 />
             </div>
         </div>

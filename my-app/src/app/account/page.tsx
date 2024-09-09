@@ -1,3 +1,4 @@
+// components/AccountPage.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,13 +16,12 @@ export default function AccountPage() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-    // Vérification de l'état d'authentification
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 setUser(user);
                 try {
-                    const userData = await getUserData(user.uid); // Récupère les données utilisateur et ses relations
+                    const userData = await getUserData(user.uid);
                     setUserDetails(userData);
                 } catch (error) {
                     console.error('Erreur lors de la récupération des données utilisateur :', error);
@@ -29,14 +29,13 @@ export default function AccountPage() {
                     setLoading(false);
                 }
             } else {
-                router.push('/login'); // Redirection si non connecté
+                router.push('/login');
             }
         });
 
         return () => unsubscribe();
     }, [router]);
 
-    // Fonction de callback pour mettre à jour les informations après modification du profil
     const refreshUserData = async () => {
         if (user) {
             const updatedUserData = await getUserData(user.uid);
@@ -44,7 +43,6 @@ export default function AccountPage() {
         }
     };
 
-    // Déconnexion
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -59,10 +57,10 @@ export default function AccountPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-900 to-purple-900">
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-indigo-900 to-black text-white">
             <div
-                className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-3xl text-white border border-purple-500 hover:shadow-purple-700 transition-shadow">
-                <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">
+                className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-3xl text-white border border-indigo-600 hover:shadow-indigo-700 transition-shadow">
+                <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
                     Mon Compte
                 </h1>
                 {userDetails && (
@@ -70,11 +68,11 @@ export default function AccountPage() {
                         <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                             <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Informations du
                                 compte</h2>
-                            <p><strong className="text-pink-400">Email :</strong> {user.email}</p>
-                            <p><strong className="text-pink-400">Nom d'utilisateur :</strong> {userDetails.username}</p>
-                            <p><strong className="text-pink-400">Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
-                            <p><strong className="text-pink-400">Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
-                            <p><strong className="text-pink-400">Rôle :</strong> {userDetails.role || 'Utilisateur'}</p> {/* Affichage du rôle */}
+                            <p><strong className="text-green-400">Email :</strong> {user.email}</p>
+                            <p><strong className="text-green-400">Nom d'utilisateur :</strong> {userDetails.username}</p>
+                            <p><strong className="text-green-400">Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
+                            <p><strong className="text-green-400">Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
+                            <p><strong className="text-green-400">Rôle :</strong> {userDetails.role || 'Utilisateur'}</p> {/* Affichage du rôle */}
                             {userDetails.profilePicture && (
                                 <div className="mt-4 flex justify-center">
                                     <Image
@@ -82,18 +80,17 @@ export default function AccountPage() {
                                         alt="Photo de profil"
                                         width={120}
                                         height={120}
-                                        className="rounded-full border-4 border-purple-500 shadow-md"
+                                        className="rounded-full border-4 border-indigo-500 shadow-md"
                                     />
                                 </div>
                             )}
                         </div>
 
-                        {/* Groupes, Commentaires, Ratings */}
                         <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                             <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Relations</h2>
 
                             <div className="mb-4">
-                                <h3 className="text-md font-bold text-purple-400">Groupes :</h3>
+                                <h3 className="text-md font-bold text-indigo-400">Groupes :</h3>
                                 {userDetails.groups?.length > 0 ? (
                                     userDetails.groups.map((group: any) => <p key={group.id}
                                                                               className="pl-2 text-gray-300">{group.name}</p>)
@@ -103,7 +100,7 @@ export default function AccountPage() {
                             </div>
 
                             <div className="mb-4">
-                                <h3 className="text-md font-bold text-purple-400">Commentaires :</h3>
+                                <h3 className="text-md font-bold text-indigo-400">Commentaires :</h3>
                                 {userDetails.comments?.length > 0 ? (
                                     userDetails.comments.map((comment: any) => <p key={comment.id}
                                                                                   className="pl-2 text-gray-300">{comment.content}</p>)
@@ -113,7 +110,7 @@ export default function AccountPage() {
                             </div>
 
                             <div className="mb-4">
-                                <h3 className="text-md font-bold text-purple-400">Ratings :</h3>
+                                <h3 className="text-md font-bold text-indigo-400">Ratings :</h3>
                                 {userDetails.ratings?.length > 0 ? (
                                     userDetails.ratings.map((rating: any) => (
                                         <p key={rating.id} className="pl-2 text-gray-300">
@@ -126,7 +123,6 @@ export default function AccountPage() {
                             </div>
                         </div>
 
-                        {/* Formulaire de mise à jour du profil */}
                         <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
                             <UpdateProfileForm onProfileUpdate={refreshUserData} />
                         </div>

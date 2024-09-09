@@ -26,8 +26,8 @@ model API_Key {
 model User {
   id                   Int           @id @default(autoincrement())
   username             String        @unique
-  first_name                String?
-  last_name               String?
+  first_name           String?
+  last_name            String?
   email                String        @unique
   password             String
   profilePicture       String?
@@ -35,7 +35,8 @@ model User {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
   accountType          AccountType   @default(USER)
-  api_key                               API_Key[]
+  firebase_id          String?       @unique  // Ajout de la colonne firebase_id
+  api_key              API_Key[]
   groups               Group[]
   comments             Comment[]
   ratings              Rating[]

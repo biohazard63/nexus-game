@@ -1,14 +1,14 @@
+// src/components/SignUpForm.tsx
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { auth, db } from '@/lib/firebase';
-import { createUserOnServer } from '@/server/user/signupAction'; // Action de serveur pour l'inscription
+import { createUserOnServer } from '@/server/user/signupAction';
 import { AccountType } from '@prisma/client';
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
-    GithubAuthProvider,
     signInWithPopup,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -40,25 +40,16 @@ export function SignUpForm() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    function generateRandomPassword(length: number) {
-        const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+';
-        let password = '';
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            password += charset[randomIndex];
-        }
-        return password;
-    }
-
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
         try {
+            // Crée un utilisateur dans Firebase Authentication
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Enregistrement dans Firestore
+            // Ajout de l'utilisateur dans Firestore
             await addUserToFirestore(user.uid, {
                 firstName,
                 lastName,
@@ -67,7 +58,7 @@ export function SignUpForm() {
                 createdAt: new Date().toISOString(),
             });
 
-            // Enregistrement dans PostgreSQL
+            // Ajout de l'utilisateur dans PostgreSQL avec le uid de Firebase (firebase_id)
             await createUserOnServer({
                 username: email.split('@')[0],
                 email,
@@ -75,9 +66,9 @@ export function SignUpForm() {
                 firstName,
                 lastName,
                 accountType: AccountType.USER,
+                firebase_id: user.uid, // Transmettre le firebase_id ici
             });
 
-            // Après succès, redirigez automatiquement à l'aide d'une action du serveur.
         } catch (error) {
             console.error('Erreur lors de la création du compte:', error);
             setError('Erreur lors de la création du compte. Veuillez réessayer.');
@@ -92,6 +83,7 @@ export function SignUpForm() {
 
             const generatedPassword = generateRandomPassword(12);
 
+            // Ajout de l'utilisateur dans Firestore
             await addUserToFirestore(user.uid, {
                 firstName: user.displayName?.split(' ')[0] || '',
                 lastName: user.displayName?.split(' ')[1] || '',
@@ -100,6 +92,7 @@ export function SignUpForm() {
                 createdAt: new Date().toISOString(),
             });
 
+            // Ajout de l'utilisateur dans PostgreSQL avec le uid de Firebase
             await createUserOnServer({
                 username: user.email?.split('@')[0] || 'unknown',
                 email: user.email || '',
@@ -107,6 +100,7 @@ export function SignUpForm() {
                 firstName: user.displayName?.split(' ')[0] || '',
                 lastName: user.displayName?.split(' ')[1] || '',
                 accountType: AccountType.USER,
+                firebase_id: user.uid, // Transmettre le firebase_id ici
             });
 
         } catch (error) {
@@ -116,10 +110,10 @@ export function SignUpForm() {
     };
 
     return (
-        <Card className="mx-auto max-w-sm">
+        <Card className="mx-auto max-w-sm bg-gradient-to-r from-purple-900 to-black text-white shadow-2xl">
             <CardHeader>
-                <CardTitle className="text-xl">Inscription</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">Inscription</CardTitle>
+                <CardDescription className="text-center text-gray-400">
                     Entrez vos informations pour créer un compte.
                 </CardDescription>
             </CardHeader>
@@ -128,59 +122,63 @@ export function SignUpForm() {
                     <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="first-name">Prénom</Label>
+                                <Label htmlFor="first-name" className="text-gray-400">Prénom</Label>
                                 <Input
                                     id="first-name"
                                     placeholder="Max"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700"
                                     required
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="last-name">Nom</Label>
+                                <Label htmlFor="last-name" className="text-gray-400">Nom</Label>
                                 <Input
                                     id="last-name"
                                     placeholder="Robinson"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
+                                    className="bg-gray-800 border border-gray-700"
                                     required
                                 />
                             </div>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email" className="text-gray-400">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 placeholder="m@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                className="bg-gray-800 border border-gray-700"
                                 required
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="password">Mot de passe</Label>
+                            <Label htmlFor="password" className="text-gray-400">Mot de passe</Label>
                             <Input
                                 id="password"
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                className="bg-gray-800 border border-gray-700"
                                 required
                             />
                         </div>
                         {error && <p className="text-red-500">{error}</p>}
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full bg-gradient-to-r from-pink-600 to-purple-700 text-white font-bold hover:from-pink-700 hover:to-purple-800">
                             Créer un compte
                         </Button>
-                        <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
+                        <Button variant="outline" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" onClick={handleGoogleSignUp}>
                             Inscription avec Google
                         </Button>
                     </div>
                 </form>
                 <div className="mt-4 text-center text-sm">
                     Vous avez déjà un compte ?{' '}
-                    <Link href="/login" className="underline">
+                    <Link href="/login" className="underline text-purple-400 hover:text-purple-500">
                         Se connecter
                     </Link>
                 </div>

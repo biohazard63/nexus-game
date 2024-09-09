@@ -1,3 +1,4 @@
+// components/AdminDashboard.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -48,7 +49,6 @@ export default function AdminDashboard() {
     const router = useRouter();
 
     useEffect(() => {
-        // Vérifier si l'utilisateur est connecté et récupérer ses informations
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 setUser(user);
@@ -59,21 +59,20 @@ export default function AdminDashboard() {
                         setUserData(userDoc.data());
                     }
 
-                    // Récupérer les utilisateurs depuis Firestore (ou une autre base de données)
+                    // Récupérer les utilisateurs depuis Firestore
                     const usersCollection = collection(db, 'users');
                     const usersSnapshot = await getDocs(usersCollection);
                     const usersList = usersSnapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data(),
                     }));
-                    setUsers(usersList); // Mettre à jour l'état avec les utilisateurs récupérés
+                    setUsers(usersList);
                 } catch (error) {
                     console.error('Erreur lors de la récupération des informations utilisateur :', error);
                 } finally {
                     setLoading(false);
                 }
             } else {
-                // Rediriger vers la page de connexion si non authentifié
                 router.push('/login');
             }
         });
@@ -82,39 +81,41 @@ export default function AdminDashboard() {
     }, [router]);
 
     if (loading) {
-        return <p>Chargement...</p>; // Afficher un indicateur de chargement
+        return <p>Chargement...</p>;
     }
 
     return (
-        <div className="flex min-h-screen w-full flex-col">
-           <AdminHeader/>
+        <div className="flex min-h-screen w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
+            <AdminHeader />
 
             {/* Main Dashboard Content */}
-            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <main className="flex flex-1 flex-col gap-8 p-6 md:p-12">
                 {/* Carte affichant le nom et le rôle de l'utilisateur */}
-                <Card>
+                <Card className="bg-gray-800 shadow-lg shadow-blue-800/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Utilisateur connecté</CardTitle>
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-lg font-semibold text-blue-400">Utilisateur connecté</CardTitle>
+                        <Users className="h-6 w-6 text-blue-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{userData?.username || user?.email}</div>
-                        <p className="text-xs text-muted-foreground">
-                            Rôle: {userData?.role || 'Utilisateur'}
+                        <div className="text-2xl font-bold text-yellow-400">{userData?.username || user?.email}</div>
+                        <p className="text-sm text-gray-300">
+                            Rôle: <span className="font-semibold text-yellow-400">{userData?.role || 'Utilisateur'}</span>
                         </p>
                     </CardContent>
                 </Card>
 
                 {/* Transactions Table */}
-                <Card className="xl:col-span-2">
+                <Card className="bg-gray-800 shadow-lg shadow-purple-800/50 xl:col-span-2">
                     <CardHeader className="flex flex-row items-center">
                         <div className="grid gap-2">
-                            <CardTitle>Derniers utilisateurs</CardTitle>
-                            <CardDescription>Voici les 10 derniers utilisateurs créés sur la plateforme.</CardDescription>
+                            <CardTitle className="text-lg font-bold text-yellow-400">Derniers utilisateurs</CardTitle>
+                            <CardDescription className="text-sm text-gray-400">
+                                Voici les 10 derniers utilisateurs créés sur la plateforme.
+                            </CardDescription>
                         </div>
-                        <Button asChild size="sm" className="ml-auto gap-1">
+                        <Button asChild size="sm" className="ml-auto gap-1 bg-purple-700 text-white hover:bg-purple-600">
                             <a href="#">
-                                View All
+                                Voir tout
                                 <ArrowUpRight className="h-4 w-4" />
                             </a>
                         </Button>
@@ -123,30 +124,30 @@ export default function AdminDashboard() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Nom d'utilisateur</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead className="hidden xl:table-column">Date de création</TableHead>
-                                    <TableHead className="text-right">Rôle</TableHead>
+                                    <TableHead className="text-yellow-400">Nom d'utilisateur</TableHead>
+                                    <TableHead className="text-yellow-400">Email</TableHead>
+                                    <TableHead className="hidden xl:table-column text-yellow-400">Date de création</TableHead>
+                                    <TableHead className="text-right text-yellow-400">Rôle</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {users.map((user) => (
-                                    <TableRow key={user.id}>
+                                    <TableRow key={user.id} className="hover:bg-purple-700/30">
                                         <TableCell>
                                             <div className="flex items-center">
-                                                <Avatar className="mr-2 h-6 w-6">
+                                                <Avatar className="mr-2 h-8 w-8 border border-yellow-400">
                                                     <AvatarImage src={user.profilePicture || ''} alt={user.username || 'User Avatar'} />
                                                     <AvatarFallback>{user.username?.charAt(0) || 'U'}</AvatarFallback>
                                                 </Avatar>
-                                                <div className="font-medium">{user.username || 'Anonyme'}</div>
+                                                <div className="font-medium text-white">{user.username || 'Anonyme'}</div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell className="hidden xl:table-column">
+                                        <TableCell className="text-gray-300">{user.email}</TableCell>
+                                        <TableCell className="hidden xl:table-column text-gray-300">
                                             {new Date(user.createdAt).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Badge>{user.role || 'Utilisateur'}</Badge>
+                                            <Badge className="bg-yellow-500 text-black">{user.role || 'Utilisateur'}</Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}
