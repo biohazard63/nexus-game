@@ -6,21 +6,8 @@ import { auth } from '@/lib/firebase';
 import { getUsersFromPostgreSQL } from '@/lib/actions/userActions';
 import { deleteUser } from '@/server/user/deleteUserAction'; // Fonction de suppression
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import AdminHeader from "@/components/AdminHeader";
 import UserEditForm from "@/components/UserEditForm"; // Import du composant de modification d'utilisateur

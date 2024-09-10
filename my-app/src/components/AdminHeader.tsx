@@ -36,12 +36,18 @@ export default function AdminHeader() {
                     <Menu className="h-6 w-6 text-yellow-300" />
                     <span>GameMaster</span>
                 </Link>
-                <Link href="/dashboard" className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                <Link href={"/dashboard"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
                     Dashboard
                 </Link>
-                <Link href="/admin/users" className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                <Link href={"/admin/users"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
                     Utilisateurs
                 </Link> {/* Lien vers la page des utilisateurs */}
+                <Link href={"/admin/category"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                    categories
+                </Link> {/* Lien vers la page des categories */}
+                <Link href={"/admin/game"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                    jeux
+                </Link> {/* Lien vers la page des jeux */}
             </nav>
 
             {/* Hamburger Menu for Mobile */}
@@ -58,12 +64,21 @@ export default function AdminHeader() {
                             <Menu className="h-6 w-6" />
                             <span className="sr-only">GameMaster</span>
                         </Link>
-                        <Link href="/dashboard" className="hover:text-yellow-400">
+                        <Link href={"/dashboard"} className="hover:text-yellow-400">
                             Dashboard
                         </Link>
-                        <Link href="/admin/users" className="hover:text-yellow-400">
+                        <Link href={"/admin/users"} className="hover:text-yellow-400">
                             Utilisateurs
                         </Link> {/* Lien vers la page des utilisateurs */}
+                        <Link href={"/admin/category"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                            categories
+                        </Link> {/* Lien vers la page des categories */}
+                        <Link href={"/admin/game"}className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                            jeux
+                        </Link> {/* Lien vers la page des jeux */}
+                        <Link href="#" className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                            Sessions
+                        </Link> {/* Lien vers la page des groupes */}
                     </nav>
                 </SheetContent>
             </Sheet>

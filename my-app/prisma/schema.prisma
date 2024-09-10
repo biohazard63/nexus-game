@@ -18,6 +18,12 @@ enum AccountType {
   SUPER_ADMIN
 }
 
+enum GameType {
+  VIDEO_GAME
+  BOARD_GAME
+  ROLE_PLAYING
+}
+
 model API_Key {
   id         Int      @id() @default(autoincrement())
   user       User     @relation(fields: [user_id], references: [id])
@@ -78,6 +84,15 @@ model Game {
   sessions    Session[]
   ratings     Rating[]
   wishlists   Wishlist[]
+  categoryId  Int?
+  category    Category?  @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id    Int      @id() @default(autoincrement())
+  name  String   @unique()
+  type  GameType
+  games Game[]
 }
 
 model Session {

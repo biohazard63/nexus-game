@@ -13,6 +13,12 @@ enum AccountType {
   SUPER_ADMIN
 }
 
+enum GameType {
+  VIDEO_GAME
+  BOARD_GAME
+  ROLE_PLAYING
+}
+
 model API_Key {
   id         Int      @id() @default(autoincrement())
   user       User     @relation(fields: [user_id], references: [id])
@@ -63,18 +69,28 @@ model Group {
 }
 
 model Game {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
   type        String
   description String
   coverImage  String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   sessions    Session[]
   ratings     Rating[]
   wishlists   Wishlist[]
+
+  categoryId  Int?       // Clé étrangère pour la relation avec Category
+  category    Category?  @relation(fields: [categoryId], references: [id])
 }
 
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  type      GameType // Champ utilisant l'énumération pour spécifier le type de catégorie
+  games     Game[]   // Relation un-à-plusieurs avec le modèle Game
+}
 model Session {
   id          Int       @id @default(autoincrement())
   gameId      Int
