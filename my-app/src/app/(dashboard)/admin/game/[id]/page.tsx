@@ -11,12 +11,12 @@ export default function GameDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const { id } = useParams(); // Récupérer l'ID du jeu depuis l'URL
+    const { id } = useParams() as { id: string | string[] }; // Récupérer l'ID du jeu depuis l'URL
 
     useEffect(() => {
         const fetchGame = async () => {
             try {
-                const fetchedGame = await getGameById(parseInt(id, 10)); // Obtenir les détails du jeu
+                const fetchedGame = await getGameById(parseInt(Array.isArray(id) ? id[0] : id, 10)); // Obtenir les détails du jeu
                 setGame(fetchedGame);
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeu :', error);
@@ -46,20 +46,32 @@ export default function GameDetailsPage() {
             <main className="flex flex-1 flex-col gap-4 p-6 md:p-12">
                 <Card className="bg-gray-800 shadow-lg shadow-purple-800/50">
                     <CardHeader>
-                        <CardTitle className="text-yellow-400 text-3xl font-extrabold">{game.name}</CardTitle>
-                        <CardDescription className="text-gray-400">
-                            Catégorie : {game.category?.name || 'Aucune catégorie'}
+                        <CardTitle className="text-yellow-400 text-4xl font-extrabold">{game.name}</CardTitle>
+                        <CardDescription className="text-gray-400 mt-2">
+                            {/* Gestion des catégories multiples */}
+                            Catégories :{' '}
+                            {game.categories && game.categories.length > 0 ? (
+                                game.categories.map((category: any) => (
+                                    <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
+                                        {category.name}
+                                    </span>
+                                ))
+                            ) : (
+                                'Aucune catégorie'
+                            )}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <p className="text-lg text-white mb-4">{game.description}</p>
                         <p className="text-md text-gray-300 mb-2">Type : {game.type}</p>
+                        {game.player_max && (
+                            <p className="text-md text-gray-300 mb-4">Nombre de joueurs maximum : {game.player_max}</p>
+                        )}
                         {game.coverImage && (
-                            <div className="mb-4">
-                                <img src={game.coverImage} alt={game.name} className="w-full h-auto rounded-lg" />
+                            <div className="mb-6">
+                                <img src={game.coverImage} alt={game.name} className="w-full h-auto rounded-lg shadow-md" />
                             </div>
                         )}
-                        {/* Vous pouvez ajouter d'autres éléments liés au jeu ici */}
                     </CardContent>
                 </Card>
             </main>

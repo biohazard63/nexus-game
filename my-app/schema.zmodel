@@ -16,7 +16,7 @@ enum AccountType {
 enum GameType {
   VIDEO_GAME
   BOARD_GAME
-  ROLE_PLAYING
+  TABLETOP_RPG
 }
 
 model API_Key {
@@ -73,6 +73,7 @@ model Game {
   name        String
   type        String
   description String
+  player_max   Int?
   coverImage  String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -80,17 +81,17 @@ model Game {
   ratings     Rating[]
   wishlists   Wishlist[]
 
-  categoryId  Int?       // Clé étrangère pour la relation avec Category
-  category    Category?  @relation(fields: [categoryId], references: [id])
+  categories  Category[] @relation("categories") // Relation plusieurs-à-plusieurs avec Category
 }
-
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  type      GameType // Champ utilisant l'énumération pour spécifier le type de catégorie
-  games     Game[]   // Relation un-à-plusieurs avec le modèle Game
+  id    Int      @id @default(autoincrement())
+  name  String   @unique
+  type  GameType // Enum pour spécifier le type de jeu (VIDEO_GAME, BOARD_GAME, TABLETOP_RPG)
+  games Game[]   @relation("categories") // Relation plusieurs-à-plusieurs avec Game
 }
+
+
 model Session {
   id          Int       @id @default(autoincrement())
   gameId      Int

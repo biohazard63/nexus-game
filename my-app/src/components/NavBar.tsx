@@ -71,6 +71,9 @@ export function Header() {
                 <Link href="/" className="text-white hover:text-yellow-400 transition-colors">
                     Accueil
                 </Link>
+                <Link href="/games" className="text-white hover:text-yellow-400 transition-colors">
+                    Jeux
+                </Link>
                 <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
                     Contact
                 </Link>

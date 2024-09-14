@@ -21,7 +21,7 @@ enum AccountType {
 enum GameType {
   VIDEO_GAME
   BOARD_GAME
-  ROLE_PLAYING
+  TABLETOP_RPG
 }
 
 model API_Key {
@@ -78,21 +78,21 @@ model Game {
   name        String
   type        String
   description String
+  player_max  Int?
   coverImage  String?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt()
   sessions    Session[]
   ratings     Rating[]
   wishlists   Wishlist[]
-  categoryId  Int?
-  category    Category?  @relation(fields: [categoryId], references: [id])
+  categories  Category[] @relation("categories")
 }
 
 model Category {
   id    Int      @id() @default(autoincrement())
   name  String   @unique()
   type  GameType
-  games Game[]
+  games Game[]   @relation("categories")
 }
 
 model Session {

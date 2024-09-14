@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "AccountType" AS ENUM ('USER', 'ADMIN', 'SUPER_ADMIN');
 
+-- CreateEnum
+CREATE TYPE "GameType" AS ENUM ('VIDEO_GAME', 'BOARD_GAME', 'ROLE_PLAYING');
+
 -- CreateTable
 CREATE TABLE "API_Key" (
     "id" SERIAL NOT NULL,
@@ -17,7 +20,7 @@ CREATE TABLE "API_Key" (
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
-    "fist_name" TEXT,
+    "first_name" TEXT,
     "last_name" TEXT,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -26,6 +29,7 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "accountType" "AccountType" NOT NULL DEFAULT 'USER',
+    "firebase_id" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -47,11 +51,22 @@ CREATE TABLE "Game" (
     "name" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "maxPlayer" INTEGER,
     "coverImage" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "categoryId" INTEGER,
 
     CONSTRAINT "Game_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Category" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" "GameType" NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -238,6 +253,12 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_firebase_id_key" ON "User"("firebase_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_GroupToUser_AB_unique" ON "_GroupToUser"("A", "B");
 
 -- CreateIndex
@@ -251,6 +272,9 @@ CREATE INDEX "_SessionToSpecialEvent_B_index" ON "_SessionToSpecialEvent"("B");
 
 -- AddForeignKey
 ALTER TABLE "API_Key" ADD CONSTRAINT "API_Key_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Game" ADD CONSTRAINT "Game_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

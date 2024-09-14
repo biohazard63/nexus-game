@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "lib": ["esnext"],
+    "esModuleInterop": true
+  },
+  "include": ["./seed.ts"]
+}

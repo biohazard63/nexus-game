@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={`${inter.className} bg-gradient-to-r from-black via-gray-900 to-blue-900 text-white`}>
         {/* ClientLayout gérera toute la logique client */}
         <ClientLayout>
-            <main className="container mx-auto p-4 bg-gray-800 rounded-lg shadow-lg min-h-screen">
+            <main className=" mx-auto p-4 bg-gray-800 rounded-lg shadow-lg ">
                 {children}
             </main>
         </ClientLayout>
