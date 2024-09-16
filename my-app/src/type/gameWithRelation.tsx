@@ -10,9 +10,8 @@ export const gameWithRelations = Prisma.validator<Prisma.GameDefaultArgs>()({
         coverImage: true,
         createdAt: true,
         updatedAt: true,
-        categoryId: true,
-        // maxPlayer: true, // Ensure this field exists in the Prisma schema
-        category: {
+        player_max: true,
+        categories: {
             select: {
                 id: true,
                 name: true,

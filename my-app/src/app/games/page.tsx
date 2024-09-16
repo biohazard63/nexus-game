@@ -4,12 +4,16 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link'; // Importer Link pour la navigation
 import { getGames } from '@/lib/actions/gameActions'; // Action pour obtenir tous les jeux
 import { getCategories } from '@/lib/actions/categoryActions'; // Action pour obtenir les catégories
+import { addToWishlist, getWishlist } from '@/lib/actions/wishlistActions'; // Actions pour gérer la wishlist
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button'; // Importer le bouton de Shadcn/UI
+import { Heart, HeartFill } from 'lucide-react'; // Icône pour le bouton de wishlist
 
 export default function UserGamesPage() {
     const [games, setGames] = useState<any[]>([]);
     const [filteredGames, setFilteredGames] = useState<any[]>([]);
+    const [wishlist, setWishlist] = useState<number[]>([]); // Wishlist pour stocker les IDs des jeux ajoutés
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
@@ -21,10 +25,14 @@ export default function UserGamesPage() {
             try {
                 const fetchedGames = await getGames(); // Récupérer la liste des jeux
                 const fetchedCategories = await getCategories(); // Récupérer la liste des catégories
+                const userWishlist = await getWishlist(1); // Remplacer par l'ID utilisateur réel
+                const wishlistIds = userWishlist.map((item: any) => item.gameId);
+
                 // Trier les jeux par ordre alphabétique
                 const sortedGames = fetchedGames.sort((a, b) => a.name.localeCompare(b.name));
                 setGames(sortedGames);
                 setFilteredGames(sortedGames); // Par défaut, tous les jeux sont affichés
+                setWishlist(wishlistIds); // Stocker les jeux déjà dans la wishlist
                 setCategories(fetchedCategories);
             } catch (error) {
                 console.error('Erreur lors de la récupération des jeux et catégories :', error);
@@ -36,6 +44,16 @@ export default function UserGamesPage() {
 
         fetchGamesAndCategories();
     }, []);
+
+    // Ajouter un jeu à la wishlist
+    const handleAddToWishlist = async (gameId: number) => {
+        try {
+            await addToWishlist(1, gameId); // Utiliser l'ID utilisateur réel ici
+            setWishlist([...wishlist, gameId]); // Ajouter le jeu à l'état local
+        } catch (error) {
+            console.error('Erreur lors de l\'ajout à la wishlist :', error);
+        }
+    };
 
     // Gérer le filtrage des jeux en fonction des filtres sélectionnés
     const handleFilterChange = () => {
@@ -54,17 +72,6 @@ export default function UserGamesPage() {
         setFilteredGames(filtered);
     };
 
-    // Mettre à jour le filtre de type et réappliquer les filtres
-    const handleTypeChange = (value: string) => {
-        setSelectedType(value);
-    };
-
-    // Mettre à jour le filtre de catégorie et réappliquer les filtres
-    const handleCategoryChange = (value: string) => {
-        setSelectedCategory(value);
-    };
-
-    // Utiliser un effet pour re-filtrer les jeux chaque fois que les filtres changent
     useEffect(() => {
         handleFilterChange();
     }, [selectedType, selectedCategory]);
@@ -83,10 +90,9 @@ export default function UserGamesPage() {
 
             {/* Filtres pour les types et les catégories */}
             <div className="flex justify-center space-x-4 mb-8">
-                {/* Filtre par type */}
                 <div>
                     <label className="block text-yellow-400 mb-2">Filtrer par type</label>
-                    <Select onValueChange={handleTypeChange} value={selectedType}>
+                    <Select onValueChange={setSelectedType} value={selectedType}>
                         <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-48">
                             <SelectValue placeholder="Sélectionnez un type" />
                         </SelectTrigger>
@@ -101,10 +107,9 @@ export default function UserGamesPage() {
                     </Select>
                 </div>
 
-                {/* Filtre par catégorie */}
                 <div>
                     <label className="block text-yellow-400 mb-2">Filtrer par genre</label>
-                    <Select onValueChange={handleCategoryChange} value={selectedCategory}>
+                    <Select onValueChange={setSelectedCategory} value={selectedCategory}>
                         <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-48">
                             <SelectValue placeholder="Sélectionnez un genre" />
                         </SelectTrigger>
@@ -123,38 +128,51 @@ export default function UserGamesPage() {
             </div>
 
             {/* Liste des jeux */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols- gap-6">
                 {filteredGames.map((game) => (
-                    <Link href={`/games/${game.id}`} key={game.id}>
-                        <Card className="cursor-pointer bg-gray-800 shadow-lg shadow-purple-800/50 hover:scale-105 transition-transform">
-                            <CardHeader>
-                                <CardTitle className="text-yellow-400 text-2xl font-bold">{game.name}</CardTitle>
-                                <CardDescription className="text-gray-400 mt-2">
-                                    {/* Affichage des catégories multiples */}
-                                    Catégories :{' '}
-                                    {game.categories && game.categories.length > 0 ? (
-                                        game.categories.map((category: any) => (
-                                            <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
-                                                {category.name}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        'Aucune catégorie'
-                                    )}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {game.coverImage && (
-                                    <img src={game.coverImage} alt={game.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+                    <Card key={game.id} className="bg-gray-800 shadow-lg rounded-lg transition-transform hover:scale-105">
+                        <CardHeader>
+                            <CardTitle className="text-yellow-400 text-2xl font-bold">{game.name}</CardTitle>
+                            <CardDescription className="text-gray-400 mt-2">
+                                Catégories :{' '}
+                                {game.categories && game.categories.length > 0 ? (
+                                    game.categories.map((category: any) => (
+                                        <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
+                                            {category.name}
+                                        </span>
+                                    ))
+                                ) : (
+                                    'Aucune catégorie'
                                 )}
-                                <p className="text-white mb-2">{game.description}</p>
-                                <p className="text-gray-300 mb-2">Type : {game.type}</p>
-                                {game.player_max && (
-                                    <p className="text-gray-300">Nombre de joueurs maximum : {game.player_max}</p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </Link>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {game.coverImage && (
+                                <img src={game.coverImage} alt={game.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+                            )}
+                            <p className="text-white mb-2">{game.description}</p>
+                            <p className="text-gray-300 mb-2">Type : {game.type}</p>
+                            {game.player_max && (
+                                <p className="text-gray-300">Nombre de joueurs maximum : {game.player_max}</p>
+                            )}
+
+                            {/* Boutons d'actions */}
+                            <div className="flex justify-between mt-4">
+                                <Link href={`/games/${game.id}`}>
+                                    <Button className="bg-yellow-400 text-black hover:bg-yellow-500">Voir plus</Button>
+                                </Link>
+                                <Button
+                                    className={`flex items-center ${
+                                        wishlist.includes(game.id) ? 'bg-white text-purple-600' : 'bg-purple-600 text-white'
+                                    } hover:bg-purple-700`}
+                                    onClick={() => handleAddToWishlist(game.id)}
+                                >
+                                    <Heart className="mr-2" />
+                                    {wishlist.includes(game.id) ? 'Ajouté' : 'Ajouter à la wishlist'}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
         </div>

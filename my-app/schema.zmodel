@@ -19,6 +19,11 @@ enum GameType {
   TABLETOP_RPG
 }
 
+enum SessionType {
+  PUBLIC
+  PRIVATE
+}
+
 model API_Key {
   id         Int      @id() @default(autoincrement())
   user       User     @relation(fields: [user_id], references: [id])
@@ -96,6 +101,7 @@ model Session {
   id          Int       @id @default(autoincrement())
   gameId      Int
   hostId      Int
+  type_session SessionType @default(PUBLIC)
   startTime   DateTime
   endTime     DateTime
   location    String
@@ -195,13 +201,18 @@ model Invitation {
 }
 
 model Wishlist {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  gameId      Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
-  game        Game      @relation(fields: [gameId], references: [id])
+  id        Int      @id() @default(autoincrement())
+  userId    Int
+  gameId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id])
+  game      Game     @relation(fields: [gameId], references: [id])
+
+  // Clé composite pour garantir l'unicité de l'association userId et gameId
+  @@unique([userId, gameId])
 }
 
 model Badge {

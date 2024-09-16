@@ -1,4 +1,5 @@
 'use server';
+import { auth } from '@/lib/firebase'; // Firebase Auth
 
 import { prisma } from '@/server/db/db';
 
@@ -54,4 +55,64 @@ export async function updateUser(userId: number, data: any) {
         where: {id: userId},
         data,
     });
+}
+
+export async function getCurrentUser() {
+    // Récupérer l'utilisateur actuellement connecté à Firebase
+    const user = auth.currentUser;
+
+    if (!user) {
+        throw new Error('Aucun utilisateur connecté.');
+    }
+
+    try {
+        // Rechercher l'utilisateur dans PostgreSQL par son firebase_id
+        const userInDB = await prisma.user.findUnique({
+            where: {
+                firebase_id: user.uid,
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                accountType: true,
+                profilePicture: true,
+            },
+        });
+
+        if (!userInDB) {
+            throw new Error('Utilisateur non trouvé dans la base de données.');
+        }
+
+
+        return userInDB;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'utilisateur connecté :', error);
+        throw new Error('Impossible de récupérer l\'utilisateur connecté.');
+    }
+}
+
+export async function getUserByFirebaseId(firebaseId: string) {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                firebase_id: firebaseId,
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                firebase_id: true,
+            },
+        });
+
+        if (!user) {
+            throw new Error('Utilisateur introuvable');
+        }
+
+        return user;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        throw new Error('Impossible de récupérer l\'utilisateur.');
+    }
 }

@@ -10,12 +10,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Menu, User, LogOut, Sun, Moon } from 'lucide-react';
+import { useRouter } from 'next/navigation'; // Importer useRouter
+
 
 export function Header() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const router = useRouter(); // Initialiser useRouter
+
 
     const toggleTheme = () => {
         setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
@@ -52,8 +56,18 @@ export function Header() {
 
     const handleLogout = async () => {
         try {
+            // Déconnexion de Firebase
             await signOut(auth);
-            alert('Déconnexion réussie !');
+
+            // Nettoyer le sessionStorage
+            sessionStorage.removeItem('userId');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('accountType');
+            sessionStorage.removeItem('firebase_id');
+
+
+            // Rediriger vers la page d'accueil
+            router.push('/');
         } catch (error) {
             console.error('Erreur lors de la déconnexion : ', error);
         }
@@ -73,6 +87,9 @@ export function Header() {
                 </Link>
                 <Link href="/games" className="text-white hover:text-yellow-400 transition-colors">
                     Jeux
+                </Link>
+                <Link href="/wishlist" className="text-white hover:text-yellow-400 transition-colors">
+                    Wishlist
                 </Link>
                 <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
                     Contact

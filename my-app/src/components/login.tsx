@@ -1,10 +1,9 @@
-// components/LoginForm.tsx
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // Importation du hook useRouter
+import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
@@ -15,15 +14,30 @@ export function LoginForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const router = useRouter();
 
-    const router = useRouter(); // Initialisation du hook useRouter
+    // Fonction pour stocker les informations de l'utilisateur dans sessionStorage
+    const storeUserInSession = (user: any) => {
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('userId', user.uid);
+            sessionStorage.setItem('email', user.email);
+            sessionStorage.setItem('displayName', user.displayName || '');
+            sessionStorage.setItem('photoURL', user.photoURL || '');
+        }
+    };
 
     const handleLogin = async () => {
         setError('');
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            alert('Connexion réussie!');
-            router.push('/account'); // Redirection vers la page Account après connexion
+            // Connexion avec email et mot de passe via Firebase
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const firebaseUser = userCredential.user;
+
+            // Stocker les informations de l'utilisateur dans sessionStorage
+            storeUserInSession(firebaseUser);
+
+            // Redirection vers la page de compte
+            router.push('/account');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion. Veuillez vérifier vos informations.');
@@ -33,9 +47,14 @@ export function LoginForm() {
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
-            alert('Connexion avec Google réussie!');
-            router.push('/account'); // Redirection après connexion avec Google
+            const userCredential = await signInWithPopup(auth, provider);
+            const firebaseUser = userCredential.user;
+
+            // Stocker les informations de l'utilisateur dans sessionStorage
+            storeUserInSession(firebaseUser);
+
+            // Redirection après connexion avec Google
+            router.push('/account');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion avec Google.');
@@ -45,9 +64,14 @@ export function LoginForm() {
     const handleGithubLogin = async () => {
         const provider = new GithubAuthProvider();
         try {
-            await signInWithPopup(auth, provider);
-            alert('Connexion avec GitHub réussie!');
-            router.push('/account'); // Redirection après connexion avec GitHub
+            const userCredential = await signInWithPopup(auth, provider);
+            const firebaseUser = userCredential.user;
+
+            // Stocker les informations de l'utilisateur dans sessionStorage
+            storeUserInSession(firebaseUser);
+
+            // Redirection après connexion avec GitHub
+            router.push('/account');
         } catch (error) {
             console.error(error);
             setError('Erreur lors de la connexion avec GitHub.');
