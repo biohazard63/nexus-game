@@ -116,3 +116,20 @@ export async function getUserByFirebaseId(firebaseId: string) {
         throw new Error('Impossible de récupérer l\'utilisateur.');
     }
 }
+
+
+
+// Fonction pour récupérer l'ID utilisateur à partir du firebase_id
+export async function getUserIdByFirebaseId(firebaseId: string): Promise<number | null> {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { firebase_id: firebaseId },
+            select: { id: true },
+        });
+
+        return user?.id ?? null;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'ID utilisateur:', error);
+        return null;
+    }
+}

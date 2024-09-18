@@ -104,6 +104,7 @@ model Session {
   id             Int             @id() @default(autoincrement())
   gameId         Int
   hostId         Int
+  title          String
   type_session   SessionType     @default(PUBLIC)
   startTime      DateTime
   endTime        DateTime

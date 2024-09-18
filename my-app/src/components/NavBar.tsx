@@ -76,71 +76,99 @@ export function Header() {
     return (
         <header className="flex justify-between items-center p-6 bg-gray-800 shadow-lg border-b border-purple-500">
             {/* Logo */}
+            <Link href={'/'}>
             <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">
                 Nexus
             </h1>
+            </Link>
+
+            {/* Theme Toggle */}
 
             {/* Navigation and User Info */}
-            <nav className="flex items-center gap-6">
-                <Link href="/" className="text-white hover:text-yellow-400 transition-colors">
-                    Accueil
-                </Link>
-                <Link href="/games" className="text-white hover:text-yellow-400 transition-colors">
-                    Jeux
-                </Link>
-                <Link href="/wishlist" className="text-white hover:text-yellow-400 transition-colors">
-                    Wishlist
-                </Link>
-                <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
-                    Contact
-                </Link>
-                {isAdmin && (
-                    <Link href="/dashboard" className="text-white hover:text-yellow-400 transition-colors">
-                        Admin Dashboard
+           <nav className="flex items-center gap-6">
+    {/* User Profile & Dropdown Menu */}
+    {isLoggedIn ? (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">
+                    <Avatar className="h-14 w-14">
+                        <AvatarImage src={user?.profilePicture || ''} alt={user?.username || 'User Avatar'} />
+                        <AvatarFallback>{user?.username?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <Link href="/account">Mon Compte</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/" className="text-white hover:text-yellow-400 transition-colors">
+                        Accueil
                     </Link>
-                )}
-
-                {/* User Profile & Dropdown Menu */}
-                {isLoggedIn ? (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user?.profilePicture || ''} alt={user?.username || 'User Avatar'} />
-                                    <AvatarFallback>{user?.username?.charAt(0) || 'U'}</AvatarFallback>
-                                </Avatar>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
-                            <DropdownMenuItem className="flex items-center gap-2">
-                                <User className="h-4 w-4" />
-                                <Link href="/account">Mon Compte</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
-                                <LogOut className="h-4 w-4" />
-                                Déconnexion
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                ) : (
-                    <div className="flex space-x-4">
-                        <Link href="/login" className="text-yellow-300 hover:text-yellow-400 transition-colors">
-                            Connexion
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/games" className="text-white hover:text-yellow-400 transition-colors">
+                        Jeux
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/session" className="text-white hover:text-yellow-400 transition-colors">
+                        Sessions
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/wishlist" className="text-white hover:text-yellow-400 transition-colors">
+                        Wishlist
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
+                        Contact
+                    </Link>
+                </DropdownMenuItem>
+                {isAdmin && (
+                    <DropdownMenuItem className="flex items-center gap-2">
+                        <Link href="/dashboard" className="text-white hover:text-yellow-400 transition-colors">
+                            Admin Dashboard
                         </Link>
-                        <Link href="/signup" className="text-yellow-300 hover:text-yellow-400 transition-colors">
-                            Inscription
-                        </Link>
-                    </div>
+                    </DropdownMenuItem>
                 )}
-            </nav>
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Déconnexion
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    ) : (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">
+                    <Menu className="h-8 w-8" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                        Accueil
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/login" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                        Connexion
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <Link href="/signup" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                        Inscription
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )}
+</nav>
 
-            {/* Theme Toggle Button */}
-            <Button
-                onClick={toggleTheme}
-                className="p-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white rounded-lg font-bold transition-all"
-            >
-                {theme === 'light' ? <Sun /> : <Moon />}
-            </Button>
+
         </header>
     );
 }
