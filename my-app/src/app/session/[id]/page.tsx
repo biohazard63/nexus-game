@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';  // Importer Link de Next.js
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getSessionById } from '@/lib/actions/sessionActions';
-import { updateParticipantStatus } from '@/lib/actions/participationActions';
+import { removeParticipant, updateParticipantStatus } from '@/lib/actions/participationActions';
 import { getUserIdByFirebaseId } from '@/lib/actions/userActions';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
@@ -22,8 +23,6 @@ export default function SessionPage({ params }: { params: { id: string } }) {
     const [isParticipant, setIsParticipant] = useState(false);
     const router = useRouter();
 
-    console.log(session);
-    console.log('user connected', currentUserId);
 
     useEffect(() => {
         const loadSession = async () => {
@@ -32,26 +31,26 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 if (firebaseId) {
                     const userId = await getUserIdByFirebaseId(firebaseId);
                     setCurrentUserId(userId);
+
+                    const sessionData = await getSessionById(parseInt(params.id));
+                    setSession(sessionData);
+
+                    if (sessionData.hostId === userId) {
+                        setIsHost(true);
+                    }
+
+                    const participant = sessionData.participations.some((p: any) => p.userId === userId);
+                    setIsParticipant(participant);
+
+                    setLoading(false);
                 }
-
-                const sessionData = await getSessionById(parseInt(params.id));
-                setSession(sessionData);
-
-                if (sessionData.hostId === currentUserId) {
-                    setIsHost(true);
-                }
-
-                const participant = sessionData.participations.some((p: any) => p.userId === currentUserId);
-                setIsParticipant(participant);
-
-                setLoading(false);
             } catch (error) {
                 console.error('Erreur lors du chargement de la session:', error);
             }
         };
 
         loadSession();
-    }, [params.id, currentUserId]);
+    }, [params.id]);
 
     const handleStatusChange = async (participationId: number, newStatus: string) => {
         setLoadingStatus(true);
@@ -66,6 +65,24 @@ export default function SessionPage({ params }: { params: { id: string } }) {
         } catch (error) {
             console.error('Erreur lors de la mise à jour du statut:', error);
         }
+        setLoadingStatus(false);
+    };
+
+    const handleRemoveParticipant = async (participationId: number) => {
+        if (!isHost) return;
+        setLoadingStatus(true);
+
+        try {
+            await removeParticipant(participationId);
+
+            setSession((prevSession: any) => ({
+                ...prevSession,
+                participations: prevSession.participations.filter((p: any) => p.id !== participationId),
+            }));
+        } catch (error) {
+            console.error('Erreur lors de la suppression du participant :', error);
+        }
+
         setLoadingStatus(false);
     };
 
@@ -93,32 +110,28 @@ export default function SessionPage({ params }: { params: { id: string } }) {
     return (
         <div className="min-h-screen w-full flex flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white p-6 md:p-12">
             <h1 className="text-4xl font-bold text-yellow-400 mb-6">Session Name</h1>
-            {/* Actions basées sur le rôle de l'utilisateur */}
             <div className="mb-2">
                 {isHost ? (
                     <div>
-                        <Button onClick={() => console.log('Démarrer le jeux')} className="bg-green-500 text-black">
+                        <Button onClick={() => console.log('Démarrer la session')} className="bg-green-500 text-black">
                             Démarrer la session
                         </Button>
                         <Button onClick={() => console.log('Inviter des amis')} className="bg-blue-500 text-black ml-4">
                             Inviter des amis
                         </Button>
-                        <Button onClick={() => router.push(`/session/edit/${session.id}`)}
-                                className="bg-yellow-500 text-black ml-4">
+                        <Button onClick={() => router.push(`/session/edit/${session.id}`)} className="bg-yellow-500 text-black ml-4">
                             Modifier la session
                         </Button>
-                        <Button onClick={() => console.log('Supprimer la session')}
-                                className="bg-red-600 text-white ml-4">
+                        <Button onClick={() => console.log('Supprimer la session')} className="bg-red-600 text-white ml-4">
                             Supprimer la session
                         </Button>
                     </div>
                 ) : isParticipant ? (
                     <div>
-                        <Button onClick={() => console.log('Rejoindre le salon ')}
-                                className="bg-green-500 text-black">
+                        <Button onClick={() => console.log('Rejoindre le salon')} className="bg-green-500 text-black">
                             Rejoindre le salon
                         </Button>
-                        <Button onClick={() => console.log('Quitter la session')} className="bg-red-600 text-white">
+                        <Button onClick={() => console.log('Quitter la session')} className="bg-red-600 text-white ml-4">
                             Quitter la session
                         </Button>
                     </div>
@@ -131,7 +144,6 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 )}
             </div>
 
-            {/* Section du jeu et informations principales */}
             <Card className="bg-gray-900">
                 <CardHeader>
                     <CardTitle className="text-5xl text-center font-extrabold text-yellow-400 mb-4">
@@ -158,15 +170,13 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                             )}
                             <p className="text-gray-400">Lieu : <span className="text-yellow-400">{session.location}</span></p>
                             <p className="text-gray-400">
-                                Date : <span className="text-yellow-400">{new Date(session.startTime).toLocaleDateString()} </span>
-                                de <span className="text-yellow-400">{new Date(session.startTime).toLocaleTimeString()} </span>
-                                à <span className="text-yellow-400">{new Date(session.endTime).toLocaleTimeString()} </span>
+                                Date : <span className="text-yellow-400">{new Date(session.startTime).toLocaleDateString()}</span> de <span className="text-yellow-400">{new Date(session.startTime).toLocaleTimeString()}</span> à <span className="text-yellow-400">{new Date(session.endTime).toLocaleTimeString()}</span>
                             </p>
-                            <p className="text-gray-400 mt-4">Type de session : <span className="text-yellow-400"> {session.type_session === 'PUBLIC' ? 'Public' : 'Privée'}</span></p>
+                            <p className="text-gray-400 mt-4">Type de session : <span className="text-yellow-400">{session.type_session === 'PUBLIC' ? 'Public' : 'Privée'}</span></p>
                         </div>
                         {session.game.coverImage && (
                             <div className="md:w-1/2 md:pl-12 flex flex-col justify-center">
-                                <Image src={session.game.coverImage} alt={session.game.name} width={300} height={300} className="rounded-lg shadow-lg "/>
+                                <Image src={session.game.coverImage} alt={session.game.name} width={300} height={300} className="rounded-lg shadow-lg" />
                                 <Button className="bg-yellow-500 text-black mt-4 w-fit">Règles du jeu</Button>
                             </div>
                         )}
@@ -174,38 +184,62 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 </CardContent>
             </Card>
 
-            {/* Section des participants */}
             <div className="mt-12">
                 <h2 className="text-3xl font-bold text-yellow-400 mb-4">Participants</h2>
                 {session.participations?.length > 0 ? (
                     <div className="flex flex-wrap gap-6">
                         {session.participations.map((participation: any) => (
-                            <Card key={participation.id} className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center space-x-4 w-full max-w-xs">
+                            <Card key={participation.id}
+                                  className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center space-x-4 w-full max-w-xs">
                                 <Avatar className="flex-shrink-0">
                                     {participation.user.profilePicture ? (
-                                        <AvatarImage src={participation.user.profilePicture} alt={participation.user.username} />
+                                        <AvatarImage src={participation.user.profilePicture}
+                                                     alt={participation.user.username}/>
                                     ) : (
-                                        <AvatarFallback>N/A</AvatarFallback>
+                                        <AvatarFallback>{participation.user.username.charAt(0)}</AvatarFallback>
                                     )}
                                 </Avatar>
                                 <div className="flex-grow">
-                                    <p className="text-xl text-yellow-400">{participation.user.username}</p>
+                                    {/* Lien vers le profil de l'utilisateur */}
+                                    <Link href={`/account/${participation.userId}`}>
+                                        <p className="text-xl text-yellow-400 cursor-pointer hover:underline">
+                                            {participation.user.username}
+                                        </p>
+                                    </Link>
                                     <Badge className={getStatusBadgeColor(participation.status)}>
                                         {participation.status}
                                     </Badge>
+
                                     {participation.userId === currentUserId && (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" size="sm" className="ml-2 text-yellow-400" disabled={loadingStatus}>
-                                                    Changer
+                                                <Button variant="outline" size="sm" className="mt-2 ml-4"
+                                                        disabled={loadingStatus}>
+                                                    Changer le statut
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(participation.id, 'Présent')}>Présent</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(participation.id, 'Absent')}>Absent</DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusChange(participation.id, 'En attente')}>En attente</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => handleStatusChange(participation.id, 'Présent')}>Présent</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => handleStatusChange(participation.id, 'Absent')}>Absent</DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => handleStatusChange(participation.id, 'En attente')}>En
+                                                    attente</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
+                                    )}
+
+                                    {isHost && (
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            className="mt-2"
+                                            onClick={() => handleRemoveParticipant(participation.id)}
+                                            disabled={loadingStatus}
+                                        >
+                                            Supprimer
+                                        </Button>
                                     )}
                                 </div>
                             </Card>
@@ -216,7 +250,6 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 )}
             </div>
 
-            {/* Section des personnages */}
             {session.characters && session.characters.length > 0 && (
                 <div className="mt-12">
                     <h2 className="text-3xl font-bold text-yellow-400 mb-4">Personnages</h2>
@@ -232,22 +265,24 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 </div>
             )}
 
-            {/* Section des commentaires */}
-            <div className="mt-12" style={{ width: '65%' }}>
+            <div className="mt-12" style={{width: '65%'}}>
                 <h2 className="text-3xl font-bold text-yellow-400 mb-4">Commentaires</h2>
                 {session.comments?.length > 0 ? (
                     <div className="space-y-4">
                         {session.comments.map((comment: any) => (
-                            <div key={comment.id} className={`flex ${comment.userId === currentUserId ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`flex items-start space-x-4 ${comment.userId === currentUserId ? 'flex-row-reverse' : ''}`}>
+                            <div key={comment.id}
+                                 className={`flex ${comment.userId === currentUserId ? 'justify-end' : 'justify-start'}`}>
+                                <div
+                                    className={`flex items-start space-x-4 ${comment.userId === currentUserId ? 'flex-row-reverse' : ''}`}>
                                     <Avatar className="flex-shrink-0">
                                         {comment.user.profilePicture ? (
-                                            <AvatarImage src={comment.user.profilePicture} alt={comment.user.username} />
+                                            <AvatarImage src={comment.user.profilePicture} alt={comment.user.username}/>
                                         ) : (
                                             <AvatarFallback>{comment.user.username.charAt(0)}</AvatarFallback>
                                         )}
                                     </Avatar>
-                                    <Card className={`p-4 rounded-lg shadow-md w-fit max-w-xs ${comment.userId === currentUserId ? 'bg-green-600 text-white' : 'bg-gray-800 text-white'}`}>
+                                    <Card
+                                        className={`p-4 rounded-lg shadow-md w-fit max-w-xs ${comment.userId === currentUserId ? 'bg-green-600 text-white' : 'bg-gray-800 text-white'}`}>
                                         <p>{comment.content}</p>
                                         <p className="text-xs text-gray-400 mt-2">Par {comment.user.username} - {new Date(comment.createdAt).toLocaleDateString()}</p>
                                     </Card>
@@ -261,7 +296,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
                 {isParticipant && (
                     <div className="mt-6">
-                        <CommentInput sessionId={session.id} userId={currentUserId} />
+                        <CommentInput sessionId={session.id} userId={currentUserId}/>
                     </div>
                 )}
             </div>

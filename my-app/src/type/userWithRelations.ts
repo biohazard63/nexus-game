@@ -6,7 +6,6 @@ export const userWithRelations = Prisma.validator<Prisma.UserDefaultArgs>()({
         api_key: true,
         groups: true,
         comments: true,
-        ratings: true,
         rewards: true,
         statistics: true,
         invitationsSent: true,
@@ -18,6 +17,18 @@ export const userWithRelations = Prisma.validator<Prisma.UserDefaultArgs>()({
         hostedSessions: true,
         participations: true,
         characters: true,
+        chat: true,
+        ratingsReceived: {
+            select: {
+                rating: true,
+                review: true,
+                sender: {
+                    select: {
+                        username: true,
+                    },
+                },
+            },
+        },
     },
 });
 

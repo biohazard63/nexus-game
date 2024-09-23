@@ -46,11 +46,12 @@ model User {
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
   accountType          AccountType   @default(USER)
-  firebase_id          String?       @unique  // Ajout de la colonne firebase_id
+  firebase_id          String?       @unique
   api_key              API_Key[]
   groups               Group[]
   comments             Comment[]
-  ratings              Rating[]
+  ratingsSent          Rating[]      @relation("RatingsSent")
+  ratingsReceived      Rating[]      @relation("RatingsReceived")
   rewards              Reward[]
   statistics           Statistic[]
   invitationsSent      Invitation[]  @relation("InvitationsSent")
@@ -62,6 +63,7 @@ model User {
   hostedSessions       Session[]     @relation("UserHostedSessions")
   participations       Participation[]
   characters           Character[]
+  chat                 Chat[]
 }
 
 model Group {
@@ -86,37 +88,39 @@ model Game {
   ratings     Rating[]
   wishlists   Wishlist[]
 
-  categories  Category[] @relation("categories") // Relation plusieurs-à-plusieurs avec Category
+  categories  Category[] @relation("categories")
 }
 
 model Category {
   id    Int      @id @default(autoincrement())
   name  String   @unique
-  type  GameType // Enum pour spécifier le type de jeu (VIDEO_GAME, BOARD_GAME, TABLETOP_RPG)
-  games Game[]   @relation("categories") // Relation plusieurs-à-plusieurs avec Game
+  type  GameType
+  games Game[]   @relation("categories")
 }
 
-
 model Session {
-  id          Int       @id @default(autoincrement())
-  gameId      Int
-  hostId      Int
-  title      String
-  type_session SessionType @default(PUBLIC)
-  startTime   DateTime
-  endTime     DateTime
-  location    String
-  description String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             Int             @id() @default(autoincrement())
+  gameId         Int
+  hostId         Int
+  title          String
+  type_session   SessionType     @default(PUBLIC)
+  startTime      DateTime
+  endTime        DateTime
+  location       String
+  description    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt()
+
   participations Participation[]
-  comments    Comment[]
-  characters  Character[]
-  statistics  Statistic[]
-  invitations Invitation[]
-  specialEvents SpecialEvent[]
-  game        Game      @relation(fields: [gameId], references: [id])
-  host        User      @relation("UserHostedSessions", fields: [hostId], references: [id])
+  comments       Comment[]
+  characters     Character[]
+  statistics     Statistic[]
+  invitations    Invitation[]
+  specialEvents  SpecialEvent[]
+  chats          Chat[]
+
+  game           Game            @relation(fields: [gameId], references: [id])
+  host           User            @relation("UserHostedSessions", fields: [hostId], references: [id])
 }
 
 model Participation {
@@ -155,16 +159,29 @@ model Comment {
   session     Session   @relation(fields: [sessionId], references: [id])
 }
 
-model Rating {
+model Chat {
   id          Int       @id @default(autoincrement())
-  gameId      Int
+  sessionId   Int
   userId      Int
+  message     String
+  createdAt   DateTime  @default(now())
+  session     Session   @relation(fields: [sessionId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Rating {
+  id          Int      @id @default(autoincrement())
+  gameId      Int?
+  senderId    Int
+  receiverId  Int
   rating      Float
   review      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
-  game        Game      @relation(fields: [gameId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender      User     @relation("RatingsSent", fields: [senderId], references: [id])
+  receiver    User     @relation("RatingsReceived", fields: [receiverId], references: [id])
+  game        Game?    @relation(fields: [gameId], references: [id])
 }
 
 model Reward {
@@ -208,11 +225,9 @@ model Wishlist {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
 
-  // Relations
   user      User     @relation(fields: [userId], references: [id])
   game      Game     @relation(fields: [gameId], references: [id])
 
-  // Clé composite pour garantir l'unicité de l'association userId et gameId
   @@unique([userId, gameId])
 }
 

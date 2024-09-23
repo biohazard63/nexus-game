@@ -9,6 +9,7 @@ import { AccountType } from '@prisma/client';
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
+    GithubAuthProvider,
     signInWithPopup,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -119,6 +120,40 @@ export function SignUpForm() {
         }
     };
 
+    const handleGithubSignUp = async () => {
+        const provider = new GithubAuthProvider();
+        try {
+            const userCredential = await signInWithPopup(auth, provider);
+            const user = userCredential.user;
+
+            const generatedPassword = generateRandomPassword(12);
+
+            // Ajout de l'utilisateur dans Firestore
+            await addUserToFirestore(user.uid, {
+                firstName: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ')[1] || '',
+                email: user.email,
+                role: 'user',
+                createdAt: new Date().toISOString(),
+            });
+
+            // Ajout de l'utilisateur dans PostgreSQL avec le uid de Firebase
+            await createUserOnServer({
+                username: user.email?.split('@')[0] || 'unknown',
+                email: user.email || '',
+                password: generatedPassword,
+                firstName: user.displayName?.split(' ')[0] || '',
+                lastName: user.displayName?.split(' ')[1] || '',
+                accountType: AccountType.USER,
+                firebase_id: user.uid, // Transmettre le firebase_id ici
+            });
+
+        } catch (error) {
+            console.error("Erreur lors de l'inscription avec GitHub:", error);
+            setError("Erreur lors de l'inscription avec GitHub.");
+        }
+    }
+
     return (
         <Card className="mx-auto max-w-sm bg-gradient-to-r from-purple-900 to-black text-white shadow-2xl">
             <CardHeader>
@@ -183,6 +218,9 @@ export function SignUpForm() {
                         </Button>
                         <Button variant="outline" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" onClick={handleGoogleSignUp}>
                             Inscription avec Google
+                        </Button>
+                        <Button variant="outline" className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800" onClick={handleGithubSignUp}>
+                            Inscription avec GitHub
                         </Button>
                     </div>
                 </form>

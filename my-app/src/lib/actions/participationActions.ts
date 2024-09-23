@@ -73,3 +73,14 @@ export async function deleteParticipation(participationId: number) {
         throw new Error('Impossible de supprimer la participation.');
     }
 }
+
+export async function removeParticipant(participationId: number) {
+    try {
+        return await prisma.participation.delete({
+            where: { id: participationId },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la suppression du participant :', error);
+        throw new Error('Impossible de supprimer le participant.');
+    }
+}

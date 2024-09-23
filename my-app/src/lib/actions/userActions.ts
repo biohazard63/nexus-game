@@ -39,14 +39,61 @@ export async function getUserRole(uid: string): Promise<string> {
         return userData.role || 'user'; // Retourner le rôle ou 'user' par défaut
     }
     throw new Error('Utilisateur non trouvé');
-}
-
-
-// Récupérer un utilisateur spécifique par son ID
-export async function getUserById(userId: number) {
-    return prisma.user.findUnique({
-        where: {id: userId},
-    });
+}export async function getUserById(userId: number) {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                username: true,
+                first_name: true,
+                last_name: true,
+                email: true,
+                profilePicture: true,
+                bio: true,
+                ratingsReceived: {
+                    select: {
+                        rating: true,
+                        review: true,
+                        sender: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                ratingsSent: {
+                    select: {
+                        rating: true,
+                        review: true,
+                        receiver: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                api_key: true,
+                groups: true,
+                comments: true,
+                rewards: true,
+                statistics: true,
+                invitationsSent: true,
+                invitationsReceived: true,
+                wishlists: true,
+                userBadges: true,
+                messagesSent: true,
+                messagesReceived: true,
+                hostedSessions: true,
+                participations: true,
+                characters: true,
+                chat: true,
+            },
+        });
+        return user;
+    } catch (error) {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+        throw new Error('Impossible de récupérer l\'utilisateur.');
+    }
 }
 
 // Mettre à jour un utilisateur dans PostgreSQL

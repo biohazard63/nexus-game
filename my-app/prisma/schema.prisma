@@ -55,7 +55,8 @@ model User {
   api_key             API_Key[]
   groups              Group[]
   comments            Comment[]
-  ratings             Rating[]
+  ratingsSent         Rating[]        @relation("RatingsSent")
+  ratingsReceived     Rating[]        @relation("RatingsReceived")
   rewards             Reward[]
   statistics          Statistic[]
   invitationsSent     Invitation[]    @relation("InvitationsSent")
@@ -67,6 +68,7 @@ model User {
   hostedSessions      Session[]       @relation("UserHostedSessions")
   participations      Participation[]
   characters          Character[]
+  chat                Chat[]
 }
 
 model Group {
@@ -118,6 +120,7 @@ model Session {
   statistics     Statistic[]
   invitations    Invitation[]
   specialEvents  SpecialEvent[]
+  chats          Chat[]
   game           Game            @relation(fields: [gameId], references: [id])
   host           User            @relation("UserHostedSessions", fields: [hostId], references: [id])
 }
@@ -158,16 +161,28 @@ model Comment {
   session   Session  @relation(fields: [sessionId], references: [id])
 }
 
-model Rating {
+model Chat {
   id        Int      @id() @default(autoincrement())
-  gameId    Int
+  sessionId Int
   userId    Int
-  rating    Float
-  review    String
+  message   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
+  session   Session  @relation(fields: [sessionId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
-  game      Game     @relation(fields: [gameId], references: [id])
+}
+
+model Rating {
+  id         Int      @id() @default(autoincrement())
+  gameId     Int?
+  senderId   Int
+  receiverId Int
+  rating     Float
+  review     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+  sender     User     @relation("RatingsSent", fields: [senderId], references: [id])
+  receiver   User     @relation("RatingsReceived", fields: [receiverId], references: [id])
+  game       Game?    @relation(fields: [gameId], references: [id])
 }
 
 model Reward {

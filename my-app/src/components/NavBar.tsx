@@ -98,43 +98,43 @@ export function Header() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:text-yellow-400 focus:bg-gray-500">
                     <User className="h-4 w-4" />
                     <Link href="/account">Mon Compte</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/" className="text-white hover:text-yellow-400 transition-colors">
                         Accueil
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/games" className="text-white hover:text-yellow-400 transition-colors">
                         Jeux
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/session" className="text-white hover:text-yellow-400 transition-colors">
                         Sessions
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/wishlist" className="text-white hover:text-yellow-400 transition-colors">
                         Wishlist
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
-                    <Link href="/contact" className="text-white hover:text-yellow-400 transition-colors">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
+                    <Link href="/contact" className="text-white hover:text-yellow-400 hover:border-gray-500 transition-colors">
                         Contact
                     </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
-                    <DropdownMenuItem className="flex items-center gap-2">
+                    <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                         <Link href="/dashboard" className="text-white hover:text-yellow-400 transition-colors">
                             Admin Dashboard
                         </Link>
                     </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2">
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 focus:text-yellow-400 focus:bg-gray-500">
                     <LogOut className="h-4 w-4" />
                     Déconnexion
                 </DropdownMenuItem>
@@ -148,17 +148,17 @@ export function Header() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
-                <DropdownMenuItem className="flex items-center gap-2">
-                    <Link href="/" className="text-yellow-300 hover:text-yellow-400 transition-colors">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
+                    <Link href="/" className="text-yellow-300 hover:text-yellow-400  transition-colors">
                         Accueil
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/login" className="text-yellow-300 hover:text-yellow-400 transition-colors">
                         Connexion
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2">
+                <DropdownMenuItem className="flex items-center gap-2 focus:bg-gray-500">
                     <Link href="/signup" className="text-yellow-300 hover:text-yellow-400 transition-colors">
                         Inscription
                     </Link>

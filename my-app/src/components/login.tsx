@@ -4,7 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    signInWithPopup,
+    fetchSignInMethodsForEmail, linkWithCredential
+} from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,9 +78,35 @@ export function LoginForm() {
 
             // Redirection après connexion avec GitHub
             router.push('/account');
-        } catch (error) {
-            console.error(error);
-            setError('Erreur lors de la connexion avec GitHub.');
+        } catch (error: any) {
+            if (error.code === 'auth/account-exists-with-different-credential') {
+                // Si un compte existe déjà avec une autre méthode de connexion
+                const pendingCredential = error.credential; // Récupérer l'authCredential de GitHub
+                const email = error.customData.email;
+
+                // Demander à l'utilisateur de se reconnecter avec le fournisseur correct
+                const providers = await fetchSignInMethodsForEmail(auth, email);
+
+                if (providers.includes('google.com')) {
+                    // Si l'utilisateur a un compte Google, demander à l'utilisateur de se connecter via Google
+                    const googleProvider = new GoogleAuthProvider();
+                    const userCredential = await signInWithPopup(auth, googleProvider);
+
+                    // Lier l'authentification GitHub avec le compte existant
+                    await linkWithCredential(userCredential.user, pendingCredential);
+
+                    // Stocker les informations de l'utilisateur dans sessionStorage
+                    storeUserInSession(userCredential.user);
+
+                    // Redirection vers la page du compte
+                    router.push('/account');
+                } else {
+                    setError('Un compte existe déjà avec un autre fournisseur.');
+                }
+            } else {
+                console.error(error);
+                setError('Erreur lors de la connexion avec GitHub.');
+            }
         }
     };
 
