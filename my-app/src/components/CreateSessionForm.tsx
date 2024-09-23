@@ -11,17 +11,18 @@ import { createSession } from '@/lib/actions/sessionActions';
 import { getGames } from '@/lib/actions/gameActions';
 import { getUserIdByFirebaseId } from '@/lib/actions/userActions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { SessionType } from '@prisma/client'; // Assurez-vous que vous importez correctement l'énumération Prisma
 
 export default function CreateSessionForm() {
     const [games, setGames] = useState<any[]>([]);
     const [gameId, setGameId] = useState<number | null>(null);
-    const [typeSession, setTypeSession] = useState<string>('PUBLIC');
+    const [typeSession, setTypeSession] = useState<SessionType>(SessionType.PUBLIC); // Définit par défaut PUBLIC
     const [startTime, setStartTime] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
     const [location, setLocation] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const [invitedUsers, setInvitedUsers] = useState<any[]>([]); // Liste des utilisateurs invités
+    const [invitedUsers, setInvitedUsers] = useState<any[]>([]);
     const [title, setTitle] = useState<string>('');
 
     const router = useRouter();
@@ -88,7 +89,7 @@ export default function CreateSessionForm() {
 
             <form onSubmit={handleSubmit} className="max-w-xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
                 <div >
-                    <Label htmlFor="titel" className="text-gray-300">Titre de la session</Label>
+                    <Label htmlFor="title" className="text-gray-300">Titre de la session</Label>
                     <Input
                         id="title"
                         type="text"
@@ -116,13 +117,13 @@ export default function CreateSessionForm() {
 
                 <div className="mb-6">
                     <Label htmlFor="typeSession" className="text-gray-300">Type de Session</Label>
-                    <Select value={typeSession} onValueChange={(value) => setTypeSession(value)}>
+                    <Select value={typeSession} onValueChange={(value) => setTypeSession(value as SessionType)}>
                         <SelectTrigger className="bg-gray-900 text-white">
-                            <SelectValue placeholder="Type de session" />
+                            <SelectValue placeholder="Type de session"/>
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="PUBLIC">Public</SelectItem>
-                            <SelectItem value="PRIVATE">Privée</SelectItem>
+                            <SelectItem value={SessionType.PUBLIC}>Public</SelectItem>
+                            <SelectItem value={SessionType.PRIVATE}>Privée</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -172,23 +173,6 @@ export default function CreateSessionForm() {
                         className="bg-gray-900 text-white"
                         required
                     />
-                </div>
-
-                {/* Inviter des utilisateurs */}
-                <div className="mb-6">
-                    <Label htmlFor="invitedUsers" className="text-gray-300">Inviter des utilisateurs</Label>
-
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button className="bg-blue-500 text-black">Sélectionner les utilisateurs</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Inviter des utilisateurs</DialogTitle>
-                            </DialogHeader>
-                            {/* Intégrer le composant de case à cocher ici */}
-                        </DialogContent>
-                    </Dialog>
                 </div>
 
                 <Button type="submit" disabled={loading} className="w-full bg-yellow-500 text-black font-bold py-2 rounded-lg hover:bg-yellow-600 transition-all">

@@ -45,7 +45,7 @@ export default function Chat({ sessionId, userId }: { sessionId: number, userId:
     };
 
     return (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col h-full">
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col h-full w-96">
             <div className="overflow-y-auto flex-grow mb-4 space-y-4">
                 {messages.map((message) => (
                     <div

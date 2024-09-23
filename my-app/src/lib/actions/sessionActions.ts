@@ -1,7 +1,7 @@
 'use server';
 import { prisma } from '@/server/db/db';
 import {SessionWithRelations} from "@/type/sessionWithRelation";
-
+import {SessionType} from "@prisma/client";
 
 
 // Récupérer toutes les sessions où un utilisateur est participant
@@ -38,7 +38,7 @@ export async function createSession(data: {
     gameId: number;
     hostId: number;
     title: string;
-    type_session: string;
+    type_session: SessionType;
     startTime: Date;
     endTime: Date;
     location: string;
@@ -97,7 +97,7 @@ export async function deleteSession(sessionId: number): Promise<void> {
 // Mettre à jour une session
 export async function updateSession(sessionId: number, data: {
     hostId: number;
-    type_session: string;
+    type_session: SessionType;
     startTime: Date;
     endTime: Date;
     location: string;
@@ -168,43 +168,7 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
     }
 }
 
-// Récupérer toutes les sessions où un utilisateur est participant
-export async function getInvitedSessions(firebaseId: string): Promise<SessionWithRelations[]> {
-    try {
-        // Récupérer l'utilisateur avec son firebaseId
-        const user = await prisma.user.findUnique({
-            where: { firebase_id: firebaseId },
-            select: { id: true },
-        });
 
-        if (!user) {
-            throw new Error('Utilisateur introuvable.');
-        }
-
-        return await prisma.session.findMany({
-            where: {
-                participations: {
-                    some: {
-                        userId: user.id, // Vérifier si l'utilisateur participe à la session
-                    },
-                },
-            },
-            include: {
-                host: true, // Inclure les détails de l'hôte
-                participations: true, // Inclure les participations
-                game: true, // Inclure les détails du jeu
-                comments: true, // Inclure les commentaires
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
-            },
-        });
-    } catch (error) {
-        console.error('Erreur lors de la récupération des sessions invitées :', error);
-        throw new Error('Impossible de récupérer les sessions invitées.');
-    }
-}
 
 
 export async function getSessionById(sessionId: number) {

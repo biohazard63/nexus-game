@@ -1,22 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getUserById, updateUser } from '@/lib/actions/userActions';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'; // Dialog component for the modal
+import {useState, useEffect} from 'react';
+import {useRouter} from 'next/navigation';
+import {getUserById, updateUser} from '@/lib/actions/userActions';
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import {Select, SelectContent, SelectItem, SelectTrigger} from '@/components/ui/select';
+import {Textarea} from '@/components/ui/textarea';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import {Avatar, AvatarImage, AvatarFallback} from '@/components/ui/avatar';
+import {Badge} from '@/components/ui/badge';
+import {Dialog, DialogContent, DialogTrigger} from '@/components/ui/dialog'; // Dialog component for the modal
 
 interface UserEditFormProps {
-    userId: number;
+    userId: number,
+    onUpdate?: (updatedUser: any) => void
 }
 
-export default function UserEditForm({ userId }: UserEditFormProps) {
+export default function UserEditForm({userId, onUpdate}: UserEditFormProps) {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -77,7 +78,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                         <form onSubmit={handleUpdate} className="space-y-4">
                             <div className="flex items-center gap-4">
                                 <Avatar className="h-16 w-16">
-                                    <AvatarImage src={user.profilePicture || ''} alt={user.username} />
+                                    <AvatarImage src={user.profilePicture || ''} alt={user.username}/>
                                     <AvatarFallback>{user.username?.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -89,7 +90,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                             <Input
                                 type="text"
                                 value={user.username}
-                                onChange={(e) => setUser({ ...user, username: e.target.value })}
+                                onChange={(e) => setUser({...user, username: e.target.value})}
                                 placeholder="Nom d'utilisateur"
                                 required
                                 className="bg-gray-700 border border-gray-600 text-white"
@@ -98,7 +99,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                             <Input
                                 type="text"
                                 value={user.first_name || ''}
-                                onChange={(e) => setUser({ ...user, first_name: e.target.value })}
+                                onChange={(e) => setUser({...user, first_name: e.target.value})}
                                 placeholder="Prénom"
                                 className="bg-gray-700 border border-gray-600 text-white"
                             />
@@ -106,7 +107,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                             <Input
                                 type="text"
                                 value={user.last_name || ''}
-                                onChange={(e) => setUser({ ...user, last_name: e.target.value })}
+                                onChange={(e) => setUser({...user, last_name: e.target.value})}
                                 placeholder="Nom de famille"
                                 className="bg-gray-700 border border-gray-600 text-white"
                             />
@@ -114,7 +115,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                             <Input
                                 type="email"
                                 value={user.email}
-                                onChange={(e) => setUser({ ...user, email: e.target.value })}
+                                onChange={(e) => setUser({...user, email: e.target.value})}
                                 placeholder="Email"
                                 required
                                 className="bg-gray-700 border border-gray-600 text-white"
@@ -122,13 +123,13 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
 
                             <Textarea
                                 value={user.bio || ''}
-                                onChange={(e) => setUser({ ...user, bio: e.target.value })}
+                                onChange={(e) => setUser({...user, bio: e.target.value})}
                                 placeholder="Bio"
                                 rows={3}
                                 className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2"
                             />
 
-                            <Select onValueChange={(value) => setUser({ ...user, accountType: value })}>
+                            <Select onValueChange={(value) => setUser({...user, accountType: value})}>
                                 <SelectTrigger className="bg-gray-700 border border-gray-600 text-white">
                                     <span>{user.accountType}</span>
                                 </SelectTrigger>
@@ -142,7 +143,7 @@ export default function UserEditForm({ userId }: UserEditFormProps) {
                             <Input
                                 type="text"
                                 value={user.profilePicture || ''}
-                                onChange={(e) => setUser({ ...user, profilePicture: e.target.value })}
+                                onChange={(e) => setUser({...user, profilePicture: e.target.value})}
                                 placeholder="URL de l'image de profil"
                                 className="bg-gray-700 border border-gray-600 text-white"
                             />

@@ -6,7 +6,6 @@ import { getSessionById } from '@/lib/actions/sessionActions'; // Fonction pour 
 import { getUserIdByFirebaseId } from '@/lib/actions/userActions'; // Fonction pour récupérer l'utilisateur connecté
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Composants Avatar
-import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link'; // Utilisé pour créer des liens vers les profils
 import Chat from '@/components/Chat';

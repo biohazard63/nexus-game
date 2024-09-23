@@ -2,6 +2,7 @@
 
 import { prisma } from '@/server/db/db';
 import { CategoryWithRelations, categoryWithRelations } from '@/type/categoryWithRelation';
+import {GameType} from "@prisma/client";
 
 // Fonction pour récupérer toutes les catégories avec leurs relations (jeux associés)
 export async function getCategories(): Promise<CategoryWithRelations[]> {
@@ -34,7 +35,7 @@ export async function getCategoryById(categoryId: number) {
 }
 
 // Fonction pour créer une nouvelle catégorie
-export async function createCategory(data: { name: string; type: 'VIDEO_GAME' | 'BOARD_GAME' | 'ROLE_PLAYING' }) {
+export async function createCategory(data: { name: string; type: GameType }) {
     try {
         const newCategory = await prisma.category.create({
             data: {
@@ -51,7 +52,7 @@ export async function createCategory(data: { name: string; type: 'VIDEO_GAME' | 
 }
 
 // Fonction pour mettre à jour une catégorie
-export async function updateCategory(categoryId: number, data: { name?: string; type?: 'VIDEO_GAME' | 'BOARD_GAME' | 'ROLE_PLAYING' }) {
+export async function updateCategory(categoryId: number, data: { name?: string; type?: GameType }) {
     try {
         const updatedCategory = await prisma.category.update({
             where: { id: categoryId },

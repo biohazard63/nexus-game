@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';  // Importer Link de Next.js
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,11 +18,10 @@ export default function SessionPage({ params }: { params: { id: string } }) {
     const [session, setSession] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [loadingStatus, setLoadingStatus] = useState(false);
-    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [currentUserId, setCurrentUserId] = useState<number | null >(null);
     const [isHost, setIsHost] = useState(false);
-    const [isParticipant, setIsParticipant] = useState(false);
+    const [isParticipant, setIsParticipant] = useState<any>(false);
     const router = useRouter();
-
 
     useEffect(() => {
         const loadSession = async () => {
@@ -35,11 +34,11 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                     const sessionData = await getSessionById(parseInt(params.id));
                     setSession(sessionData);
 
-                    if (sessionData.hostId === userId) {
+                    if (sessionData?.hostId === userId) {
                         setIsHost(true);
                     }
 
-                    const participant = sessionData.participations.some((p: any) => p.userId === userId);
+                    const participant = sessionData?.participations.some((p: any) => p.userId === userId);
                     setIsParticipant(participant);
 
                     setLoading(false);
@@ -296,7 +295,9 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
                 {isParticipant && (
                     <div className="mt-6">
-                        <CommentInput sessionId={session.id} userId={currentUserId}/>
+                        <CommentInput sessionId={session.id}
+                                      userId={currentUserId}
+                        />
                     </div>
                 )}
             </div>

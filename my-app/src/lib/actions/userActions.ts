@@ -1,6 +1,7 @@
 'use server';
 import { auth } from '@/lib/firebase'; // Firebase Auth
-
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { prisma } from '@/server/db/db';
 
 
@@ -16,9 +17,51 @@ export async function getUsersFromPostgreSQL() {
                 username: true,
                 email: true,
                 createdAt: true,
-                accountType: true, // Inclure le rôle de l'utilisateur
+                accountType: true,
                 firebase_id: true,
                 profilePicture: true,
+                bio: true,
+                first_name: true, // Inclure first_name
+                last_name: true,  // Inclure last_name
+                password: true,   // Inclure password
+                updatedAt: true,  // Inclure updatedAt
+                ratingsReceived: {
+                    select: {
+                        rating: true,
+                        review: true,
+                        sender: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                ratingsSent: {
+                    select: {
+                        rating: true,
+                        review: true,
+                        receiver: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                api_key: true,
+                groups: true,
+                comments: true,
+                rewards: true,
+                statistics: true,
+                invitationsSent: true,
+                invitationsReceived: true,
+                wishlists: true,
+                userBadges: true,
+                messagesSent: true,
+                messagesReceived: true,
+                hostedSessions: true,
+                participations: true,
+                characters: true,
+                chat: true,
             },
         });
         return users;
@@ -29,8 +72,6 @@ export async function getUsersFromPostgreSQL() {
 }
 
 
-import { getDoc, doc } from 'firebase/firestore';
-import { db } from '../firebase';
 
 export async function getUserRole(uid: string): Promise<string> {
     const userDoc = await getDoc(doc(db, 'users', uid));
@@ -39,7 +80,9 @@ export async function getUserRole(uid: string): Promise<string> {
         return userData.role || 'user'; // Retourner le rôle ou 'user' par défaut
     }
     throw new Error('Utilisateur non trouvé');
-}export async function getUserById(userId: number) {
+}
+
+export async function getUserById(userId: number) {
     try {
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -104,40 +147,7 @@ export async function updateUser(userId: number, data: any) {
     });
 }
 
-export async function getCurrentUser() {
-    // Récupérer l'utilisateur actuellement connecté à Firebase
-    const user = auth.currentUser;
 
-    if (!user) {
-        throw new Error('Aucun utilisateur connecté.');
-    }
-
-    try {
-        // Rechercher l'utilisateur dans PostgreSQL par son firebase_id
-        const userInDB = await prisma.user.findUnique({
-            where: {
-                firebase_id: user.uid,
-            },
-            select: {
-                id: true,
-                username: true,
-                email: true,
-                accountType: true,
-                profilePicture: true,
-            },
-        });
-
-        if (!userInDB) {
-            throw new Error('Utilisateur non trouvé dans la base de données.');
-        }
-
-
-        return userInDB;
-    } catch (error) {
-        console.error('Erreur lors de la récupération de l\'utilisateur connecté :', error);
-        throw new Error('Impossible de récupérer l\'utilisateur connecté.');
-    }
-}
 
 export async function getUserByFirebaseId(firebaseId: string) {
     try {

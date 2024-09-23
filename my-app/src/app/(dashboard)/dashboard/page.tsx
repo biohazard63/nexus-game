@@ -4,43 +4,24 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { getUsersFromPostgreSQL } from '@/lib/actions/userActions'; // Nouvelle fonction pour récupérer depuis PostgreSQL
-import Link from 'next/link';
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from '@/components/ui/avatar';
+import {Avatar, AvatarFallback, AvatarImage,} from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import { Users, ArrowUpRight } from 'lucide-react';
 import AdminHeader from "@/components/AdminHeader";
+import { UserWithRelations } from "@/type/userWithRelations";
 
 export default function AdminDashboard() {
     const [userData, setUserData] = useState<any>(null); // Détails de l'utilisateur actuel
-    const [users, setUsers] = useState<any[]>([]); // Liste des utilisateurs depuis PostgreSQL
+    const [users, setUsers] = useState<UserWithRelations[]>([]); // Liste des utilisateurs depuis PostgreSQL
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
-                setUsers(user);
                 try {
                     // Récupérer les utilisateurs depuis PostgreSQL
                     const usersList = await getUsersFromPostgreSQL();
@@ -83,7 +64,7 @@ export default function AdminDashboard() {
                     <CardContent>
                         <div className="text-2xl font-bold text-yellow-400">{userData?.username || userData?.email}</div>
                         <p className="text-sm text-gray-300">
-                            Rôle: <span className="font-semibold text-yellow-400">{userData.accountType }</span>
+                            Rôle: <span className="font-semibold text-yellow-400">{userData?.accountType}</span>
                         </p>
                     </CardContent>
                 </Card>
@@ -131,7 +112,7 @@ export default function AdminDashboard() {
                                             {new Date(user.createdAt).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Badge className="bg-yellow-500 text-black">{user.accountType }</Badge>
+                                            <Badge className="bg-yellow-500 text-black">{user.accountType}</Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}
