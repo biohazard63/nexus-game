@@ -32,11 +32,10 @@ export default function AdminHeader() {
         <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 px-4 md:px-6 shadow-lg">
             {/* Navigation links */}
             <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-                <Link href="#" className="flex items-center gap-2 text-xl font-extrabold text-yellow-300 md:text-2xl">
-                    <Menu className="h-6 w-6 text-yellow-300" />
+                <Link href={"/dashboard"} className="flex items-center gap-2 text-xl font-extrabold text-yellow-300 md:text-2xl">
                     <span>GameMaster</span>
                 </Link>
-                <Link href={"/dashboard"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                <Link href={"/dashboard"} className=" text-yellow-200 hover:text-yellow-400 transition-colors">
                     Dashboard
                 </Link>
                 <Link href={"/admin/users"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
@@ -93,33 +92,33 @@ export default function AdminHeader() {
                 </form>
 
                 {/* User Avatar */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">
-                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={user?.photoURL || ''} alt={userData?.username || 'User Avatar'} />
-                                <AvatarFallback>{userData?.username?.charAt(0) || 'U'}</AvatarFallback>
-                            </Avatar>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">
-                        <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            Profil
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="flex items-center gap-2">
-                            <Settings className="h-4 w-4" />
-                            Paramètres
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex items-center gap-2">
-                            <LogOut className="h-4 w-4" />
-                            Déconnexion
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/*<DropdownMenu>*/}
+                {/*    <DropdownMenuTrigger asChild>*/}
+                {/*        <Button variant="secondary" size="icon" className="rounded-full border-yellow-400 bg-gray-700 text-yellow-200">*/}
+                {/*            <Avatar className="h-8 w-8">*/}
+                {/*                <AvatarImage src={user?.photoURL || ''} alt={userData?.username || 'User Avatar'} />*/}
+                {/*                <AvatarFallback>{userData?.username?.charAt(0) || 'U'}</AvatarFallback>*/}
+                {/*            </Avatar>*/}
+                {/*        </Button>*/}
+                {/*    </DropdownMenuTrigger>*/}
+                {/*    <DropdownMenuContent align="end" className="bg-gray-800 text-yellow-200">*/}
+                {/*        <DropdownMenuLabel>Mon Compte</DropdownMenuLabel>*/}
+                {/*        <DropdownMenuSeparator />*/}
+                {/*        <DropdownMenuItem className="flex items-center gap-2">*/}
+                {/*            <User className="h-4 w-4" />*/}
+                {/*            Profil*/}
+                {/*        </DropdownMenuItem>*/}
+                {/*        <DropdownMenuItem className="flex items-center gap-2">*/}
+                {/*            <Settings className="h-4 w-4" />*/}
+                {/*            Paramètres*/}
+                {/*        </DropdownMenuItem>*/}
+                {/*        <DropdownMenuSeparator />*/}
+                {/*        <DropdownMenuItem className="flex items-center gap-2">*/}
+                {/*            <LogOut className="h-4 w-4" />*/}
+                {/*            Déconnexion*/}
+                {/*        </DropdownMenuItem>*/}
+                {/*    </DropdownMenuContent>*/}
+                {/*</DropdownMenu>*/}
             </div>
         </header>
     );

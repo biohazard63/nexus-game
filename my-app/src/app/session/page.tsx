@@ -1,19 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { getCreatedSessions, getInvitedSessions } from '@/lib/actions/sessionActions';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { getCreatedSessions, getParticipatingSessions } from '@/lib/actions/sessionActions';
+import Image from "next/image"; // Modifier ici pour inclure getParticipatingSessions
 import { Badge } from '@/components/ui/badge';
-import Image from "next/image"; // Pour afficher les images
 
 export default function UserSessionsPage() {
     const [createdSessions, setCreatedSessions] = useState<any[]>([]);
-    const [invitedSessions, setInvitedSessions] = useState<any[]>([]);
+    const [participatingSessions, setParticipatingSessions] = useState<any[]>([]); // Remplacer invitedSessions par participatingSessions
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    
+    console.log(participatingSessions);
 
     useEffect(() => {
         const loadSessions = async () => {
@@ -24,8 +25,8 @@ export default function UserSessionsPage() {
                 const created = await getCreatedSessions(firebaseId);
                 setCreatedSessions(created);
 
-                const invited = await getInvitedSessions(firebaseId);
-                setInvitedSessions(invited);
+                const participating = await getParticipatingSessions(firebaseId); // Utiliser getParticipatingSessions
+                setParticipatingSessions(participating);
 
                 setLoading(false);
             } catch (error) {
@@ -45,12 +46,6 @@ export default function UserSessionsPage() {
         router.push(`/session/${sessionId}`); // Rediriger vers la page de la session
     };
 
-    const handleDeleteSession = (sessionId: number, e: React.MouseEvent) => {
-        e.stopPropagation();
-        // Logique pour supprimer la session
-        console.log('Supprimer la session', sessionId);
-    };
-
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -63,7 +58,6 @@ export default function UserSessionsPage() {
         <div className="min-h-screen w-full flex flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white p-6 md:p-12">
             <h1 className="text-4xl font-extrabold text-yellow-400 mb-8 text-center">Mes Sessions</h1>
 
-            {/* Bouton pour créer une session */}
             <div className="flex justify-center mb-8">
                 <Button
                     onClick={handleCreateSession}
@@ -82,39 +76,41 @@ export default function UserSessionsPage() {
                             <Card
                                 key={session.id}
                                 className="bg-gray-800 shadow-lg rounded-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-                                onClick={() => handleViewSession(session.id)} // Navigation au clic
+                                onClick={() => handleViewSession(session.id)}
                             >
                                 <CardHeader className="flex justify-between items-center">
                                     <CardTitle className="text-xl font-bold text-yellow-400">{session.game.name}</CardTitle>
-                                    <Badge variant="secondary" className="bg-purple-600 text-white">Créateur</Badge>
+                                    <Badge variant="outline" className="text-white border-yellow-400 text-xs p-1 ml-2">
+                                        {session.type_session} {/* Indique le type de session si pertinent */}
+                                    </Badge>
                                 </CardHeader>
-                                <CardContent>
-                                    {session.game.coverImage && (
-                                        <Image src={session.game.coverImage} alt={session.game.name} width={200} height={200} />
-                                    )}
-                                    <p className="text-gray-300 mb-2">{session.description}</p>
-                                    <div className="flex justify-between text-sm text-gray-400">
-                                        <p>Date : {new Date(session.startTime).toLocaleDateString()}</p>
-                                        <p>Joueurs : {session.participations.length}</p>
+                                <CardContent className="space-y-4">
+                                    <div className="flex justify-center">
+                                        <Image
+                                            src={session.game.coverImage}
+                                            alt={session.game.name}
+                                            width={300}
+                                            height={150}
+                                            className="rounded-lg object-cover"
+                                        />
                                     </div>
-                                    <div className="mt-4 flex justify-between">
-                                        <Link href={`/session/edit/${session.id}`}>
-                                            <Button
-                                                variant="outline"
-                                                className="text-yellow-400 border-yellow-400 hover:bg-yellow-400 hover:text-black"
-                                                onClick={(e) => e.stopPropagation()} // Empêcher la navigation de la carte
-                                            >
-                                                Modifier
-                                            </Button>
-                                        </Link>
-                                        <Button
-                                            variant="destructive"
-                                            className="bg-red-600 hover:bg-red-700"
-                                            onClick={(e) => handleDeleteSession(session.id, e)} // Suppression
-                                        >
-                                            Supprimer
-                                        </Button>
+                                    <p className="text-gray-300 text-sm">{session.description}</p>
+
+                                    {/* Hôte et Participants sur la même ligne */}
+                                    <div className="flex items-center justify-between space-x-4">
+                                        {/* Hôte */}
+                                        <Badge variant="outline"
+                                               className="text-white border-green-500 bg-green-500 text-xs p-1">
+                                            Hôte: {session.host.username}
+                                        </Badge>
+
+                                        {/* Participants */}
+                                        <Badge variant="outline"
+                                               className="text-white border-blue-500 bg-blue-500 text-xs p-1">
+                                            Participants: {session.participations.length}
+                                        </Badge>
                                     </div>
+
                                 </CardContent>
                             </Card>
                         ))}
@@ -124,48 +120,55 @@ export default function UserSessionsPage() {
                 )}
             </section>
 
-            {/* Sessions où l'utilisateur est invité */}
+            {/* Sessions où l'utilisateur est participant */}
             <section>
-                <h2 className="text-2xl font-bold text-yellow-400 mb-4">Sessions où je suis invité</h2>
-                {invitedSessions.length > 0 ? (
+                <h2 className="text-2xl font-bold text-yellow-400 mb-4">Sessions où je participe</h2>
+                {participatingSessions.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                        {invitedSessions.map((session) => (
+                        {participatingSessions.map((session) => (
                             <Card
                                 key={session.id}
                                 className="bg-gray-800 shadow-lg rounded-lg hover:scale-105 transition-transform duration-300 cursor-pointer"
-                                onClick={() => handleViewSession(session.id)} // Navigation au clic
+                                onClick={() => handleViewSession(session.id)}
                             >
                                 <CardHeader className="flex justify-between items-center">
                                     <CardTitle className="text-xl font-bold text-yellow-400">{session.game.name}</CardTitle>
-                                    <Badge variant="secondary" className="bg-green-600 text-white">Invité</Badge>
+                                    <Badge variant="outline" className="text-white border-yellow-400 text-xs p-1 ml-2">
+                                        {session.type_session} {/* Indique le type de session si pertinent */}
+                                    </Badge>
                                 </CardHeader>
-                                <CardContent>
-                                    {session.game.coverImage && (
-                                        <Image src={session.game.coverImage} alt={session.game.name} width={200} height={200} />
-                                    )}
-                                    <p className="text-gray-300 mb-2">{session.description}</p>
-                                    <div className="flex justify-between text-sm text-gray-400">
-                                        <p>Date : {new Date(session.startTime).toLocaleDateString()}</p>
-                                        <p>Joueurs : {session.participations.length}</p>
+                                <CardContent className="space-y-4">
+                                    <div className="flex justify-center">
+                                        <Image
+                                            src={session.game.coverImage}
+                                            alt={session.game.name}
+                                            width={300}
+                                            height={150}
+                                            className="rounded-lg object-cover"
+                                        />
                                     </div>
-                                    <div className="mt-4 flex justify-between">
-                                        <Button
-                                            variant="destructive"
-                                            className="bg-red-600 hover:bg-red-700"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                console.log('Quitter la session');
-                                            }}
-                                        >
-                                            Quitter
-                                        </Button>
+                                    <p className="text-gray-300 text-sm">{session.description}</p>
+
+                                    {/* Hôte et Participants sur la même ligne */}
+                                    <div className="flex items-center justify-between space-x-4">
+                                        {/* Hôte */}
+                                        <Badge variant="outline"
+                                               className="text-white border-green-500 bg-green-500 text-xs p-1">
+                                            Hôte: {session.host.username}
+                                        </Badge>
+
+                                        {/* Participants */}
+                                        <Badge variant="outline"
+                                               className="text-white border-blue-500 bg-blue-500 text-xs p-1">
+                                            Participants: {session.participations.length}
+                                        </Badge>
                                     </div>
                                 </CardContent>
                             </Card>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400">Vous n'êtes invité à aucune session pour l'instant.</p>
+                    <p className="text-gray-400">Vous ne participez à aucune session.</p>
                 )}
             </section>
         </div>

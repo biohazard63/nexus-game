@@ -230,3 +230,44 @@ export async function getSessionById(sessionId: number) {
         throw new Error('Impossible de récupérer la session.');
     }
 }
+
+
+// Récupérer toutes les sessions où un utilisateur est participant
+export async function getParticipatingSessions(firebaseId: string): Promise<SessionWithRelations[]> {
+    try {
+        // Récupérer l'utilisateur avec son firebaseId
+        const user = await prisma.user.findUnique({
+            where: { firebase_id: firebaseId },
+            select: { id: true },
+        });
+
+        if (!user) {
+            throw new Error('Utilisateur introuvable.');
+        }
+
+        // Récupérer les sessions où l'utilisateur est participant
+        return await prisma.session.findMany({
+            where: {
+                participations: {
+                    some: {
+                        userId: user.id, // Vérifie si l'utilisateur participe à la session
+                    },
+                },
+                hostId: { not: user.id }, // Exclure les sessions créées par l'utilisateur
+            },
+            include: {
+                host: true, // Inclure les détails de l'hôte
+                participations: true, // Inclure les participations
+                game: true, // Inclure les détails du jeu
+                comments: true, // Inclure les commentaires
+                characters: true, // Inclure les personnages
+                statistics: true, // Inclure les statistiques
+                invitations: true, // Inclure les invitations
+                specialEvents: true, // Inclure les événements spéciaux
+            },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des sessions participant :', error);
+        throw new Error('Impossible de récupérer les sessions.');
+    }
+}

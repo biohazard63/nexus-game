@@ -113,7 +113,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
             <div className="mb-2">
                 {isHost ? (
                     <div>
-                        <Button onClick={() => console.log('Démarrer la session')} className="bg-green-500 text-black">
+                        <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
                             Démarrer la session
                         </Button>
                         <Button onClick={() => console.log('Inviter des amis')} className="bg-blue-500 text-black ml-4">
@@ -128,7 +128,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                     </div>
                 ) : isParticipant ? (
                     <div>
-                        <Button onClick={() => console.log('Rejoindre le salon')} className="bg-green-500 text-black">
+                        <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
                             Rejoindre le salon
                         </Button>
                         <Button onClick={() => console.log('Quitter la session')} className="bg-red-600 text-white ml-4">
