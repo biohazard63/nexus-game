@@ -42,7 +42,7 @@ export default function ContactPage() {
                             Vous avez une question ?
                         </h2>
                         <p className="text-gray-300 mb-6">
-                            N'hésitez pas à nous contacter ! Nous sommes là pour répondre à toutes vos questions à propos
+                            N&apos;hésitez pas à nous contacter ! Nous sommes là pour répondre à toutes vos questions à propos
                             de nos services ou pour vous aider à mieux comprendre GameMaster.
                         </p>
                         <p className="text-gray-300">

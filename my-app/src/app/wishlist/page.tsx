@@ -6,7 +6,8 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/com
 import { Trash2 } from 'lucide-react'; // Icône de suppression pour chaque jeu
 import Link from 'next/link';
 import { getWishlist, removeFromWishlist, addToWishlist } from '@/lib/actions/wishlistActions';
-import {getUserByFirebaseId} from "@/lib/actions/userActions"; // Importer les fonctions d'action
+import {getUserByFirebaseId} from "@/lib/actions/userActions";
+import Image from "next/image"; // Importer les fonctions d'action
 
 export default function WishlistPage() {
     const [wishlist, setWishlist] = useState<any[]>([]);
@@ -73,9 +74,11 @@ export default function WishlistPage() {
                         <Card key={wishlistItem.gameId} className="bg-gray-800 shadow-lg rounded-lg transition-transform hover:scale-105">
                             <CardHeader className="relative">
                                 {wishlistItem.game.coverImage && (
-                                    <img
+                                    <Image
                                         src={wishlistItem.game.coverImage}
                                         alt={wishlistItem.game.name}
+                                        width={400}
+                                        height={200}
                                         className="w-full h-48 object-cover rounded-t-lg"
                                     />
                                 )}
@@ -107,7 +110,7 @@ export default function WishlistPage() {
                 </div>
             ) : (
                 <div className="text-center">
-                    <p className="text-xl text-gray-300">Votre wishlist est vide pour l'instant.</p>
+                    <p className="text-xl text-gray-300">Votre wishlist est vide pour l&apos;instant.</p>
                     <Link href="/games">
                         <Button className="mt-6 bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition">
                             Explorer les jeux

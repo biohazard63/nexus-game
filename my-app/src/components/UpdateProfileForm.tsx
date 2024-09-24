@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import Image from "next/image";
 
-export default function UpdateProfileForm({ onProfileUpdate }: { onProfileUpdate: () => void }) {
+export default function UpdateProfileForm() {
     const [user, setUser] = useState<any>(null);
     const [username, setUsername] = useState('');
     const [firstName, setFirstName] = useState('');
@@ -92,8 +93,7 @@ export default function UpdateProfileForm({ onProfileUpdate }: { onProfileUpdate
             }
 
             setLoading(false);
-            onProfileUpdate();  // Mise à jour des données dans le composant parent
-            setOpen(false);     // Fermer la boîte de dialogue
+            setOpen(false);  // Fermer la boîte de dialogue après la mise à jour
         } catch (error) {
             console.error('Erreur lors de la mise à jour du profil :', error);
             setLoading(false);
@@ -166,7 +166,7 @@ export default function UpdateProfileForm({ onProfileUpdate }: { onProfileUpdate
                         onChange={handleImageChange}
                         className="text-white bg-gray-700 border border-gray-600"
                     />
-                    {previewImage && <img src={previewImage} alt="Prévisualisation" className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500" />}
+                    {previewImage && <Image src={previewImage} alt="Prévisualisation" height={150} width={150} className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500" />}
 
                     <DialogFooter className="flex justify-end">
                         <Button type="submit" disabled={loading} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all">

@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     console.log('Users:', users);
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
+        <div className="flex min-h-screen  w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
             <AdminHeader />
 
             {/* Main Dashboard Content */}
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-yellow-400">Nom d'utilisateur</TableHead>
+                                    <TableHead className="text-yellow-400">Nom d&apos;utilisateur</TableHead>
                                     <TableHead className="text-yellow-400">Email</TableHead>
                                     <TableHead className="hidden xl:table-column text-yellow-400">Date de création</TableHead>
                                     <TableHead className="text-right text-yellow-400">Rôle</TableHead>

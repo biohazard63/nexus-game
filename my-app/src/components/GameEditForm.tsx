@@ -30,8 +30,12 @@ export default function GameEditForm({ gameId, onUpdate }: GameEditFormProps) {
         const fetchGameAndCategories = async () => {
             try {
                 const fetchedGame = await getGameById(gameId);
-                setGame(fetchedGame);
-                setSelectedCategories(fetchedGame.categories?.map((cat: any) => cat.id) || []); // Remplir les catégories sélectionnées
+                if (fetchedGame) {
+                    setGame(fetchedGame);
+                    setSelectedCategories(fetchedGame.categories?.map((cat: any) => cat.id) || []); // Remplir les catégories sélectionnées
+                } else {
+                    setError(`Le jeu avec l'ID ${gameId} n'a pas été trouvé.`);
+                }
 
                 const categoriesList = await getCategories();
                 setCategories(categoriesList);
@@ -43,7 +47,6 @@ export default function GameEditForm({ gameId, onUpdate }: GameEditFormProps) {
         };
         fetchGameAndCategories();
     }, [gameId]);
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedFile(e.target.files[0]);

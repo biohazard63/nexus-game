@@ -245,7 +245,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400">Aucun participant pour l'instant.</p>
+                    <p className="text-gray-400">Aucun participant pour l&apos;instant.</p>
                 )}
             </div>
 
@@ -293,11 +293,9 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                     <p className="text-gray-400">Aucun commentaire pour cette session.</p>
                 )}
 
-                {isParticipant && (
+                {isParticipant && currentUserId !== null && (
                     <div className="mt-6">
-                        <CommentInput sessionId={session.id}
-                                      userId={currentUserId}
-                        />
+                        <CommentInput sessionId={session.id} userId={currentUserId} />
                     </div>
                 )}
             </div>

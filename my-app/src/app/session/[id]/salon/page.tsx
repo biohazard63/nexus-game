@@ -98,7 +98,7 @@ export default function SalonPage({ params }: { params: { id: string } }) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-400">Aucun participant pour l'instant.</p>
+                            <p className="text-gray-400">Aucun participant pour l&apos;instant.</p>
                         )}
                     </div>
                 </CardContent>

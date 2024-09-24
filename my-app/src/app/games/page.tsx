@@ -8,7 +8,8 @@ import { addToWishlist, getWishlist } from '@/lib/actions/wishlistActions'; // A
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button'; // Importer le bouton de Shadcn/UI
-import { Heart, HeartFill } from 'lucide-react'; // Icône pour le bouton de wishlist
+import { Heart } from 'lucide-react';
+import Image from "next/image"; // Icône pour le bouton de wishlist
 
 export default function UserGamesPage() {
     const [games, setGames] = useState<any[]>([]);
@@ -74,7 +75,7 @@ export default function UserGamesPage() {
 
     useEffect(() => {
         handleFilterChange();
-    }, [selectedType, selectedCategory]);
+    }, [selectedType, selectedCategory ]);
 
     if (loading) {
         return <p>Chargement...</p>;
@@ -148,7 +149,7 @@ export default function UserGamesPage() {
                         </CardHeader>
                         <CardContent>
                             {game.coverImage && (
-                                <img src={game.coverImage} alt={game.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+                                <Image src={game.coverImage} alt={game.name} width={150} height={150} className="w-full h-48 object-cover rounded-lg mb-4" />
                             )}
                             <p className="text-white mb-2">{game.description}</p>
                             <p className="text-gray-300 mb-2">Type : {game.type}</p>

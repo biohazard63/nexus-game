@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getCategoryById, updateCategory } from '@/lib/actions/categoryActions'; // Actions pour obtenir et mettre à jour une catégorie
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,14 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CategoryEditFormProps {
     categoryId: number;
-    onUpdate: (category: any) => void;
-    onCancel: () => void;
 }
 
-export default function CategoryEditForm({ categoryId, onUpdate, onCancel }: CategoryEditFormProps) {
+export default function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
     const [category, setCategory] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter(); // Utiliser le router pour rediriger après la mise à jour
 
     useEffect(() => {
         const fetchCategory = async () => {
@@ -39,7 +39,7 @@ export default function CategoryEditForm({ categoryId, onUpdate, onCancel }: Cat
 
         try {
             await updateCategory(categoryId, category);
-            onUpdate(category);
+            router.push('/admin/categories'); // Rediriger vers la liste des catégories après mise à jour
         } catch (error) {
             setError('Erreur lors de la mise à jour de la catégorie.');
         } finally {
@@ -85,7 +85,7 @@ export default function CategoryEditForm({ categoryId, onUpdate, onCancel }: Cat
                     <Button type="submit" disabled={loading} className="bg-purple-700 text-white">
                         {loading ? 'Mise à jour...' : 'Mettre à jour'}
                     </Button>
-                    <Button onClick={onCancel} className="bg-gray-500 text-white">
+                    <Button onClick={() => router.push('/admin/categories')} className="bg-gray-500 text-white">
                         Annuler
                     </Button>
                 </form>

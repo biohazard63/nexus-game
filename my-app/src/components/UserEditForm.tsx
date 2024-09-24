@@ -72,7 +72,7 @@ export default function UserEditForm({userId, onUpdate}: UserEditFormProps) {
             <DialogContent className="bg-gray-800 text-white rounded-lg p-6 max-w-lg mx-auto">
                 <Card className="bg-gray-800 text-white">
                     <CardHeader>
-                        <CardTitle>Modifier l'utilisateur</CardTitle>
+                        <CardTitle>Modifier l&apos;utilisateur</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleUpdate} className="space-y-4">

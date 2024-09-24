@@ -10,6 +10,8 @@ const nextConfig = {
             },
         ],
     },
+    // Désactiver la minification pour identifier la source de l'erreur
+    swcMinify: false,
 };
 
 export default nextConfig;

@@ -4,21 +4,8 @@ import { useRouter } from 'next/navigation';
 import { getGames, createGame, updateGame, deleteGame } from '@/lib/actions/gameActions';
 import { getCategories } from '@/lib/actions/categoryActions'; // Récupérer les catégories
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import AdminHeader from "@/components/AdminHeader";
 import GameEditForm from "@/components/GameEditForm";
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';

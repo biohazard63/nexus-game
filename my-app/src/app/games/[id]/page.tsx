@@ -19,7 +19,11 @@ export default function GameDetailsPage() {
             try {
                 if (typeof id === 'string') {
                     const fetchedGame = await getGameById(parseInt(id, 10)); // Obtenir les détails du jeu
-                    setGame(fetchedGame);
+                    if (fetchedGame) {
+                        setGame(fetchedGame); // Mettre à jour l'état si le jeu existe
+                    } else {
+                        setError('Jeu non trouvé.');
+                    }
                 }
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeu :', error);
@@ -97,25 +101,24 @@ export default function GameDetailsPage() {
                             </CardContent>
 
                             {/* Boutons d'action */}
-
                             <div className="mt-6 flex justify-center gap-4">
-                            <Button
-                                className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2 rounded-lg font-bold hover:from-purple-700 hover:to-purple-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                Ajouter à ma collection
-                            </Button>
-                            <Button
-                                className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-lg font-bold hover:from-yellow-500 hover:to-yellow-600 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                Trouver une session
-                            </Button>
-                            <Button
-                                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                Créer une session
-                            </Button>
+                                <Button
+                                    className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2 rounded-lg font-bold hover:from-purple-700 hover:to-purple-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    Ajouter à ma collection
+                                </Button>
+                                <Button
+                                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-lg font-bold hover:from-yellow-500 hover:to-yellow-600 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    Trouver une session
+                                </Button>
+                                <Button
+                                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    Créer une session
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </Card>
-        </main>
-    </div>
+                </Card>
+            </main>
+        </div>
     );
 }

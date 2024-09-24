@@ -5,14 +5,9 @@ import Head from 'next/head'; // Pour ajouter des métadonnées SEO
 import { getGames } from '@/lib/actions/gameActions'; // Action pour obtenir les derniers jeux
 import { Button } from '@/components/ui/button'; // Utiliser un bouton de Shadcn/ui
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'; // Utiliser des cards de Shadcn/ui
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay"; // Plugin pour le défilement automatique
+import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import Image from "next/image"; // Plugin pour le défilement automatique
 
 export default function Home() {
     const [latestGames, setLatestGames] = useState<any[]>([]);
@@ -108,7 +103,7 @@ export default function Home() {
                         <Card className="hover:scale-105 transition-transform duration-300 bg-gray-700 p-6 rounded-lg shadow-lg animate-slideUp">
                             <CardHeader>
                                 <CardTitle className="text-2xl font-bold mb-4 text-white">
-                                    Connectez-vous avec d'autres passionnés
+                                    Connectez-vous avec d&apos;autres passionnés
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -146,7 +141,7 @@ export default function Home() {
                             </div>
                             <div className="flex flex-col items-center">
                                 <div className="text-yellow-400 text-6xl font-bold mb-4">3</div>
-                                <h3 className="text-2xl font-bold text-white mb-4">Partagez et jouez avec d'autres
+                                <h3 className="text-2xl font-bold text-white mb-4">Partagez et jouez avec d&apos;autres
                                     joueurs</h3>
                                 <p className="text-gray-300">
                                     Rejoignez des discussions passionnantes, jouez en ligne et partagez vos moments de
@@ -197,9 +192,11 @@ export default function Home() {
                                             <CardContent>
                                                 <p className="text-gray-300 mb-4">{game.description}</p>
                                                 {game.coverImage && (
-                                                    <img
+                                                    <Image
                                                         src={game.coverImage}
                                                         alt={game.name}
+                                                        width={300}
+                                                        height={200}
                                                         className="w-full h-48 object-cover rounded-lg"
                                                     />
                                                 )}
@@ -224,7 +221,7 @@ export default function Home() {
                             </CardHeader>
                             <CardContent>
                                 <p className="text-gray-300">
-                                    Discutez en temps réel avec d'autres joueurs, organisez des parties, et partagez des
+                                    Discutez en temps réel avec d&apos;autres joueurs, organisez des parties, et partagez des
                                     astuces dans des salons de discussion dédiés à chaque jeu.
                                 </p>
                             </CardContent>
@@ -232,12 +229,12 @@ export default function Home() {
 
                         <Card className="hover:scale-105 transition-transform duration-300 bg-gray-700 p-6 rounded-lg shadow-lg">
                             <CardHeader>
-                                <CardTitle className="text-2xl font-bold mb-4 text-white">Garder l'inventaire de son personnage </CardTitle>
+                                <CardTitle className="text-2xl font-bold mb-4 text-white">Garder l&apos;inventaire de son personnage </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-gray-300">
-                                    Suivez l'évolution de votre personnage dans les jeux de rôle, gardez une trace de
-                                    l'équipement, des compétences, et des quêtes accomplies.
+                                    Suivez l&apos;évolution de votre personnage dans les jeux de rôle, gardez une trace de
+                                    l&apos;équipement, des compétences, et des quêtes accomplies.
                                 </p>
                             </CardContent>
                         </Card>
@@ -259,8 +256,8 @@ export default function Home() {
                 <section className="w-full py-16 md:py-32 bg-purple-900 text-center">
                     <h2 className="text-4xl font-bold text-white mb-8 animate-fadeIn">Rejoignez la communauté GameMaster maintenant !</h2>
                     <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-                        Créez un compte gratuit et commencez à explorer des centaines de jeux dans notre bibliothèque dès aujourd'hui.
-                        Ne manquez pas l'opportunité de faire partie d'une communauté dynamique de joueurs !
+                        Créez un compte gratuit et commencez à explorer des centaines de jeux dans notre bibliothèque dès aujourd&apos;hui.
+                        Ne manquez pas l&apos;opportunité de faire partie d&apos;une communauté dynamique de joueurs !
                     </p>
                     <Link href={"/signup"}>
                         <Button className="bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition duration-300">

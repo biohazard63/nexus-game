@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getGameById } from '@/lib/actions/gameActions'; // Action pour obtenir un jeu spécifique
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import AdminHeader from "@/components/AdminHeader";
+import Image from "next/image";
 
 export default function GameDetailsPage() {
     const [game, setGame] = useState<any>(null);
@@ -69,7 +70,7 @@ export default function GameDetailsPage() {
                         )}
                         {game.coverImage && (
                             <div className="mb-6">
-                                <img src={game.coverImage} alt={game.name} className="w-full h-auto rounded-lg shadow-md" />
+                                <Image src={game.coverImage} alt={game.name} width={200} height={200} className="w-full h-auto rounded-lg shadow-md" />
                             </div>
                         )}
                     </CardContent>

@@ -2,24 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCategories, createCategory, updateCategory, deleteCategory } from '@/lib/actions/categoryActions'; // Actions pour gérer les catégories
+import { getCategories, createCategory, deleteCategory } from '@/lib/actions/categoryActions'; // Actions pour gérer les catégories
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
 import AdminHeader from "@/components/AdminHeader";
 import CategoryEditForm from "@/components/CategoryEditForm";
 import Link from "next/link"; // Composant pour modifier une catégorie
@@ -70,7 +56,7 @@ export default function CategoriesPage() {
             const newCategory = await createCategory({ name: 'Nouvelle Catégorie', type: 'VIDEO_GAME' }); // Valeurs par défaut
             setCategories([...categories, newCategory]); // Ajouter la nouvelle catégorie à la liste
         } catch (error) {
-            setError('Erreur lors de l\'ajout de la catégorie.');
+            setError('Erreur lors de ajout de la catégorie.');
         }
     };
 
@@ -90,8 +76,6 @@ export default function CategoriesPage() {
                 {editingCategory ? (
                     <CategoryEditForm
                         categoryId={editingCategory.id}
-                        onUpdate={handleCategoryUpdated}
-                        onCancel={() => setEditingCategory(null)}
                     />
                 ) : (
                     <Card className="bg-gray-800 shadow-lg shadow-purple-800/50">

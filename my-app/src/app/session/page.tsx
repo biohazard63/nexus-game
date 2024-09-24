@@ -69,7 +69,7 @@ export default function UserSessionsPage() {
 
             {/* Sessions créées par l'utilisateur */}
             <section className="mb-12">
-                <h2 className="text-2xl font-bold text-yellow-400 mb-4">Sessions que j'ai créées</h2>
+                <h2 className="text-2xl font-bold text-yellow-400 mb-4">Sessions que j&apos;ai créées</h2>
                 {createdSessions.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {createdSessions.map((session) => (
@@ -116,7 +116,7 @@ export default function UserSessionsPage() {
                         ))}
                     </div>
                 ) : (
-                    <p className="text-gray-400">Vous n'avez pas encore créé de sessions.</p>
+                    <p className="text-gray-400">Vous n&apos;avez pas encore créé de sessions.</p>
                 )}
             </section>
 

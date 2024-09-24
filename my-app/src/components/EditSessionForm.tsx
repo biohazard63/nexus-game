@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getSessionById, updateSession } from '@/lib/actions/sessionActions';
-import {getUserIdByFirebaseId} from "@/lib/actions/userActions";
+import { getUserIdByFirebaseId } from "@/lib/actions/userActions";
+import { SessionType } from "@prisma/client"; // Importer le type
 
 export default function EditSessionForm() {
     const [gameName, setGameName] = useState<string>('');
-    const [typeSession, setTypeSession] = useState<string>('PUBLIC');
+    const [typeSession, setTypeSession] = useState<SessionType>('PUBLIC'); // Assurez-vous que c'est bien un `SessionType`
     const [startTime, setStartTime] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
     const [location, setLocation] = useState<string>('');
@@ -20,23 +21,25 @@ export default function EditSessionForm() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const router = useRouter();
-    const { id: sessionId } = useParams(); // Utilisation de `useParams` pour obtenir l'ID de la session à partir de l'URL
-
-    console.log('Session ID from URL:', sessionId);
+    const params = useParams();
+    const sessionId = Array.isArray(params.id) ? params.id[0] : params.id; // Gérer le cas où `params.id` est un tableau
 
     useEffect(() => {
         const loadSession = async () => {
             try {
                 if (sessionId) {
                     const session = await getSessionById(parseInt(sessionId)); // Récupérer la session existante
-                    console.log('Session récupérée:', session);
 
-                    setGameName(session.game.name); // Récupérer le nom du jeu lié à cette session
-                    setTypeSession(session.type_session);
-                    setStartTime(new Date(session.startTime).toISOString().slice(0, 16)); // Formatter pour datetime-local
-                    setEndTime(new Date(session.endTime).toISOString().slice(0, 16));
-                    setLocation(session.location);
-                    setDescription(session.description);
+                    if (session) {
+                        setGameName(session.game?.name ?? ''); // Récupérer le nom du jeu lié à cette session
+                        setTypeSession(session.type_session as SessionType);
+                        setStartTime(new Date(session.startTime).toISOString().slice(0, 16)); // Formatter pour datetime-local
+                        setEndTime(new Date(session.endTime).toISOString().slice(0, 16));
+                        setLocation(session.location ?? '');
+                        setDescription(session.description ?? '');
+                    } else {
+                        console.error('Session non trouvée.');
+                    }
                 } else {
                     console.error('Session ID is null.');
                 }
@@ -54,9 +57,9 @@ export default function EditSessionForm() {
 
         try {
             const firebaseId = sessionStorage.getItem('userId'); // Récupérer le firebase_id
-            const hostId = await getUserIdByFirebaseId(firebaseId); // Récupérer l'ID utilisateur
+            if (!firebaseId) throw new Error('Utilisateur non connecté.');
 
-            console.log('Host ID:', hostId);
+            const hostId = await getUserIdByFirebaseId(firebaseId); // Récupérer l'ID utilisateur
 
             if (!hostId || !startTime || !endTime || !location || !description) {
                 alert('Veuillez remplir tous les champs.');
@@ -103,7 +106,7 @@ export default function EditSessionForm() {
                     <Input
                         id="typeSession"
                         value={typeSession}
-                        onChange={(e) => setTypeSession(e.target.value)}
+                        onChange={(e) => setTypeSession(e.target.value as SessionType)} // Assigner correctement le `SessionType`
                         className="bg-gray-900 text-white"
                     />
                 </div>
