@@ -1,43 +1,7 @@
 'use server';
 import { prisma } from '@/server/db/db';
-import {SessionWithRelations} from "@/type/sessionWithRelation";
-import {SessionType} from "@prisma/client";
-
-
-export async function getSessionsWhereUserIsParticipant(userId: number): Promise<SessionWithRelations[]> {
-    try {
-        return await prisma.session.findMany({
-            where: {
-                participations: {
-                    some: {
-                        userId, // Utilisateur participant
-                    },
-                },
-            },
-            include: {
-                host: true, // Inclure les détails de l'hôte
-                participations: true, // Inclure les participations
-                game: {
-                    include: {
-                        categories: {
-                            include: {
-                                category: true, // Inclure les détails des catégories via la table de jointure
-                            },
-                        },
-                    },
-                },
-                comments: true, // Inclure les commentaires
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
-            },
-        });
-    } catch (error) {
-        console.error('Erreur lors de la récupération des sessions :', error);
-        throw new Error('Impossible de récupérer les sessions.');
-    }
-}
+import { SessionWithRelations } from "@/type/sessionWithRelation";
+import { SessionType } from "@prisma/client";
 
 // Créer une nouvelle session et ajouter l'utilisateur comme participant
 export async function createSession(data: {
@@ -71,9 +35,25 @@ export async function createSession(data: {
             },
             include: {
                 host: true,
-                participations: true,
-                game: true,
-                comments: true,
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    }
+                },
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les détails des catégories via la table de jointure
+                            },
+                        },
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
                 characters: true,
                 statistics: true,
                 invitations: true,
@@ -124,7 +104,11 @@ export async function updateSession(sessionId: number, data: {
             },
             include: {
                 host: true, // Inclure les détails de l'hôte
-                participations: true,
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    }
+                },
                 game: {
                     include: {
                         categories: {
@@ -134,7 +118,11 @@ export async function updateSession(sessionId: number, data: {
                         },
                     },
                 },
-                comments: true,
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
                 characters: true,
                 statistics: true,
                 invitations: true,
@@ -146,7 +134,6 @@ export async function updateSession(sessionId: number, data: {
         throw new Error('Impossible de mettre à jour la session.');
     }
 }
-
 
 // Récupérer toutes les sessions créées par un utilisateur spécifique (hôte)
 export async function getCreatedSessions(firebaseId: string): Promise<SessionWithRelations[]> {
@@ -166,7 +153,11 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
             },
             include: {
                 host: true, // Inclure les détails de l'hôte
-                participations: true,
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    }
+                },
                 game: {
                     include: {
                         categories: {
@@ -176,7 +167,11 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
                         },
                     },
                 },
-                comments: true,
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
                 characters: true,
                 statistics: true,
                 invitations: true,
@@ -188,9 +183,6 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
         throw new Error('Impossible de récupérer les sessions créées.');
     }
 }
-
-
-
 
 export async function getPublicSessions(): Promise<SessionWithRelations[]> {
     try {
@@ -209,7 +201,20 @@ export async function getPublicSessions(): Promise<SessionWithRelations[]> {
                         },
                     },
                 },
-                participations: true,
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
+                characters: true, // Inclure les personnages
+                statistics: true, // Inclure les statistiques
+                invitations: true, // Inclure les invitations
+                specialEvents: true, // Inclure les événements spéciaux
             },
         });
     } catch (error) {
@@ -217,7 +222,6 @@ export async function getPublicSessions(): Promise<SessionWithRelations[]> {
         throw new Error('Impossible de récupérer les sessions publiques.');
     }
 }
-
 
 // Récupérer toutes les sessions où un utilisateur est participant
 export async function getParticipatingSessions(firebaseId: string): Promise<SessionWithRelations[]> {
@@ -244,9 +248,25 @@ export async function getParticipatingSessions(firebaseId: string): Promise<Sess
             },
             include: {
                 host: true, // Inclure les détails de l'hôte
-                participations: true, // Inclure les participations
-                game: true, // Inclure les détails du jeu
-                comments: true, // Inclure les commentaires
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    },
+                },
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu
+                            },
+                        },
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
                 characters: true, // Inclure les personnages
                 statistics: true, // Inclure les statistiques
                 invitations: true, // Inclure les invitations
@@ -264,9 +284,25 @@ export async function getAllSessions(): Promise<SessionWithRelations[]> {
         return await prisma.session.findMany({
             include: {
                 host: true, // Inclure les détails de l'hôte
-                participations: true, // Inclure les participations
-                game: true, // Inclure les détails du jeu
-                comments: true, // Inclure les commentaires
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les participations
+                    },
+                },
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu
+                            },
+                        },
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
                 characters: true, // Inclure les personnages
                 statistics: true, // Inclure les statistiques
                 invitations: true, // Inclure les invitations
@@ -279,11 +315,13 @@ export async function getAllSessions(): Promise<SessionWithRelations[]> {
     }
 }
 
+
 export async function getSessionById(sessionId: number): Promise<SessionWithRelations> {
     try {
-        return await prisma.session.findUnique({
+        const session = await prisma.session.findUnique({
             where: { id: sessionId },
             include: {
+                host: true, // Inclure les détails de l'hôte
                 game: {
                     include: {
                         categories: {
@@ -295,18 +333,69 @@ export async function getSessionById(sessionId: number): Promise<SessionWithRela
                 },
                 participations: {
                     include: {
-                        user: true,
+                        user: true, // Inclure les utilisateurs dans les participations
                     },
                 },
                 comments: {
                     include: {
-                        user: true,
+                        user: true, // Inclure les utilisateurs dans les commentaires
                     },
                 },
+                characters: true, // Inclure les personnages (peut-être null)
+                statistics: true, // Inclure les statistiques (peut-être null)
+                invitations: true, // Inclure les invitations (peut-être null)
+                specialEvents: true, // Inclure les événements spéciaux (peut-être null)
             },
         });
+
+        if (!session) {
+            throw new Error("Session introuvable");
+        }
+
+        return session;
     } catch (error) {
         console.error('Erreur lors de la récupération de la session:', error);
         throw new Error('Impossible de récupérer la session.');
+    }
+}
+
+// Récupérer toutes les sessions publiques pour un jeu spécifique
+export async function getPublicSessionsByGameId(gameId: string): Promise<SessionWithRelations[]> {
+    try {
+        return await prisma.session.findMany({
+            where: {
+                type_session: 'PUBLIC', // Filtrer les sessions publiques
+                gameId: parseInt(gameId, 10), // Filtrer par l'ID du jeu
+            },
+            include: {
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les détails des catégories via la table de pivot
+                            },
+                        },
+                    },
+                },
+                host: true, // Inclure les détails de l'hôte
+                participations: {
+                    include: {
+                        user: true, // Inclure les utilisateurs participant à la session
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true, // Inclure les utilisateurs dans les commentaires
+                    },
+                },
+                characters: true, // Inclure les personnages (peut-être null)
+                statistics: true, // Inclure les statistiques (peut-être null)
+                invitations: true, // Inclure les invitations (peut-être null)
+                specialEvents: true, // Inclure les événements spéciaux (peut-être null)
+            },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des sessions publiques pour le jeu :', error);
+        throw new Error('Impossible de récupérer les sessions publiques.');
     }
 }

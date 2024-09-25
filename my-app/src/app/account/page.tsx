@@ -69,7 +69,7 @@ export default function AccountPage() {
                             <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Informations du
                                 compte</h2>
                             <p><strong className="text-green-400">Email :</strong> {user.email}</p>
-                            <p><strong className="text-green-400">Nom d'utilisateur :</strong> {userDetails.username}</p>
+                            <p><strong className="text-green-400">Nom d&apos;utilisateur :</strong> {userDetails.username}</p>
                             <p><strong className="text-green-400">Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
                             <p><strong className="text-green-400">Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
                             <p><strong className="text-green-400">Rôle :</strong> {userDetails.role || 'Utilisateur'}</p> {/* Affichage du rôle */}

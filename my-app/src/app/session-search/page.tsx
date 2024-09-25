@@ -59,7 +59,7 @@ export default function PublicSessionsPage() {
     useEffect(() => {
         const filtered = sessions.filter((session) => {
             const matchesGenre = selectedGenre
-                ? session.game.categories.some(category => category.category.name === selectedGenre)
+                ? session.game.categories.some((category: { category: { name: string; }; }) => category.category.name === selectedGenre)
                 : true;
             const matchesType = selectedType
                 ? session.game.type === selectedType
@@ -91,7 +91,7 @@ export default function PublicSessionsPage() {
                         className="w-full bg-gray-700 text-white p-2 rounded-lg"
                     >
                         <option value="">Tous les genres</option>
-                        {categories.map((category) => (
+                        {categories.map((category: { id: number, name: string }) => (
                             <option key={category.id} value={category.name}>
                                 {category.name}
                             </option>
