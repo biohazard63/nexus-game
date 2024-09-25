@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-// Définir un type qui inclut les relations de `Game`
+// Définir un type qui inclut les relations de `Game`, y compris les catégories via la table pivot
 export const gameWithRelations = Prisma.validator<Prisma.GameDefaultArgs>()({
     select: {
         id: true,
@@ -13,12 +13,17 @@ export const gameWithRelations = Prisma.validator<Prisma.GameDefaultArgs>()({
         player_max: true,
         categories: {
             select: {
-                id: true,
-                name: true,
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true, // Si vous souhaitez inclure le type de la catégorie également
+                    },
+                },
             },
         },
     },
 });
 
-// Type pour un jeu avec ses relations
+// Type pour un jeu avec ses relations (catégories incluses)
 export type GameWithRelations = Prisma.GameGetPayload<typeof gameWithRelations>;

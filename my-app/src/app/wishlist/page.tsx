@@ -100,9 +100,11 @@ export default function WishlistPage() {
                                             Voir plus
                                         </Button>
                                     </Link>
-                                    <Button className="bg-purple-600 text-white hover:bg-purple-700 flex items-center">
-                                        Trouver une session public <span className="ml-2">🎮</span>
-                                    </Button>
+                                    <Link href={`/session-search/${wishlistItem.gameId}/public-sessions`} passHref>
+                                        <Button className="bg-purple-600 text-white hover:bg-purple-700 flex items-center">
+                                            Trouver une session public <span className="ml-2">🎮</span>
+                                        </Button>
+                                    </Link>
                                 </div>
                             </CardContent>
                         </Card>

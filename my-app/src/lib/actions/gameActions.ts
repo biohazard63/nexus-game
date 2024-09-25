@@ -3,15 +3,19 @@
 import { prisma } from '@/server/db/db';
 import { GameWithRelations } from "@/type/gameWithRelation";
 
-// Récupérer tous les jeux avec leurs relations
+// Récupérer tous les jeux avec leurs relations (catégories incluses)
 export async function getGames(): Promise<GameWithRelations[]> {
     try {
         return await prisma.game.findMany({
             orderBy: {
-                createdAt: 'desc', // Trier par date de création, du plus récent au plus ancien
+                createdAt: 'desc', // Trier par date de création
             },
             include: {
-                categories: true, // Inclure les catégories liées
+                categories: {
+                    include: {
+                        category: true, // Inclure les détails de la catégorie via la table pivot
+                    },
+                },
             },
         });
     } catch (error) {
@@ -20,13 +24,17 @@ export async function getGames(): Promise<GameWithRelations[]> {
     }
 }
 
-// Récupérer un jeu spécifique par ID avec ses relations
+// Récupérer un jeu spécifique par ID avec ses relations (catégories incluses)
 export async function getGameById(gameId: number): Promise<GameWithRelations | null> {
     try {
         const game = await prisma.game.findUnique({
             where: { id: gameId },
             include: {
-                categories: true, // Inclure les catégories
+                categories: {
+                    include: {
+                        category: true, // Inclure les détails de la catégorie via la table pivot
+                    },
+                },
             },
         });
 
@@ -41,7 +49,7 @@ export async function getGameById(gameId: number): Promise<GameWithRelations | n
     }
 }
 
-// Créer un nouveau jeu
+// Créer un nouveau jeu avec catégories
 export async function createGame(data: {
     name: string;
     type: string;
@@ -59,11 +67,17 @@ export async function createGame(data: {
                 coverImage: data.coverImage || null,
                 player_max: data.player_max || null,
                 categories: {
-                    connect: data.categoryIds?.map(id => ({ id })) || [], // Associer les catégories via leur ID
+                    create: data.categoryIds?.map(categoryId => ({
+                        category: { connect: { id: categoryId } },
+                    })) || [],
                 },
             },
             include: {
-                categories: true, // Inclure les catégories dans la réponse
+                categories: {
+                    include: {
+                        category: true, // Inclure les détails de la catégorie via la table pivot
+                    },
+                },
             },
         });
 
@@ -74,7 +88,7 @@ export async function createGame(data: {
     }
 }
 
-// Mettre à jour un jeu
+// Mettre à jour un jeu et ses catégories
 export async function updateGame(
     gameId: number,
     data: {
@@ -96,11 +110,18 @@ export async function updateGame(
                 coverImage: data.coverImage || null,
                 player_max: data.player_max || null,
                 categories: {
-                    set: data.categoryIds?.map(id => ({ id })) || [], // Mettre à jour les catégories
+                    deleteMany: {}, // Supprimer les anciennes catégories
+                    create: data.categoryIds?.map(categoryId => ({
+                        category: { connect: { id: categoryId } },
+                    })) || [],
                 },
             },
             include: {
-                categories: true, // Inclure les catégories dans la réponse
+                categories: {
+                    include: {
+                        category: true, // Inclure les détails de la catégorie via la table pivot
+                    },
+                },
             },
         });
 

@@ -81,25 +81,34 @@ model Group {
 }
 
 model Game {
-  id          Int        @id() @default(autoincrement())
+  id          Int            @id() @default(autoincrement())
   name        String
   type        String
   description String
   player_max  Int?
   coverImage  String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt()
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt()
   sessions    Session[]
   ratings     Rating[]
   wishlists   Wishlist[]
-  categories  Category[] @relation("categories")
+  categories  GameCategory[]
 }
 
 model Category {
-  id    Int      @id() @default(autoincrement())
-  name  String   @unique()
+  id    Int            @id() @default(autoincrement())
+  name  String         @unique()
   type  GameType
-  games Game[]   @relation("categories")
+  games GameCategory[]
+}
+
+model GameCategory {
+  game       Game     @relation(fields: [gameId], references: [id])
+  gameId     Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  @@id([gameId, categoryId])
 }
 
 model Session {

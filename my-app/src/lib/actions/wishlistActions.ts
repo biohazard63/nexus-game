@@ -27,6 +27,7 @@ export async function getWishlist(userId: number): Promise<WishlistWithRelations
 }
 
 // Ajouter un jeu à la wishlist
+// Ajouter un jeu à la wishlist
 export async function addToWishlist(userId: number, gameId: number): Promise<WishlistWithRelations> {
     try {
         // Vérifier si l'utilisateur et le jeu existent
@@ -36,12 +37,10 @@ export async function addToWishlist(userId: number, gameId: number): Promise<Wis
         if (!gameExists) throw new Error('Jeu introuvable');
 
         // Vérifier si le jeu est déjà dans la wishlist
-        const existingWishlistItem = await prisma.wishlist.findUnique({
+        const existingWishlistItem = await prisma.wishlist.findFirst({
             where: {
-                userId_gameId: {
-                    userId,
-                    gameId,
-                },
+                userId,
+                gameId,
             },
         });
 

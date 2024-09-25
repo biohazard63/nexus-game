@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { auth, storage } from '@/lib/firebase';
-import { updateProfile } from 'firebase/auth';
-import { updateDocument } from '@/lib/firestore';
-import { getUserByFirebaseId, updateUser } from '@/server/user/updateUserAction';
-import { Button } from '@/components/ui/button';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {useState, useEffect} from 'react';
+import {auth, storage} from '@/lib/firebase';
+import {updateProfile} from 'firebase/auth';
+import {updateDocument} from '@/lib/firestore';
+import {getUserByFirebaseId, updateUser} from '@/server/user/updateUserAction';
+import {Button} from '@/components/ui/button';
+import {ref, uploadBytes, getDownloadURL} from 'firebase/storage';
+import {Input} from '@/components/ui/input';
+import {Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '@/components/ui/dialog';
 import Image from "next/image";
 
-export default function UpdateProfileForm() {
+interface UpdateProfileFormProps {
+    onProfileUpdate?: () => Promise<void>
+}
+
+export default function UpdateProfileForm({onProfileUpdate}: UpdateProfileFormProps) {
     const [user, setUser] = useState<any>(null);
     const [username, setUsername] = useState('');
     const [firstName, setFirstName] = useState('');
@@ -166,10 +170,12 @@ export default function UpdateProfileForm() {
                         onChange={handleImageChange}
                         className="text-white bg-gray-700 border border-gray-600"
                     />
-                    {previewImage && <Image src={previewImage} alt="Prévisualisation" height={150} width={150} className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500" />}
+                    {previewImage && <Image src={previewImage} alt="Prévisualisation" height={150} width={150}
+                                            className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500"/>}
 
                     <DialogFooter className="flex justify-end">
-                        <Button type="submit" disabled={loading} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all">
+                        <Button type="submit" disabled={loading}
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all">
                             {loading ? 'Mise à jour...' : 'Mettre à jour'}
                         </Button>
                     </DialogFooter>
