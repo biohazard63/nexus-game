@@ -47,6 +47,9 @@ export default function AdminHeader() {
                 <Link href={"/admin/game"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
                     jeux
                 </Link> {/* Lien vers la page des jeux */}
+                <Link href={"/admin/sessions"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                    Sessions
+                </Link> {/* Lien vers la page des groupes */}
             </nav>
 
             {/* Hamburger Menu for Mobile */}
@@ -75,7 +78,7 @@ export default function AdminHeader() {
                         <Link href={"/admin/game"}className="text-yellow-200 hover:text-yellow-400 transition-colors">
                             jeux
                         </Link> {/* Lien vers la page des jeux */}
-                        <Link href="#" className="text-yellow-200 hover:text-yellow-400 transition-colors">
+                        <Link href={"/admin/sessions"} className="text-yellow-200 hover:text-yellow-400 transition-colors">
                             Sessions
                         </Link> {/* Lien vers la page des groupes */}
                     </nav>

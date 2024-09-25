@@ -46,6 +46,11 @@ export default function UserSessionsPage() {
         router.push(`/session/${sessionId}`); // Rediriger vers la page de la session
     };
 
+    const handleSearchSessions = () => {
+        router.push('/session-search');
+
+    }
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -64,6 +69,9 @@ export default function UserSessionsPage() {
                     className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
                     Créer une nouvelle session
+                </Button>
+                <Button onClick={handleSearchSessions} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold ml-4 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Rechercher des sessions
                 </Button>
             </div>
 

@@ -1,180 +1,139 @@
+// components/AccountPage.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { auth, storage } from '@/lib/firebase';
-import { updateProfile } from 'firebase/auth';
-import { updateDocument } from '@/lib/firestore';
-import { getUserByFirebaseId, updateUser } from '@/server/user/updateUserAction';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { getUserData } from '@/lib/firestore';
+import { signOut } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import Image from "next/image";
+import Image from 'next/image';
+import UpdateProfileForm from '@/components/UpdateProfileForm';
 
-export default function UpdateProfileForm() {
-    const [user, setUser] = useState<any>(null);
-    const [username, setUsername] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [bio, setBio] = useState('');
-    const [profilePicture, setProfilePicture] = useState<File | null>(null);
-    const [previewImage, setPreviewImage] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [userId, setUserId] = useState<number | null>(null);
-    const [open, setOpen] = useState(false);
+export default function AccountPage() {
+    const [user, setUser] = useState<any>(null); // Utilisateur Firebase
+    const [userDetails, setUserDetails] = useState<any>(null); // Détails de l'utilisateur Firestore
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            const currentUser = auth.currentUser;
-            if (currentUser) {
-                setUser(currentUser);
-                setEmail(currentUser.email || '');
-                setUsername(currentUser.displayName || '');
-
-                const postgresUser = await getUserByFirebaseId(currentUser.uid);
-                if (postgresUser) {
-                    setUserId(postgresUser.id);
-                    setFirstName(postgresUser.first_name || '');
-                    setLastName(postgresUser.last_name || '');
-                    setBio(postgresUser.bio || '');
-                    setPreviewImage(postgresUser.profilePicture || '');
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                setUser(user);
+                try {
+                    const userData = await getUserData(user.uid);
+                    setUserDetails(userData);
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des données utilisateur :', error);
+                } finally {
+                    setLoading(false);
                 }
+            } else {
+                router.push('/login');
             }
-        };
+        });
 
-        fetchUserData();
-    }, []);
+        return () => unsubscribe();
+    }, [router]);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setProfilePicture(file);
-            setPreviewImage(URL.createObjectURL(file));
+    const refreshUserData = async () => {
+        if (user) {
+            const updatedUserData = await getUserData(user.uid);
+            setUserDetails(updatedUserData);
         }
     };
 
-    const handleUpdateProfile = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
+    const handleLogout = async () => {
         try {
-            let profilePictureURL = previewImage;
-
-            if (profilePicture) {
-                const storageRef = ref(storage, `profilePictures/${user.uid}`);
-                await uploadBytes(storageRef, profilePicture);
-                profilePictureURL = await getDownloadURL(storageRef);
-            }
-
-            await updateProfile(user, {
-                displayName: username,
-                photoURL: profilePictureURL,
-            });
-
-            await updateDocument('users', user.uid, {
-                username,
-                firstName,
-                lastName,
-                bio,
-                profilePicture: profilePictureURL,
-                updatedAt: new Date(),
-            });
-
-            if (userId) {
-                await updateUser(userId, {
-                    firstName,
-                    lastName,
-                    email,
-                    username,
-                    bio,
-                    profilePicture: profilePictureURL,
-                });
-            }
-
-            setLoading(false);
-            setOpen(false);  // Fermer le formulaire après la mise à jour
+            await signOut(auth);
+            router.push('/login');
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du profil :', error);
-            setLoading(false);
+            console.error('Erreur lors de la déconnexion :', error);
         }
     };
+
+    if (loading) {
+        return <p>Chargement...</p>;
+    }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    onClick={() => setOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg transition-all"
-                >
-                    Modifier le profil
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-gray-800 text-white border border-gray-700 shadow-2xl rounded-lg p-6">
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-indigo-400">Mettre à jour votre profil</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleUpdateProfile} className="space-y-4">
-                    <Input
-                        id="username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Nom d'utilisateur"
-                        className="bg-gray-700 border border-gray-600 text-white"
-                        required
-                    />
-                    <Input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Prénom"
-                        className="bg-gray-700 border border-gray-600 text-white"
-                        required
-                    />
-                    <Input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Nom"
-                        className="bg-gray-700 border border-gray-600 text-white"
-                        required
-                    />
-                    <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email"
-                        className="bg-gray-700 border border-gray-600 text-white"
-                        required
-                    />
-                    <textarea
-                        id="bio"
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="Bio"
-                        rows={3}
-                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-2"
-                    />
-                    <Input
-                        id="profilePicture"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="text-white bg-gray-700 border border-gray-600"
-                    />
-                    {previewImage && <Image src={previewImage} alt="Prévisualisation" height={100} width={100} className="rounded-full w-24 h-24 mx-auto border-2 border-indigo-500" />}
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-indigo-900 to-black text-white">
+            <div
+                className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-3xl text-white border border-indigo-600 hover:shadow-indigo-700 transition-shadow">
+                <h1 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                    Mon Compte
+                </h1>
+                {userDetails && (
+                    <div className="space-y-8">
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Informations du
+                                compte</h2>
+                            <p><strong className="text-green-400">Email :</strong> {user.email}</p>
+                            <p><strong className="text-green-400">Nom d'utilisateur :</strong> {userDetails.username}</p>
+                            <p><strong className="text-green-400">Bio :</strong> {userDetails.bio || 'Aucune bio définie'}</p>
+                            <p><strong className="text-green-400">Date de création :</strong> {new Date(userDetails.createdAt).toLocaleDateString()}</p>
+                            <p><strong className="text-green-400">Rôle :</strong> {userDetails.role || 'Utilisateur'}</p> {/* Affichage du rôle */}
+                            {userDetails.profilePicture && (
+                                <div className="mt-4 flex justify-center">
+                                    <Image
+                                        src={userDetails.profilePicture}
+                                        alt="Photo de profil"
+                                        width={120}
+                                        height={120}
+                                        className="rounded-full border-4 border-indigo-500 shadow-md"
+                                    />
+                                </div>
+                            )}
+                        </div>
 
-                    <DialogFooter className="flex justify-end">
-                        <Button type="submit" disabled={loading} className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all">
-                            {loading ? 'Mise à jour...' : 'Mettre à jour'}
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <h2 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Relations</h2>
+
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-indigo-400">Groupes :</h3>
+                                {userDetails.groups?.length > 0 ? (
+                                    userDetails.groups.map((group: any) => <p key={group.id}
+                                                                              className="pl-2 text-gray-300">{group.name}</p>)
+                                ) : (
+                                    <p className="text-gray-400">Aucun groupe</p>
+                                )}
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-indigo-400">Commentaires :</h3>
+                                {userDetails.comments?.length > 0 ? (
+                                    userDetails.comments.map((comment: any) => <p key={comment.id}
+                                                                                  className="pl-2 text-gray-300">{comment.content}</p>)
+                                ) : (
+                                    <p className="text-gray-400">Aucun commentaire</p>
+                                )}
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-md font-bold text-indigo-400">Ratings :</h3>
+                                {userDetails.ratings?.length > 0 ? (
+                                    userDetails.ratings.map((rating: any) => (
+                                        <p key={rating.id} className="pl-2 text-gray-300">
+                                            Note : <span className="text-yellow-400">{rating.rating}/5</span> - {rating.review}
+                                        </p>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-400">Aucun avis</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                            <UpdateProfileForm onProfileUpdate={refreshUserData} />
+                        </div>
+
+                        <Button onClick={handleLogout}
+                                className="w-full bg-red-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors">
+                            Déconnexion
                         </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }

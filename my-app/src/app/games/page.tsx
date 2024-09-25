@@ -5,6 +5,7 @@ import Link from 'next/link'; // Importer Link pour la navigation
 import { getGames } from '@/lib/actions/gameActions'; // Action pour obtenir tous les jeux
 import { getCategories } from '@/lib/actions/categoryActions'; // Action pour obtenir les catégories
 import { addToWishlist, getWishlist } from '@/lib/actions/wishlistActions'; // Actions pour gérer la wishlist
+import { getUserIdByFirebaseId } from '@/lib/actions/userActions'; // Importer la fonction pour obtenir l'ID utilisateur
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button'; // Importer le bouton de Shadcn/UI
@@ -20,20 +21,32 @@ export default function UserGamesPage() {
     const [categories, setCategories] = useState<any[]>([]);
     const [selectedType, setSelectedType] = useState<string>('ALL');
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+    const [userId, setUserId] = useState<number | null>(null); // Stocker l'ID utilisateur
 
     useEffect(() => {
         const fetchGamesAndCategories = async () => {
             try {
                 const fetchedGames = await getGames(); // Récupérer la liste des jeux
                 const fetchedCategories = await getCategories(); // Récupérer la liste des catégories
-                const userWishlist = await getWishlist(1); // Remplacer par l'ID utilisateur réel
-                const wishlistIds = userWishlist.map((item: any) => item.gameId);
+
+                // Récupérer l'ID de l'utilisateur depuis sessionStorage
+                const userFirebaseId = sessionStorage.getItem('userId'); // Remplacez par la clé exacte utilisée dans sessionStorage
+                if (!userFirebaseId) {
+                    throw new Error("Utilisateur non connecté, l'ID Firebase est manquant dans le sessionStorage.");
+                }
+
+                const fetchedUserId = await getUserIdByFirebaseId(userFirebaseId);
+                if (fetchedUserId) {
+                    const userWishlist = await getWishlist(fetchedUserId); // Récupérer la wishlist
+                    const wishlistIds = userWishlist.map((item: any) => item.gameId);
+                    setWishlist(wishlistIds); // Stocker les jeux déjà dans la wishlist
+                    setUserId(fetchedUserId); // Stocker l'ID utilisateur
+                }
 
                 // Trier les jeux par ordre alphabétique
                 const sortedGames = fetchedGames.sort((a, b) => a.name.localeCompare(b.name));
                 setGames(sortedGames);
                 setFilteredGames(sortedGames); // Par défaut, tous les jeux sont affichés
-                setWishlist(wishlistIds); // Stocker les jeux déjà dans la wishlist
                 setCategories(fetchedCategories);
             } catch (error) {
                 console.error('Erreur lors de la récupération des jeux et catégories :', error);
@@ -46,11 +59,16 @@ export default function UserGamesPage() {
         fetchGamesAndCategories();
     }, []);
 
+
     // Ajouter un jeu à la wishlist
     const handleAddToWishlist = async (gameId: number) => {
         try {
-            await addToWishlist(1, gameId); // Utiliser l'ID utilisateur réel ici
-            setWishlist([...wishlist, gameId]); // Ajouter le jeu à l'état local
+            if (userId) {
+                await addToWishlist(userId, gameId); // Utiliser l'ID utilisateur réel ici
+                setWishlist([...wishlist, gameId]); // Ajouter le jeu à l'état local
+            } else {
+                console.error('Utilisateur non connecté.');
+            }
         } catch (error) {
             console.error('Erreur lors de l\'ajout à la wishlist :', error);
         }
@@ -100,9 +118,9 @@ export default function UserGamesPage() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectItem value="ALL">Tous les types</SelectItem>
-                                <SelectItem value="Jeu Vidéo">Jeux Vidéo</SelectItem>
-                                <SelectItem value="Jeu de Société">Jeux de Société</SelectItem>
-                                <SelectItem value="Jeu de Rôle">Jeux de Rôle</SelectItem>
+                                <SelectItem value="VIDEO_GAME">Jeux Vidéo</SelectItem>
+                                <SelectItem value="BOARD_GAME">Jeux de Société</SelectItem>
+                                <SelectItem value="TABLETOP_RPG">Jeux de Rôle</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -138,8 +156,8 @@ export default function UserGamesPage() {
                                 Catégories :{' '}
                                 {game.categories && game.categories.length > 0 ? (
                                     game.categories.map((category: any) => (
-                                        <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
-                                            {category.name}
+                                        <span key={category.category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
+                                            {category.category.name}
                                         </span>
                                     ))
                                 ) : (

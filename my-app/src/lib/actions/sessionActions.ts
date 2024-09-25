@@ -4,7 +4,6 @@ import {SessionWithRelations} from "@/type/sessionWithRelation";
 import {SessionType} from "@prisma/client";
 
 
-// Récupérer toutes les sessions où un utilisateur est participant
 export async function getSessionsWhereUserIsParticipant(userId: number): Promise<SessionWithRelations[]> {
     try {
         return await prisma.session.findMany({
@@ -18,7 +17,15 @@ export async function getSessionsWhereUserIsParticipant(userId: number): Promise
             include: {
                 host: true, // Inclure les détails de l'hôte
                 participations: true, // Inclure les participations
-                game: true, // Inclure les détails du jeu
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les détails des catégories via la table de jointure
+                            },
+                        },
+                    },
+                },
                 comments: true, // Inclure les commentaires
                 characters: true, // Inclure les personnages
                 statistics: true, // Inclure les statistiques
@@ -32,7 +39,6 @@ export async function getSessionsWhereUserIsParticipant(userId: number): Promise
     }
 }
 
-// Créer une nouvelle session
 // Créer une nouvelle session et ajouter l'utilisateur comme participant
 export async function createSession(data: {
     gameId: number;
@@ -104,12 +110,11 @@ export async function updateSession(sessionId: number, data: {
     description: string;
 }): Promise<SessionWithRelations> {
     try {
-        // Utiliser la relation host au lieu de hostId directement
         return await prisma.session.update({
             where: { id: sessionId },
             data: {
                 host: {
-                    connect: { id: data.hostId }, // Mettre à jour l'hôte via la relation host
+                    connect: { id: data.hostId },
                 },
                 type_session: data.type_session,
                 startTime: data.startTime,
@@ -120,7 +125,15 @@ export async function updateSession(sessionId: number, data: {
             include: {
                 host: true, // Inclure les détails de l'hôte
                 participations: true,
-                game: true,
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu
+                            },
+                        },
+                    },
+                },
                 comments: true,
                 characters: true,
                 statistics: true,
@@ -134,10 +147,10 @@ export async function updateSession(sessionId: number, data: {
     }
 }
 
+
 // Récupérer toutes les sessions créées par un utilisateur spécifique (hôte)
 export async function getCreatedSessions(firebaseId: string): Promise<SessionWithRelations[]> {
     try {
-        // Récupérer l'utilisateur avec son firebaseId
         const user = await prisma.user.findUnique({
             where: { firebase_id: firebaseId },
             select: { id: true },
@@ -149,17 +162,25 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
 
         return await prisma.session.findMany({
             where: {
-                hostId: user.id, // Filtrer par l'ID de l'hôte
+                hostId: user.id,
             },
             include: {
                 host: true, // Inclure les détails de l'hôte
-                participations: true, // Inclure les participations
-                game: true, // Inclure les détails du jeu associé
-                comments: true, // Inclure les commentaires
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
+                participations: true,
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu
+                            },
+                        },
+                    },
+                },
+                comments: true,
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
     } catch (error) {
@@ -171,27 +192,29 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
 
 
 
-export async function getSessionById(sessionId: number) {
+export async function getPublicSessions(): Promise<SessionWithRelations[]> {
     try {
-        return await prisma.session.findUnique({
-            where: { id: sessionId },
+        return await prisma.session.findMany({
+            where: {
+                type_session: 'PUBLIC',
+            },
             include: {
-                game: true,  // Inclure les infos du jeu
-                participations: {
+                host: true, // Inclure les détails de l'hôte
+                game: {
                     include: {
-                        user: true,  // Inclure les infos de l'utilisateur lié à chaque participation
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu via la table de pivot
+                            },
+                        },
                     },
                 },
-                comments: {
-                    include: {
-                        user: true,  // Inclure les infos de l'utilisateur lié à chaque commentaire
-                    },
-                },
+                participations: true,
             },
         });
     } catch (error) {
-        console.error('Erreur lors de la récupération de la session:', error);
-        throw new Error('Impossible de récupérer la session.');
+        console.error('Erreur lors de la récupération des sessions publiques :', error);
+        throw new Error('Impossible de récupérer les sessions publiques.');
     }
 }
 
@@ -233,5 +256,57 @@ export async function getParticipatingSessions(firebaseId: string): Promise<Sess
     } catch (error) {
         console.error('Erreur lors de la récupération des sessions participant :', error);
         throw new Error('Impossible de récupérer les sessions.');
+    }
+}
+
+export async function getAllSessions(): Promise<SessionWithRelations[]> {
+    try {
+        return await prisma.session.findMany({
+            include: {
+                host: true, // Inclure les détails de l'hôte
+                participations: true, // Inclure les participations
+                game: true, // Inclure les détails du jeu
+                comments: true, // Inclure les commentaires
+                characters: true, // Inclure les personnages
+                statistics: true, // Inclure les statistiques
+                invitations: true, // Inclure les invitations
+                specialEvents: true, // Inclure les événements spéciaux
+            },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération des sessions :', error);
+        throw new Error('Impossible de récupérer les sessions.');
+    }
+}
+
+export async function getSessionById(sessionId: number): Promise<SessionWithRelations> {
+    try {
+        return await prisma.session.findUnique({
+            where: { id: sessionId },
+            include: {
+                game: {
+                    include: {
+                        categories: {
+                            include: {
+                                category: true, // Inclure les catégories du jeu
+                            },
+                        },
+                    },
+                },
+                participations: {
+                    include: {
+                        user: true,
+                    },
+                },
+                comments: {
+                    include: {
+                        user: true,
+                    },
+                },
+            },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la récupération de la session:', error);
+        throw new Error('Impossible de récupérer la session.');
     }
 }
