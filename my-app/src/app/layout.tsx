@@ -1,4 +1,5 @@
 import './globals.css';
+import { Analytics } from "@vercel/analytics/react"
 import { Inter } from 'next/font/google';
 import ClientLayout from '@/components/ClientLayout'; // Créez un composant client séparé
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ClientLayout>
             <main className=" mx-auto p-4 bg-gray-800 rounded-lg shadow-lg ">
                 {children}
+                <Analytics />
             </main>
         </ClientLayout>
         </body>
