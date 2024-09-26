@@ -68,17 +68,7 @@ export async function createSession(data: {
     }
 }
 
-// Supprimer une session
-export async function deleteSession(sessionId: number): Promise<void> {
-    try {
-        await prisma.session.delete({
-            where: { id: sessionId },
-        });
-    } catch (error) {
-        console.error('Erreur lors de la suppression de la session :', error);
-        throw new Error('Impossible de supprimer la session.');
-    }
-}
+
 
 // Mettre à jour une session
 export async function updateSession(sessionId: number, data: {
@@ -397,5 +387,24 @@ export async function getPublicSessionsByGameId(gameId: string): Promise<Session
     } catch (error) {
         console.error('Erreur lors de la récupération des sessions publiques pour le jeu :', error);
         throw new Error('Impossible de récupérer les sessions publiques.');
+    }
+}
+
+// Fonction pour supprimer une session et ses relations
+export async function deleteSessionWithRelations(sessionId: number): Promise<void> {
+    try {
+        // Supprimer d'abord les relations liées à la session
+        await prisma.participation.deleteMany({ where: { sessionId } });
+        await prisma.comment.deleteMany({ where: { sessionId } });
+        await prisma.chat.deleteMany({ where: { sessionId } });
+
+
+        // Ensuite, supprimer la session elle-même
+        await prisma.session.delete({
+            where: { id: sessionId },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la suppression de la session avec relations:', error);
+        throw new Error('Impossible de supprimer la session.');
     }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getAllSessions, deleteSession } from '@/lib/actions/sessionActions';
+import {getAllSessions,  deleteSessionWithRelations} from '@/lib/actions/sessionActions';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -30,7 +30,7 @@ export default function AdminSessionsPage() {
 
     const handleDelete = async (sessionId: number) => {
         try {
-            await deleteSession(sessionId);
+            await deleteSessionWithRelations(sessionId);
             setSessions(sessions.filter(session => session.id !== sessionId));
         } catch (error) {
             console.error('Erreur lors de la suppression de la session :', error);

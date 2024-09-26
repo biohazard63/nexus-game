@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { getSessionById } from '@/lib/actions/sessionActions';
-import { removeParticipant, updateParticipantStatus } from '@/lib/actions/participationActions';
+import {deleteSessionWithRelations, getSessionById} from '@/lib/actions/sessionActions';
+import {createParticipation, removeParticipant, updateParticipantStatus} from '@/lib/actions/participationActions';
 import { getUserIdByFirebaseId } from '@/lib/actions/userActions';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +21,11 @@ export default function SessionPage({ params }: { params: { id: string } }) {
     const [currentUserId, setCurrentUserId] = useState<number | null >(null);
     const [isHost, setIsHost] = useState(false);
     const [isParticipant, setIsParticipant] = useState<any>(false);
+    const [userId, setUserId] = useState<number | null>(null);
+
     const router = useRouter();
+
+    console.log('session', session);
 
     useEffect(() => {
         const loadSession = async () => {
@@ -50,6 +54,64 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
         loadSession();
     }, [params.id]);
+
+    useEffect(() => {
+        const firebaseId = sessionStorage.getItem('userId'); // Récupérer le firebaseId de sessionStorage
+
+        if (firebaseId) {
+            getUserIdByFirebaseId(firebaseId).then((id) => {
+                setUserId(id); // Mettre à jour l'userId avec la valeur récupérée
+            }).catch((error) => {
+                console.error('Erreur lors de la récupération de l\'userId', error);
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        // Fonction pour recharger la session et mettre à jour les commentaires
+        const refreshComments = async () => {
+            try {
+                const sessionData = await getSessionById(parseInt(params.id)); // Recharger la session
+                setSession((prevSession: any) => ({
+                    ...prevSession,
+                    comments: sessionData.comments, // Mettre à jour uniquement les commentaires
+                }));
+            } catch (error) {
+                console.error('Erreur lors du rafraîchissement des commentaires:', error);
+            }
+        };
+
+        // Démarrer le setInterval pour rafraîchir les commentaires toutes les 30 secondes
+        const intervalId = setInterval(() => {
+            refreshComments();
+        }, 2000); // Rafraîchir toutes les 30 secondes
+
+        // Nettoyage de l'intervalle lorsque le composant est démonté
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [params.id]); // Dépendance sur l'ID de la session
+
+    const handleJoinSession = async () => {
+        if (!userId) {
+            console.error('User not found or not authenticated');
+            return;
+        }
+
+        try {
+            await createParticipation({
+                sessionId: session.id,
+                userId: userId,
+                status: 'En attente' // Statut initial
+            });
+            console.log('Participation créée avec succès');
+            router.push('/session/${session.id}'); // Redirection vers la page de la session
+        } catch (error) {
+            console.error('Erreur lors de la création de la participation', error);
+        }
+    };
+
+
 
     const handleStatusChange = async (participationId: number, newStatus: string) => {
         setLoadingStatus(true);
@@ -98,6 +160,43 @@ export default function SessionPage({ params }: { params: { id: string } }) {
         }
     };
 
+    const handleLeaveSession = async () => {
+        if (!currentUserId || !session) return;
+
+        const participation = session.participations.find((p: any) => p.userId === currentUserId);
+        if (!participation) return;
+
+        try {
+            setLoadingStatus(true);
+            await removeParticipant(participation.id);
+
+            // Mise à jour de la session locale après la suppression
+            setSession((prevSession: any) => ({
+                ...prevSession,
+                participations: prevSession.participations.filter((p: any) => p.id !== participation.id),
+            }));
+
+            setIsParticipant(false); // Mettre à jour l'état
+        } catch (error) {
+            console.error('Erreur lors de la suppression de la participation:', error);
+        } finally {
+            setLoadingStatus(false);
+        }
+    };
+
+    const handleDeleteSession = async () => {
+        if (!session || !isHost) return;
+
+        try {
+            // Appel à la fonction backend pour supprimer la session et ses relations
+            await deleteSessionWithRelations(session.id);
+            router.push('/session'); // Redirection après suppression
+        } catch (error) {
+            console.error('Erreur lors de la suppression de la session :', error);
+        }
+    };
+
+
     if (loading) {
         return <div className="text-white">Chargement de la session...</div>;
     }
@@ -108,20 +207,20 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
     return (
         <div className="min-h-screen w-full flex flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white p-6 md:p-12">
-            <h1 className="text-4xl font-bold text-yellow-400 mb-6">Session Name</h1>
+            <h1 className="text-4xl font-bold text-yellow-400 mb-6">{session.title}</h1>
             <div className="mb-2">
                 {isHost ? (
                     <div>
                         <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
                             Démarrer la session
                         </Button>
-                        <Button onClick={() => console.log('Inviter des amis')} className="bg-blue-500 text-black ml-4">
-                            Inviter des amis
-                        </Button>
+                        {/*<Button onClick={() => console.log('Inviter des amis')} className="bg-blue-500 text-black ml-4">*/}
+                        {/*    Inviter des amis*/}
+                        {/*</Button>*/}
                         <Button onClick={() => router.push(`/session/edit/${session.id}`)} className="bg-yellow-500 text-black ml-4">
                             Modifier la session
                         </Button>
-                        <Button onClick={() => console.log('Supprimer la session')} className="bg-red-600 text-white ml-4">
+                        <Button onClick={handleDeleteSession} className="bg-red-600 text-white ml-4">
                             Supprimer la session
                         </Button>
                     </div>
@@ -130,14 +229,14 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                         <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
                             Rejoindre le salon
                         </Button>
-                        <Button onClick={() => console.log('Quitter la session')} className="bg-red-600 text-white ml-4">
+                        <Button onClick={handleLeaveSession} className="bg-red-600 text-white ml-4" disabled={loadingStatus}>
                             Quitter la session
                         </Button>
                     </div>
                 ) : (
                     <div>
-                        <Button onClick={() => console.log('Demander à participer')} className="bg-blue-500 text-black">
-                            Demander à participer
+                        <Button onClick={handleJoinSession} className="bg-blue-500 text-black">
+                            Rejoindre la session
                         </Button>
                     </div>
                 )}
@@ -161,8 +260,8 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                                 <div className="text-gray-400 mb-2">
                                     Catégories :
                                     <ul className="list-disc list-inside">
-                                        {session.game.categories.map((category: any) => (
-                                            <li key={category.id} className="text-yellow-400">{category.name}</li>
+                                        {session.game.categories.map((cat: any) => (
+                                            <li key={cat.category.id} className="text-yellow-400">{cat.category.name}</li>
                                         ))}
                                     </ul>
                                 </div>

@@ -23,6 +23,8 @@ export default function UserGamesPage() {
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
     const [userId, setUserId] = useState<number | null>(null); // Stocker l'ID utilisateur
 
+    console.log(games)
+
     useEffect(() => {
         const fetchGamesAndCategories = async () => {
             try {
@@ -84,7 +86,7 @@ export default function UserGamesPage() {
 
         if (selectedCategory !== 'ALL') {
             filtered = filtered.filter((game) =>
-                game.categories.some((category: any) => category.name === selectedCategory)
+                game.categories.some((category: any) => category.category.name === selectedCategory)
             );
         }
 
@@ -118,9 +120,9 @@ export default function UserGamesPage() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectItem value="ALL">Tous les types</SelectItem>
-                                <SelectItem value="VIDEO_GAME">Jeux Vidéo</SelectItem>
-                                <SelectItem value="BOARD_GAME">Jeux de Société</SelectItem>
-                                <SelectItem value="TABLETOP_RPG">Jeux de Rôle</SelectItem>
+                                <SelectItem value="Jeu Vidéo">Jeux Vidéo</SelectItem>
+                                <SelectItem value="Jeu de Société">Jeux de Société</SelectItem>
+                                <SelectItem value="Jeu de Rôle">Jeux de Rôle</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>

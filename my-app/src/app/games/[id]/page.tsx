@@ -1,26 +1,50 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getGameById } from '@/lib/actions/gameActions';
+import { getUserIdByFirebaseId } from '@/lib/actions/userActions';
+import { getWishlist } from '@/lib/actions/wishlistActions'; // Action pour récupérer la wishlist
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Image from 'next/image';
 import { GameWithRelations } from '@/type/gameWithRelation';
 import { Button } from '@/components/ui/button';
+import { addToWishlist } from "@/lib/actions/wishlistActions";
+import Link from "next/link";
 
 export default function GameDetailsPage() {
     const [game, setGame] = useState<GameWithRelations | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { id } = useParams(); // Récupérer l'ID du jeu depuis l'URL
+    const [userId, setUserId] = useState<number | null>(null);
+    const [isInWishlist, setIsInWishlist] = useState<boolean>(false); // État pour vérifier si le jeu est déjà dans la wishlist
+    const { id } = useParams();
+    const router = useRouter();
+
+    const checkIfInWishlist = async () => {
+        if (userId) {
+            const wishlist = await getWishlist(userId);
+            const gameId = Array.isArray(id) ? id[0] : id; // Gérer les cas où id est un tableau
+            const isInWishlist = wishlist.some((wishlistItem) => wishlistItem.gameId === parseInt(gameId, 10));
+            setIsInWishlist(isInWishlist);
+        }
+    };
 
     useEffect(() => {
+        const fetchUserId = async () => {
+            const firebaseId = sessionStorage.getItem('userId');
+            if (firebaseId) {
+                const userId = await getUserIdByFirebaseId(firebaseId);
+                setUserId(userId);
+            }
+        };
+
         const fetchGame = async () => {
             try {
                 if (typeof id === 'string') {
-                    const fetchedGame = await getGameById(parseInt(id, 10)); // Obtenir les détails du jeu
+                    const fetchedGame = await getGameById(parseInt(id, 10));
                     if (fetchedGame) {
-                        setGame(fetchedGame); // Mettre à jour l'état si le jeu existe
+                        setGame(fetchedGame);
                     } else {
                         setError('Jeu non trouvé.');
                     }
@@ -33,10 +57,36 @@ export default function GameDetailsPage() {
             }
         };
 
+        fetchUserId();
         if (id) {
             fetchGame();
         }
-    }, [id]);
+    }, [id, userId]);
+
+    useEffect(() => {
+        if (userId) {
+            checkIfInWishlist(); // Vérifier si le jeu est dans la wishlist après avoir obtenu l'userId
+        }
+    }, [userId]);
+
+    const handleAddToWishlist = async () => {
+        if (userId && game?.id) {
+            try {
+                await addToWishlist(userId, game.id);
+                setIsInWishlist(true); // Mettre à jour l'état une fois que le jeu est ajouté
+                alert('Jeu ajouté à votre wishlist avec succès !');
+            } catch (error) {
+                console.error('Erreur lors de l\'ajout à la wishlist :', error);
+                alert('Impossible d\'ajouter le jeu à la wishlist.');
+            }
+        } else {
+            alert('Utilisateur non identifié ou jeu introuvable.');
+        }
+    };
+
+    const handleCreateSession = () => {
+        router.push('/session/create');
+    };
 
     if (loading) {
         return <p>Chargement...</p>;
@@ -73,12 +123,12 @@ export default function GameDetailsPage() {
                                 </CardTitle>
                                 <CardDescription className="flex flex-wrap gap-2 mt-4">
                                     {game?.categories && game.categories.length > 0 ? (
-                                        game.categories.map((category: any) => (
+                                        game.categories.map((categoryRelation: any) => (
                                             <span
-                                                key={category.id}
+                                                key={categoryRelation.category.id}
                                                 className="text-white bg-purple-600 px-3 py-1 rounded-lg">
-                                            {category.name}
-                                        </span>
+                                                {categoryRelation.category.name}
+                                            </span>
                                         ))
                                     ) : (
                                         <span className="text-gray-400">Aucune catégorie</span>
@@ -103,14 +153,23 @@ export default function GameDetailsPage() {
                             {/* Boutons d'action */}
                             <div className="mt-6 flex justify-center gap-4">
                                 <Button
-                                    className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2 rounded-lg font-bold hover:from-purple-700 hover:to-purple-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                    Ajouter à ma collection
+                                    onClick={handleAddToWishlist}
+                                    className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                                        isInWishlist
+                                            ? 'bg-green-500 text-black'
+                                            : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800'
+                                    }`}
+                                    disabled={isInWishlist}
+                                >
+                                    {isInWishlist ? 'Ajouté à la wishlist' : 'Ajouter à ma wishlist'}
                                 </Button>
+                                <Link href={`/session-search/${game?.id}/public-sessions`} passHref>
+                                    <Button className="bg-yellow-600 text-white hover:bg-purple-700 flex items-center">
+                                        Trouver une session public <span className="ml-2">🎮</span>
+                                    </Button>
+                                </Link>
                                 <Button
-                                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-lg font-bold hover:from-yellow-500 hover:to-yellow-600 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                    Trouver une session
-                                </Button>
-                                <Button
+                                    onClick={handleCreateSession}
                                     className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                                     Créer une session
                                 </Button>
