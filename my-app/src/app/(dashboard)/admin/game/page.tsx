@@ -22,11 +22,14 @@ export default function GamesPage() {
     const [categories, setCategories] = useState<any[]>([]); // Ajouter un état pour les catégories
     const router = useRouter();
 
+    console.log(games);
+
     useEffect(() => {
         const fetchGamesAndCategories = async () => {
             try {
                 const gamesList = await getGames();
                 const categoriesList = await getCategories(); // Récupérer les catégories
+                console.log(categoriesList); // Vérifiez ce que vous obtenez ici
                 setGames(gamesList);
                 setFilteredGames(gamesList); // Par défaut, montrer tous les jeux
                 setCategories(categoriesList); // Définir les catégories
@@ -77,12 +80,16 @@ export default function GamesPage() {
     const handleFilterChange = (selectedCategory: string, selectedGameType: string) => {
         let filtered = games;
 
+        // Filtrer par catégorie
         if (selectedCategory !== 'ALL') {
             filtered = filtered.filter(game =>
-                game.categories?.some((category: any) => category.name === selectedCategory)
+                game.categories?.some((categoryRelation: any) =>
+                    categoryRelation.category.name === selectedCategory
+                )
             );
         }
 
+        // Filtrer par type de jeu
         if (selectedGameType !== 'ALL') {
             filtered = filtered.filter(game => game.type === selectedGameType);
         }
@@ -96,7 +103,7 @@ export default function GamesPage() {
         handleFilterChange(selectedCategory, gameTypeFilter);
     };
 
-    // Gérer les changements du filtre de type de jeu
+// Gérer les changements du filtre de type de jeu
     const handleGameTypeFilterChange = (selectedGameType: string) => {
         setGameTypeFilter(selectedGameType);
         handleFilterChange(categoryFilter, selectedGameType);
@@ -189,9 +196,9 @@ console.log(games)
                                         <TableCell>{game.player_max ?? 'N/A'}</TableCell>
                                         <TableCell className="text-gray-300">
                                             {game.categories && game.categories.length > 0 ? (
-                                                game.categories.map((category: any) => (
-                                                    <span key={category.id} className="mr-2">
-                                                        {category.name}
+                                                game.categories.map((categoryRelation: any) => (
+                                                    <span key={categoryRelation.category.id} className="mr-2">
+                                                        {categoryRelation.category.name}
                                                     </span>
                                                 ))
                                             ) : (

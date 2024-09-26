@@ -44,8 +44,14 @@ export default function UserEditForm({userId, onUpdate}: UserEditFormProps) {
         setLoading(true);
 
         try {
-            await updateUser(userId, user);
+            // Préparer les données à envoyer, en excluant ou en formatant les relations si nécessaire
+            const { ratingsReceived, ratingsSent, ...userData } = user;
+
+            await updateUser(userId, userData);
             setIsModalOpen(false); // Fermer la modal après la mise à jour réussie
+            if (onUpdate) {
+                onUpdate(userData); // Si une fonction de callback est fournie
+            }
         } catch (error) {
             console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
             setError('Erreur lors de la mise à jour des informations utilisateur.');

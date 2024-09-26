@@ -19,6 +19,8 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    console.log('userData:', userData);
+
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -29,7 +31,7 @@ export default function AdminDashboard() {
 
                     // Si besoin, récupérer les détails de l'utilisateur connecté depuis PostgreSQL aussi
                     const currentUser = usersList.find(u => u.email === user.email);
-                    setUserData(currentUser || {});
+                    setUserData(currentUser) ;
                 } catch (error) {
                     console.error('Erreur lors de la récupération des informations utilisateur :', error);
                 } finally {

@@ -101,6 +101,9 @@ export async function updateGame(
     }
 ): Promise<GameWithRelations> {
     try {
+        // Filtrer les ids de catégories pour éliminer les valeurs undefined
+        const validCategoryIds = data.categoryIds?.filter(id => id !== undefined) || [];
+
         const updatedGame = await prisma.game.update({
             where: { id: gameId },
             data: {
@@ -111,9 +114,9 @@ export async function updateGame(
                 player_max: data.player_max || null,
                 categories: {
                     deleteMany: {}, // Supprimer les anciennes catégories
-                    create: data.categoryIds?.map(categoryId => ({
+                    create: validCategoryIds.map(categoryId => ({
                         category: { connect: { id: categoryId } },
-                    })) || [],
+                    })),
                 },
             },
             include: {
@@ -135,13 +138,19 @@ export async function updateGame(
 // Supprimer un jeu
 export async function deleteGame(gameId: number): Promise<{ message: string }> {
     try {
+        // Supprimer d'abord les relations liées au jeu (par exemple, les catégories associées au jeu)
+        await prisma.gameCategory.deleteMany({ where: { gameId } });
+
+
+
+        // Ensuite, supprimer le jeu lui-même
         await prisma.game.delete({
             where: { id: gameId },
         });
 
         return { message: `Jeu avec l'ID ${gameId} supprimé avec succès.` };
     } catch (error) {
-        console.error('Erreur lors de la suppression du jeu :', error);
+        console.error('Erreur lors de la suppression du jeu avec relations :', error);
         throw new Error('Impossible de supprimer le jeu.');
     }
 }

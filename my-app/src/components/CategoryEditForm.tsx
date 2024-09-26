@@ -39,7 +39,7 @@ export default function CategoryEditForm({ categoryId }: CategoryEditFormProps) 
 
         try {
             await updateCategory(categoryId, category);
-            router.push('/admin/categories'); // Rediriger vers la liste des catégories après mise à jour
+            router.push('/admin/category'); // Rediriger vers la liste des catégories après mise à jour
         } catch (error) {
             setError('Erreur lors de la mise à jour de la catégorie.');
         } finally {

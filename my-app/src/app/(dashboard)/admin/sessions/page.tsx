@@ -68,7 +68,7 @@ export default function AdminSessionsPage() {
                                 {new Date(session.startTime).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-3 border-b border-gray-600 flex space-x-2">
-                                <Link href={`/admin/session/edit/${session.id}`}>
+                                <Link href={`/session/edit/${session.id}`}>
                                     <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">
                                         Modifier
                                     </Button>

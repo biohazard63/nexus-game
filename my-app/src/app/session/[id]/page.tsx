@@ -275,7 +275,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                         {session.game.coverImage && (
                             <div className="md:w-1/2 md:pl-12 flex flex-col justify-center">
                                 <Image src={session.game.coverImage} alt={session.game.name} width={300} height={300} className="rounded-lg shadow-lg" />
-                                <Button className="bg-yellow-500 text-black mt-4 w-fit">Règles du jeu</Button>
+                                {/*<Button className="bg-yellow-500 text-black mt-4 w-fit">Règles du jeu</Button>*/}
                             </div>
                         )}
                     </div>

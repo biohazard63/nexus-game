@@ -139,15 +139,35 @@ export async function getUserById(userId: number) {
     }
 }
 
-// Mettre à jour un utilisateur dans PostgreSQL
-export async function updateUser(userId: number, data: any) {
-    return prisma.user.update({
-        where: {id: userId},
-        data,
-    });
+// Mettre à jour un utilisateur dans PostgreSQL avec gestion des relations imbriquées
+export async function updateUser(userId: number, data: {
+    username: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    profilePicture: string;
+    bio: string;
+}) {
+    try {
+        return await prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                username: data.username,
+                first_name: data.first_name,
+                last_name: data.last_name,
+                email: data.email,
+                profilePicture: data.profilePicture,
+                bio: data.bio,
+                // Omettre les relations imbriquées comme api_key, groups, etc.
+            },
+        });
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+        throw new Error('Impossible de mettre à jour l\'utilisateur.');
+    }
 }
-
-
 
 export async function getUserByFirebaseId(firebaseId: string) {
     try {
