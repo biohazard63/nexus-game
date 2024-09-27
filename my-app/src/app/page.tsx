@@ -270,11 +270,6 @@ export default function Home() {
                         </Button>
                     </Link>
                 </section>
-
-                {/* Footer */}
-                <footer className="w-full py-6 bg-gray-900 text-center text-gray-500">
-                    <p>&copy; 2024 GameMaster. Tous droits réservés. Une plateforme pour tous les passionnés de jeux.</p>
-                </footer>
             </main>
         </>
     );

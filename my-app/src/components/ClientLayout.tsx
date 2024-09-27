@@ -4,6 +4,7 @@ import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { Button } from "@/components/ui/button";
 import { Header as NavBarHeader } from "@/components/NavBar"; // Renommez l'import pour éviter le conflit
 import { Moon, Sun } from "lucide-react";
+import Footer from "@/components/Footer";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -11,6 +12,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="min-h-screen bg-gradient-to-r from-purple-900 via-blue-900 to-black text-white">
                 <NavBarHeader /> {/* Utilisation du Header importé sous un autre nom */}
                 <main className="p-4">{children}</main>
+                <Footer />
             </div>
         </ThemeProvider>
     );
