@@ -125,7 +125,7 @@ export default function AdminDashboard() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-yellow-400">Nom d'utilisateur</TableHead>
+                                        <TableHead className="text-yellow-400">Nom d&apos;utilisateur</TableHead>
                                         <TableHead className="text-yellow-400">Email</TableHead>
                                         <TableHead className="text-yellow-400">Date de création</TableHead>
                                         <TableHead className="text-right text-yellow-400">Rôle</TableHead>

@@ -141,7 +141,7 @@ export default function UsersPage() {
                             <Table className="table-auto w-full">
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-yellow-400">Nom d'utilisateur</TableHead>
+                                        <TableHead className="text-yellow-400">Nom d&apos;utilisateur</TableHead>
                                         <TableHead className="text-yellow-400">Email</TableHead>
                                         <TableHead className="text-yellow-400">Date de création</TableHead>
                                         <TableHead className="text-yellow-400">Rôle</TableHead>
