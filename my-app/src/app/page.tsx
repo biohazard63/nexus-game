@@ -27,6 +27,8 @@ export default function Home() {
         fetchLatestGames();
     }, []);
 
+    console.log(latestGames);
+
     return (
         <>
             {/* SEO Metadata */}
@@ -181,10 +183,13 @@ export default function Home() {
                                                 </CardTitle>
                                                 <CardDescription className="text-gray-400">
                                                     {game.categories && game.categories.length > 0
-                                                        ? game.categories.map((category: any) => (
-                                                            <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
-                                                                  {category.name}
-                                                              </span>
+                                                        ? game.categories.map((categoryRelation: any) => (
+                                                            <span
+                                                                key={categoryRelation.category.id}
+                                                                className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2"
+                                                            >
+                                                                {categoryRelation.category.name}
+                                                            </span>
                                                         ))
                                                         : 'Aucune catégorie'}
                                                 </CardDescription>

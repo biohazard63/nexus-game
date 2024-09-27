@@ -1,15 +1,35 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getGames, createGame, updateGame, deleteGame } from '@/lib/actions/gameActions';
-import { getCategories } from '@/lib/actions/categoryActions'; // Récupérer les catégories
+import {
+    getGames,
+    createGame,
+    updateGame,
+    deleteGame,
+} from '@/lib/actions/gameActions';
+import { getCategories } from '@/lib/actions/categoryActions';
 import { Button } from '@/components/ui/button';
-import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
-import AdminHeader from "@/components/AdminHeader";
-import GameEditForm from "@/components/GameEditForm";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import AdminHeader from '@/components/AdminHeader';
+import GameEditForm from '@/components/GameEditForm';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import Link from 'next/link'; // Importer le composant Link pour la navigation
+import Link from 'next/link';
+import { Pagination } from '@/components/Pagination';
 
 export default function GamesPage() {
     const [games, setGames] = useState<any[]>([]);
@@ -17,22 +37,21 @@ export default function GamesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [editingGame, setEditingGame] = useState<any>(null);
-    const [categoryFilter, setCategoryFilter] = useState<string>('ALL'); // Filtre de catégorie
-    const [gameTypeFilter, setGameTypeFilter] = useState<string>('ALL'); // Filtre de type de jeu
-    const [categories, setCategories] = useState<any[]>([]); // Ajouter un état pour les catégories
+    const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+    const [gameTypeFilter, setGameTypeFilter] = useState<string>('ALL');
+    const [categories, setCategories] = useState<any[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
     const router = useRouter();
-
-    console.log(games);
 
     useEffect(() => {
         const fetchGamesAndCategories = async () => {
             try {
                 const gamesList = await getGames();
-                const categoriesList = await getCategories(); // Récupérer les catégories
-                console.log(categoriesList); // Vérifiez ce que vous obtenez ici
+                const categoriesList = await getCategories();
                 setGames(gamesList);
-                setFilteredGames(gamesList); // Par défaut, montrer tous les jeux
-                setCategories(categoriesList); // Définir les catégories
+                setFilteredGames(gamesList);
+                setCategories(categoriesList);
             } catch (error) {
                 setError('Erreur lors de la récupération des jeux et des catégories.');
             } finally {
@@ -47,8 +66,15 @@ export default function GamesPage() {
     const handleDeleteGame = async (gameId: number) => {
         try {
             await deleteGame(gameId);
-            setGames(games.filter((game) => game.id !== gameId));
-            setFilteredGames(filteredGames.filter((game) => game.id !== gameId));
+            const updatedGames = games.filter((game) => game.id !== gameId);
+            setGames(updatedGames);
+            setFilteredGames(updatedGames);
+
+            // Ajuster la page actuelle si nécessaire
+            const totalPages = Math.ceil(updatedGames.length / itemsPerPage);
+            if (currentPage > totalPages) {
+                setCurrentPage(totalPages);
+            }
         } catch (error) {
             setError('Erreur lors de la suppression du jeu.');
         }
@@ -72,17 +98,20 @@ export default function GamesPage() {
             setGames([...games, newGame]);
             setFilteredGames([...filteredGames, newGame]);
         } catch (error) {
-            setError('Erreur lors de l\'ajout du jeu.');
+            setError("Erreur lors de l'ajout du jeu.");
         }
     };
 
     // Filtrer les jeux en fonction de la catégorie et du type de jeu sélectionnés
-    const handleFilterChange = (selectedCategory: string, selectedGameType: string) => {
+    const handleFilterChange = (
+        selectedCategory: string,
+        selectedGameType: string
+    ) => {
         let filtered = games;
 
         // Filtrer par catégorie
         if (selectedCategory !== 'ALL') {
-            filtered = filtered.filter(game =>
+            filtered = filtered.filter((game) =>
                 game.categories?.some((categoryRelation: any) =>
                     categoryRelation.category.name === selectedCategory
                 )
@@ -91,10 +120,11 @@ export default function GamesPage() {
 
         // Filtrer par type de jeu
         if (selectedGameType !== 'ALL') {
-            filtered = filtered.filter(game => game.type === selectedGameType);
+            filtered = filtered.filter((game) => game.type === selectedGameType);
         }
 
         setFilteredGames(filtered);
+        setCurrentPage(1); // Réinitialiser la page actuelle
     };
 
     // Gérer les changements du filtre de catégorie
@@ -103,7 +133,7 @@ export default function GamesPage() {
         handleFilterChange(selectedCategory, gameTypeFilter);
     };
 
-// Gérer les changements du filtre de type de jeu
+    // Gérer les changements du filtre de type de jeu
     const handleGameTypeFilterChange = (selectedGameType: string) => {
         setGameTypeFilter(selectedGameType);
         handleFilterChange(categoryFilter, selectedGameType);
@@ -116,7 +146,12 @@ export default function GamesPage() {
     if (error) {
         return <p>{error}</p>;
     }
-console.log(games)
+
+    // Calculer les jeux à afficher pour la page actuelle
+    const indexOfLastGame = currentPage * itemsPerPage;
+    const indexOfFirstGame = indexOfLastGame - itemsPerPage;
+    const currentGames = filteredGames.slice(indexOfFirstGame, indexOfLastGame);
+
     return (
         <div className="flex min-h-screen w-full flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white">
             <AdminHeader />
@@ -124,25 +159,37 @@ console.log(games)
             <main className="flex flex-1 flex-col gap-4 p-6 md:p-12">
                 <Card className="bg-gray-800 shadow-lg shadow-purple-800/50">
                     <CardHeader>
-                        <CardTitle className="text-yellow-400 text-2xl font-extrabold">Gestion des jeux</CardTitle>
+                        <CardTitle className="text-yellow-400 text-2xl font-extrabold">
+                            Gestion des jeux
+                        </CardTitle>
                         <CardDescription className="text-gray-400">
                             Ajouter, modifier ou supprimer des jeux.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Button onClick={handleAddGame} className="mb-4 bg-green-600 hover:bg-green-500 text-white">
+                        <Button
+                            onClick={handleAddGame}
+                            className="mb-4 bg-green-600 hover:bg-green-500 text-white"
+                        >
                             Ajouter un jeu
                         </Button>
 
                         {/* Filtres pour les catégories et le type de jeu */}
-                        <div className="flex space-x-4 mb-4">
+                        <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
                             {/* Filtre de type de jeu */}
-                            <div>
-                                <label htmlFor="gameTypeFilter" className="text-white mr-2">Filtrer par type de jeu :</label>
+                            <div className="mb-4 md:mb-0">
+                                <label
+                                    htmlFor="gameTypeFilter"
+                                    className="text-white mr-2"
+                                >
+                                    Filtrer par type de jeu :
+                                </label>
                                 <select
                                     id="gameTypeFilter"
                                     value={gameTypeFilter}
-                                    onChange={(e) => handleGameTypeFilterChange(e.target.value)}
+                                    onChange={(e) =>
+                                        handleGameTypeFilterChange(e.target.value)
+                                    }
                                     className="bg-gray-700 border border-gray-600 text-white p-2 rounded"
                                 >
                                     <option value="ALL">Tous les types</option>
@@ -154,16 +201,26 @@ console.log(games)
 
                             {/* Filtre de catégorie */}
                             <div>
-                                <label htmlFor="categoryFilter" className="text-white mr-2">Filtrer par genre :</label>
+                                <label
+                                    htmlFor="categoryFilter"
+                                    className="text-white mr-2"
+                                >
+                                    Filtrer par genre :
+                                </label>
                                 <select
                                     id="categoryFilter"
                                     value={categoryFilter}
-                                    onChange={(e) => handleCategoryFilterChange(e.target.value)}
+                                    onChange={(e) =>
+                                        handleCategoryFilterChange(e.target.value)
+                                    }
                                     className="bg-gray-700 border border-gray-600 text-white p-2 rounded"
                                 >
                                     <option value="ALL">Toutes les genres</option>
                                     {categories.map((category) => (
-                                        <option key={category.id} value={category.name}>
+                                        <option
+                                            key={category.id}
+                                            value={category.name}
+                                        >
                                             {category.name}
                                         </option>
                                     ))}
@@ -171,43 +228,42 @@ console.log(games)
                             </div>
                         </div>
 
-                        {/* Table de jeux filtrée */}
-                        <Table className="table-auto">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="text-yellow-400">Nom</TableHead>
-                                    <TableHead className="text-yellow-400">Description</TableHead>
-                                    <TableHead className="text-yellow-400">Type</TableHead>
-                                    <TableHead className="text-yellow-400">Nombre de joueurs</TableHead>
-                                    <TableHead className="text-yellow-400">Catégorie</TableHead>
-                                    <TableHead className="text-yellow-400">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredGames.map((game) => (
-                                    <TableRow key={game.id} className="hover:bg-purple-700/30">
-                                        <TableCell className="text-white">
-                                            <Link href={`/admin/game/${game.id}`}>
-                                                <span className="text-yellow-400 hover:underline cursor-pointer">{game.name}</span>
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell className="text-white">{game.description}</TableCell>
-                                        <TableCell className="text-gray-300">{game.type}</TableCell>
-                                        <TableCell>{game.player_max ?? 'N/A'}</TableCell>
-                                        <TableCell className="text-gray-300">
+                        {/* Affichage en cartes sur les petits écrans */}
+                        <div className="md:hidden">
+                            {currentGames.map((game) => (
+                                <Card key={game.id} className="bg-gray-800 mb-4">
+                                    <CardHeader>
+                                        <CardTitle className="text-yellow-400">
+                                            {game.name}
+                                        </CardTitle>
+                                        <CardDescription className="text-gray-400">
+                                            {game.type}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-white">{game.description}</p>
+                                        <p className="text-gray-300">
+                                            Nombre de joueurs : {game.player_max ?? 'N/A'}
+                                        </p>
+                                        <p className="text-gray-300">
+                                            Catégorie(s) :{' '}
                                             {game.categories && game.categories.length > 0 ? (
                                                 game.categories.map((categoryRelation: any) => (
-                                                    <span key={categoryRelation.category.id} className="mr-2">
-                                                        {categoryRelation.category.name}
-                                                    </span>
+                                                    <span
+                                                        key={categoryRelation.category.id}
+                                                        className="mr-2"
+                                                    >
+                            {categoryRelation.category.name}
+                          </span>
                                                 ))
                                             ) : (
                                                 'N/A'
                                             )}
-                                        </TableCell>                                        <TableCell>
+                                        </p>
+                                        <div className="mt-4 flex flex-col space-y-2">
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <Button className="mr-4 bg-blue-600 hover:bg-blue-500 text-white">
+                                                    <Button className="bg-blue-600 hover:bg-blue-500 text-white w-full">
                                                         Modifier
                                                     </Button>
                                                 </DialogTrigger>
@@ -220,16 +276,126 @@ console.log(games)
                                             </Dialog>
                                             <Button
                                                 variant="destructive"
-                                                className="bg-red-600 hover:bg-red-500 text-white"
+                                                className="bg-red-600 hover:bg-red-500 text-white w-full"
                                                 onClick={() => handleDeleteGame(game.id)}
                                             >
                                                 Supprimer
                                             </Button>
-                                        </TableCell>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            {/* Pagination */}
+                            <Pagination
+                                totalItems={filteredGames.length}
+                                itemsPerPage={itemsPerPage}
+                                currentPage={currentPage}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
+
+                        {/* Affichage du tableau sur les écrans moyens et grands */}
+                        <div className="hidden md:block">
+                            <Table className="table-auto w-full">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="text-yellow-400">
+                                            Nom
+                                        </TableHead>
+                                        <TableHead className="text-yellow-400">
+                                            Description
+                                        </TableHead>
+                                        <TableHead className="text-yellow-400">
+                                            Type
+                                        </TableHead>
+                                        <TableHead className="text-yellow-400">
+                                            Nombre de joueurs
+                                        </TableHead>
+                                        <TableHead className="text-yellow-400">
+                                            Catégorie
+                                        </TableHead>
+                                        <TableHead className="text-yellow-400">
+                                            Actions
+                                        </TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {currentGames.map((game) => (
+                                        <TableRow
+                                            key={game.id}
+                                            className="hover:bg-purple-700/30"
+                                        >
+                                            <TableCell className="text-white">
+                                                <Link href={`/admin/game/${game.id}`}>
+                          <span className="text-yellow-400 hover:underline cursor-pointer">
+                            {game.name}
+                          </span>
+                                                </Link>
+                                            </TableCell>
+                                            <TableCell className="text-white">
+                                                {game.description}
+                                            </TableCell>
+                                            <TableCell className="text-gray-300">
+                                                {game.type}
+                                            </TableCell>
+                                            <TableCell>
+                                                {game.player_max ?? 'N/A'}
+                                            </TableCell>
+                                            <TableCell className="text-gray-300">
+                                                {game.categories && game.categories.length > 0 ? (
+                                                    game.categories.map(
+                                                        (categoryRelation: any) => (
+                                                            <span
+                                                                key={
+                                                                    categoryRelation.category.id
+                                                                }
+                                                                className="mr-2"
+                                                            >
+                                {
+                                    categoryRelation.category
+                                        .name
+                                }
+                              </span>
+                                                        )
+                                                    )
+                                                ) : (
+                                                    'N/A'
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button className="mr-4 bg-blue-600 hover:bg-blue-500 text-white">
+                                                            Modifier
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="bg-gray-800 text-white rounded-lg p-6 max-w-lg mx-auto">
+                                                        <GameEditForm
+                                                            gameId={game.id}
+                                                            onUpdate={handleGameUpdated}
+                                                        />
+                                                    </DialogContent>
+                                                </Dialog>
+                                                <Button
+                                                    variant="destructive"
+                                                    className="bg-red-600 hover:bg-red-500 text-white"
+                                                    onClick={() => handleDeleteGame(game.id)}
+                                                >
+                                                    Supprimer
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            {/* Pagination */}
+                            <Pagination
+                                totalItems={filteredGames.length}
+                                itemsPerPage={itemsPerPage}
+                                currentPage={currentPage}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
             </main>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getGameById } from '@/lib/actions/gameActions'; // Action pour obtenir un jeu spécifique
+import { getGameById } from '@/lib/actions/gameActions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import AdminHeader from "@/components/AdminHeader";
 import Image from "next/image";
@@ -12,12 +12,13 @@ export default function GameDetailsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const { id } = useParams() as { id: string | string[] }; // Récupérer l'ID du jeu depuis l'URL
+    const { id } = useParams() as { id: string | string[] };
 
     useEffect(() => {
         const fetchGame = async () => {
             try {
-                const fetchedGame = await getGameById(parseInt(Array.isArray(id) ? id[0] : id, 10)); // Obtenir les détails du jeu
+                const fetchedGame = await getGameById(parseInt(Array.isArray(id) ? id[0] : id, 10));
+                console.log('Jeu récupéré :', fetchedGame); // Vérifier les données reçues
                 setGame(fetchedGame);
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeu :', error);
@@ -49,13 +50,15 @@ export default function GameDetailsPage() {
                     <CardHeader>
                         <CardTitle className="text-yellow-400 text-4xl font-extrabold">{game.name}</CardTitle>
                         <CardDescription className="text-gray-400 mt-2">
-                            {/* Gestion des catégories multiples */}
                             Catégories :{' '}
                             {game.categories && game.categories.length > 0 ? (
-                                game.categories.map((category: any) => (
-                                    <span key={category.id} className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2">
-                                        {category.name}
-                                    </span>
+                                game.categories.map((categoryRelation: any) => (
+                                    <span
+                                        key={categoryRelation.category.id}
+                                        className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2"
+                                    >
+                    {categoryRelation.category.name}
+                  </span>
                                 ))
                             ) : (
                                 'Aucune catégorie'
@@ -70,7 +73,13 @@ export default function GameDetailsPage() {
                         )}
                         {game.coverImage && (
                             <div className="mb-6">
-                                <Image src={game.coverImage} alt={game.name} width={200} height={200} className="w-full h-auto rounded-lg shadow-md" />
+                                <Image
+                                    src={game.coverImage}
+                                    alt={game.name}
+                                    width={200}
+                                    height={200}
+                                    className="w-full h-auto rounded-lg shadow-md"
+                                />
                             </div>
                         )}
                     </CardContent>

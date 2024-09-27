@@ -1,4 +1,3 @@
-// pages/admin/category/[id].tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,10 +16,13 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
 
     const categoryId = parseInt(params.id, 10);
 
+    console.log(category)
+
     useEffect(() => {
         const fetchCategory = async () => {
             try {
                 const fetchedCategory = await getCategoryById(categoryId);
+                console.log('Données de la catégorie :', fetchedCategory); // Pour débogage
                 setCategory(fetchedCategory);
             } catch (error) {
                 console.error('Erreur lors de la récupération de la catégorie :', error);
@@ -55,16 +57,19 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
                             <p>Aucun jeu dans cette catégorie pour le moment.</p>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {category.games.map((game: any) => (
-                                    <div key={game.id} className="bg-gray-700 p-4 rounded-lg shadow-md">
-                                        <h3 className="text-xl text-yellow-400 font-bold">{game.name}</h3>
-                                        <p className="text-gray-300">{game.description}</p>
-                                        <Badge className="bg-yellow-500 text-black mt-2">{game.type}</Badge>
-                                        <Link href={`/admin/game/${game.id}`}>
-                                            <span className="mt-4 inline-block text-blue-400 hover:text-blue-500">Voir les détails</span>
-                                        </Link>
-                                    </div>
-                                ))}
+                                {category.games.map((gameRelation: any) => {
+                                    const game = gameRelation.game; // Accès ajusté
+                                    return (
+                                        <div key={game.id} className="bg-gray-700 p-4 rounded-lg shadow-md">
+                                            <h3 className="text-xl text-yellow-400 font-bold">{game.name}</h3>
+                                            <p className="text-gray-300">{game.description}</p>
+                                            <Badge className="bg-yellow-500 text-black mt-2">{game.type}</Badge>
+                                            <Link href={`/admin/game/${game.id}`}>
+                                                <span className="mt-4 inline-block text-blue-400 hover:text-blue-500">Voir les détails</span>
+                                            </Link>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </CardContent>

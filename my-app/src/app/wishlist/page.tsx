@@ -91,18 +91,24 @@ export default function WishlistPage() {
                                 </Button>
                             </CardHeader>
                             <CardContent className="p-4">
-                                <CardTitle className="text-xl font-bold text-yellow-400">{wishlistItem.game.name}</CardTitle>
-                                <CardDescription className="text-gray-300">{wishlistItem.game.description}</CardDescription>
+                                <CardTitle
+                                    className="text-xl font-bold text-yellow-400">{wishlistItem.game.name}</CardTitle>
+                                <CardDescription
+                                    className="text-gray-300">{wishlistItem.game.description}</CardDescription>
                                 <p className="text-sm text-gray-400 mt-2">Type : {wishlistItem.game.type}</p>
-                                <div className="mt-4 flex justify-between">
-                                    <Link href={`/games/${wishlistItem.gameId}`}>
-                                        <Button className="bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition">
+                                <div
+                                    className="mt-4 flex flex-col items-center space-y-4 md:flex-row md:justify-between md:space-y-0 md:space-x-4">
+                                    <Link href={`/games/${wishlistItem.gameId}`} className="w-full md:w-auto">
+                                        <Button
+                                            className="bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition w-full md:w-auto">
                                             Voir plus
                                         </Button>
                                     </Link>
-                                    <Link href={`/session-search/${wishlistItem.gameId}/public-sessions`} passHref>
-                                        <Button className="bg-purple-600 text-white hover:bg-purple-700 flex items-center">
-                                            Trouver une session public <span className="ml-2">🎮</span>
+                                    <Link href={`/session-search/${wishlistItem.gameId}/public-sessions`} passHref
+                                          className="w-full md:w-auto">
+                                        <Button
+                                            className="bg-purple-600 text-white hover:bg-purple-700 flex items-center w-full md:w-auto">
+                                            Trouver une session <span className="ml-2">🎮</span>
                                         </Button>
                                     </Link>
                                 </div>
@@ -114,7 +120,8 @@ export default function WishlistPage() {
                 <div className="text-center">
                     <p className="text-xl text-gray-300">Votre wishlist est vide pour l&apos;instant.</p>
                     <Link href="/games">
-                        <Button className="mt-6 bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition">
+                        <Button
+                            className="mt-6 bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition">
                             Explorer les jeux
                         </Button>
                     </Link>

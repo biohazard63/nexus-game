@@ -210,32 +210,48 @@ export default function SessionPage({ params }: { params: { id: string } }) {
             <h1 className="text-4xl font-bold text-yellow-400 mb-6">{session.title}</h1>
             <div className="mb-2">
                 {isHost ? (
-                    <div>
-                        <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
+                    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+                        <Button
+                            onClick={() => router.push(`/session/${session.id}/salon`)}
+                            className="bg-green-500 text-black w-full md:w-auto"
+                        >
                             Démarrer la session
                         </Button>
-                        {/*<Button onClick={() => console.log('Inviter des amis')} className="bg-blue-500 text-black ml-4">*/}
-                        {/*    Inviter des amis*/}
-                        {/*</Button>*/}
-                        <Button onClick={() => router.push(`/session/edit/${session.id}`)} className="bg-yellow-500 text-black ml-4">
+                        <Button
+                            onClick={() => router.push(`/session/edit/${session.id}`)}
+                            className="bg-yellow-500 text-black w-full md:w-auto"
+                        >
                             Modifier la session
                         </Button>
-                        <Button onClick={handleDeleteSession} className="bg-red-600 text-white ml-4">
+                        <Button
+                            onClick={handleDeleteSession}
+                            className="bg-red-600 text-white w-full md:w-auto"
+                        >
                             Supprimer la session
                         </Button>
                     </div>
                 ) : isParticipant ? (
-                    <div>
-                        <Button onClick={() => router.push(`/session/${session.id}/salon`)} className="bg-green-500 text-black">
+                    <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+                        <Button
+                            onClick={() => router.push(`/session/${session.id}/salon`)}
+                            className="bg-green-500 text-black w-full md:w-auto"
+                        >
                             Rejoindre le salon
                         </Button>
-                        <Button onClick={handleLeaveSession} className="bg-red-600 text-white ml-4" disabled={loadingStatus}>
+                        <Button
+                            onClick={handleLeaveSession}
+                            className="bg-red-600 text-white w-full md:w-auto"
+                            disabled={loadingStatus}
+                        >
                             Quitter la session
                         </Button>
                     </div>
                 ) : (
-                    <div>
-                        <Button onClick={handleJoinSession} className="bg-blue-500 text-black">
+                    <div className="flex justify-center">
+                        <Button
+                            onClick={handleJoinSession}
+                            className="bg-blue-500 text-black w-full md:w-auto"
+                        >
                             Rejoindre la session
                         </Button>
                     </div>
@@ -252,16 +268,19 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                     <div className="flex flex-col md:flex-row justify-between items-center">
                         <div className="md:w-1/2">
                             <p className="text-gray-300 mb-6">{session.game.description}</p>
-                            <p className="text-gray-400 mb-2">Type de jeu : <span className="text-yellow-400">{session.game.type}</span></p>
+                            <p className="text-gray-400 mb-2">Type de jeu : <span
+                                className="text-yellow-400">{session.game.type}</span></p>
                             {session.game.player_max && (
-                                <p className="text-gray-400 mb-2">Joueurs maximum : <span className="text-yellow-400">{session.game.player_max}</span></p>
+                                <p className="text-gray-400 mb-2">Joueurs maximum : <span
+                                    className="text-yellow-400">{session.game.player_max}</span></p>
                             )}
                             {session.game.categories?.length > 0 && (
                                 <div className="text-gray-400 mb-2">
                                     Catégories :
                                     <ul className="list-disc list-inside">
                                         {session.game.categories.map((cat: any) => (
-                                            <li key={cat.category.id} className="text-yellow-400">{cat.category.name}</li>
+                                            <li key={cat.category.id}
+                                                className="text-yellow-400">{cat.category.name}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -285,10 +304,12 @@ export default function SessionPage({ params }: { params: { id: string } }) {
             <div className="mt-12">
                 <h2 className="text-3xl font-bold text-yellow-400 mb-4">Participants</h2>
                 {session.participations?.length > 0 ? (
-                    <div className="flex flex-wrap gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {session.participations.map((participation: any) => (
-                            <Card key={participation.id}
-                                  className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center space-x-4 w-full max-w-xs">
+                            <Card
+                                key={participation.id}
+                                className="bg-gray-800 p-4 rounded-lg shadow-md flex items-center space-x-4"
+                            >
                                 <Avatar className="flex-shrink-0">
                                     {participation.user.profilePicture ? (
                                         <AvatarImage src={participation.user.profilePicture}
@@ -363,7 +384,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
                 </div>
             )}
 
-            <div className="mt-12" style={{width: '65%'}}>
+            <div className="mt-12 w-full md:w-2/3">
                 <h2 className="text-3xl font-bold text-yellow-400 mb-4">Commentaires</h2>
                 {session.comments?.length > 0 ? (
                     <div className="space-y-4">
@@ -394,7 +415,7 @@ export default function SessionPage({ params }: { params: { id: string } }) {
 
                 {isParticipant && currentUserId !== null && (
                     <div className="mt-6">
-                        <CommentInput sessionId={session.id} userId={currentUserId} />
+                        <CommentInput sessionId={session.id} userId={currentUserId}/>
                     </div>
                 )}
             </div>

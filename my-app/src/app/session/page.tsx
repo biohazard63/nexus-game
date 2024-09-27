@@ -63,14 +63,18 @@ export default function UserSessionsPage() {
         <div className="min-h-screen w-full flex flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white p-6 md:p-12">
             <h1 className="text-4xl font-extrabold text-yellow-400 mb-8 text-center">Mes Sessions</h1>
 
-            <div className="flex justify-center mb-8">
+            {/* Boutons d'action */}
+            <div className="flex flex-col items-center space-y-4 md:flex-row md:justify-center md:space-y-0 md:space-x-4 mb-8">
                 <Button
                     onClick={handleCreateSession}
-                    className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2 rounded-lg font-bold hover:from-green-700 hover:to-green-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                    className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-2 rounded-lg font-bold w-full md:w-auto hover:from-green-700 hover:to-green-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
                     Créer une nouvelle session
                 </Button>
-                <Button onClick={handleSearchSessions} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold ml-4 hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                <Button
+                    onClick={handleSearchSessions}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold w-full md:w-auto hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
                     Rechercher des sessions
                 </Button>
             </div>

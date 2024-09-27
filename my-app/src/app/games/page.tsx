@@ -110,11 +110,11 @@ export default function UserGamesPage() {
             <h1 className="text-4xl font-extrabold text-center text-yellow-400 mb-8">Liste des Jeux</h1>
 
             {/* Filtres pour les types et les catégories */}
-            <div className="flex justify-center space-x-4 mb-8">
-                <div>
+            <div className="flex flex-col md:flex-row justify-center md:space-x-4 space-y-4 md:space-y-0 mb-8">
+                <div className="w-full md:w-auto">
                     <label className="block text-yellow-400 mb-2">Filtrer par type</label>
                     <Select onValueChange={setSelectedType} value={selectedType}>
-                        <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-48">
+                        <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-full md:w-48">
                             <SelectValue placeholder="Sélectionnez un type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -128,10 +128,10 @@ export default function UserGamesPage() {
                     </Select>
                 </div>
 
-                <div>
+                <div className="w-full md:w-auto">
                     <label className="block text-yellow-400 mb-2">Filtrer par genre</label>
                     <Select onValueChange={setSelectedCategory} value={selectedCategory}>
-                        <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-48">
+                        <SelectTrigger className="bg-gray-700 border border-gray-600 text-white w-full md:w-48">
                             <SelectValue placeholder="Sélectionnez un genre" />
                         </SelectTrigger>
                         <SelectContent>
@@ -178,14 +178,16 @@ export default function UserGamesPage() {
                             )}
 
                             {/* Boutons d'actions */}
-                            <div className="flex justify-between mt-4">
-                                <Link href={`/games/${game.id}`}>
-                                    <Button className="bg-yellow-400 text-black hover:bg-yellow-500">Voir plus</Button>
+                            <div className="flex flex-col md:flex-row justify-between mt-4 space-y-2 md:space-y-0 md:space-x-4">
+                                <Link href={`/games/${game.id}`} className="w-full md:w-auto">
+                                    <Button className="bg-yellow-400 text-black hover:bg-yellow-500 w-full md:w-auto">
+                                        Voir plus
+                                    </Button>
                                 </Link>
                                 <Button
                                     className={`flex items-center ${
                                         wishlist.includes(game.id) ? 'bg-white text-purple-600' : 'bg-purple-600 text-white'
-                                    } hover:bg-purple-700`}
+                                    } hover:bg-purple-700 w-full md:w-auto`}
                                     onClick={() => handleAddToWishlist(game.id)}
                                 >
                                     <Heart className="mr-2" />

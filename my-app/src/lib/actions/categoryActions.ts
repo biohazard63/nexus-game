@@ -20,17 +20,19 @@ export async function getCategoryById(categoryId: number) {
     try {
         const category = await prisma.category.findUnique({
             where: { id: categoryId },
-            include: { games: true }, // Inclure les jeux dans la requête
+            include: {
+                games: {
+                    include: {
+                        game: true, // Inclure les données complètes du jeu
+                    },
+                },
+            },
         });
-
-        if (!category) {
-            throw new Error(`La catégorie avec l'ID ${categoryId} n'existe pas.`);
-        }
 
         return category;
     } catch (error) {
         console.error('Erreur lors de la récupération de la catégorie :', error);
-        throw new Error('Impossible de récupérer la catégorie.');
+        throw error;
     }
 }
 

@@ -45,7 +45,7 @@ export default function Chat({ sessionId, userId }: { sessionId: number, userId:
     };
 
     return (
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col h-full w-96">
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col h-full w-full max-w-md mx-auto">
             <div className="overflow-y-auto flex-grow mb-4 space-y-4">
                 {messages.map((message) => (
                     <div
@@ -64,7 +64,7 @@ export default function Chat({ sessionId, userId }: { sessionId: number, userId:
                             </Avatar>
                         )}
                         <div
-                            className={`p-3 rounded-lg max-w-xs ${
+                            className={`p-3 rounded-lg max-w-full md:max-w-xs ${
                                 message.userId === userId
                                     ? 'bg-blue-500 text-white ml-auto'
                                     : 'bg-gray-600 text-white'
@@ -91,16 +91,20 @@ export default function Chat({ sessionId, userId }: { sessionId: number, userId:
                 ))}
             </div>
 
-            <div className="flex">
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
                 <input
                     type="text"
-                    className="flex-grow p-2 rounded-md bg-gray-700 text-white"
+                    className="flex-grow p-2 rounded-md bg-gray-700 text-white w-full"
                     placeholder="Tapez votre message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !loading && handleSendMessage()}
                 />
-                <Button onClick={handleSendMessage} className="ml-2 bg-blue-500 text-black" disabled={loading}>
+                <Button
+                    onClick={handleSendMessage}
+                    className="bg-blue-500 text-black w-full sm:w-auto"
+                    disabled={loading}
+                >
                     Envoyer
                 </Button>
             </div>

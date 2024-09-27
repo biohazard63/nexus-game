@@ -151,10 +151,10 @@ export default function GameDetailsPage() {
                             </CardContent>
 
                             {/* Boutons d'action */}
-                            <div className="mt-6 flex justify-center gap-4">
+                            <div className="mt-6 flex flex-col items-center space-y-4 md:flex-row md:justify-center md:space-y-0 md:space-x-4">
                                 <Button
                                     onClick={handleAddToWishlist}
-                                    className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                                    className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 w-full md:w-auto ${
                                         isInWishlist
                                             ? 'bg-green-500 text-black'
                                             : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800'
@@ -164,13 +164,14 @@ export default function GameDetailsPage() {
                                     {isInWishlist ? 'Ajouté à la wishlist' : 'Ajouter à ma wishlist'}
                                 </Button>
                                 <Link href={`/session-search/${game?.id}/public-sessions`} passHref>
-                                    <Button className="bg-yellow-600 text-white hover:bg-purple-700 flex items-center">
-                                        Trouver une session public <span className="ml-2">🎮</span>
+                                    <Button className="bg-yellow-600 text-white hover:bg-purple-700 flex items-center w-full md:w-auto">
+                                        Trouver une session publique <span className="ml-2">🎮</span>
                                     </Button>
                                 </Link>
                                 <Button
                                     onClick={handleCreateSession}
-                                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300 w-full md:w-auto"
+                                >
                                     Créer une session
                                 </Button>
                             </div>
