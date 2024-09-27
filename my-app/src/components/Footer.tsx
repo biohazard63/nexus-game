@@ -46,7 +46,7 @@ const Footer: React.FC = () => {
 
             {/* Informations légales */}
             <div className="mt-6 text-center text-gray-500 text-sm">
-                <p>&copy; {new Date().getFullYear()} Nom de l'Application. Tous droits réservés.</p>
+                <p>&copy; {new Date().getFullYear()} Nom de l&apos;Application. Tous droits réservés.</p>
             </div>
         </footer>
     );

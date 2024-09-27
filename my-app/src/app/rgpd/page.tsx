@@ -1,4 +1,3 @@
-// pages/rgpd.tsx
 
 'use client';
 
@@ -24,7 +23,7 @@ export default function RGPDPage() {
                 {/* Section 2: Utilisation des informations */}
                 <h2 className="text-2xl font-bold mt-6 mb-4">2. Utilisation des informations</h2>
                 <p className="mb-4">
-                    [Expliquez comment vous utilisez les données collectées, par exemple : pour améliorer les services, personnaliser l'expérience utilisateur, etc.]
+                    [Expliquez comment vous utilisez les données collectées, par exemple : pour améliorer les services, personnaliser l&apos;expérience utilisateur, etc.]
                 </p>
 
                 {/* Section 3: Partage des informations */}
@@ -36,7 +35,7 @@ export default function RGPDPage() {
                 {/* Section 4: Droits de l'utilisateur */}
                 <h2 className="text-2xl font-bold mt-6 mb-4">4. Vos droits</h2>
                 <p className="mb-4">
-                    [Informez les utilisateurs de leurs droits en matière de protection des données, comme le droit d'accès, de rectification, de suppression, etc.]
+                    [Informez les utilisateurs de leurs droits en matière de protection des données, comme le droit d&apos;accès, de rectification, de suppression, etc.]
                 </p>
 
                 {/* Section 5: Sécurité des données */}
@@ -48,7 +47,7 @@ export default function RGPDPage() {
                 {/* Section 6: Contact */}
                 <h2 className="text-2xl font-bold mt-6 mb-4">6. Contact</h2>
                 <p className="mb-4">
-                    Si vous avez des questions concernant cette politique de confidentialité, vous pouvez nous contacter à l'adresse suivante :
+                    Si vous avez des questions concernant cette politique de confidentialité, vous pouvez nous contacter à l&apos;adresse suivante :
                 </p>
                 <p className="mb-4">
                     Email : <a href="mailto:quentindevaulx63@gmail.com" className="text-blue-400 hover:underline">quentindevaulx63@gmail.com</a>
