@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getCategoryById, updateCategory } from '@/lib/actions/categoryActions'; // Actions pour obtenir et mettre à jour une catégorie
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectItem, SelectTrigger, SelectContent } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {useState, useEffect} from 'react';
+import {useRouter} from 'next/navigation';
+import {getCategoryById, updateCategory} from '@/lib/actions/categoryActions'; // Actions pour obtenir et mettre à jour une catégorie
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import {Select, SelectItem, SelectTrigger, SelectContent} from '@/components/ui/select';
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 
 interface CategoryEditFormProps {
-    categoryId: number;
+    categoryId: number,
+    onUpdate?: (updatedCategory: any) => void
 }
 
-export default function CategoryEditForm({ categoryId }: CategoryEditFormProps) {
+export default function CategoryEditForm({categoryId, onUpdate}: CategoryEditFormProps) {
     const [category, setCategory] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -65,13 +66,13 @@ export default function CategoryEditForm({ categoryId }: CategoryEditFormProps) 
                     <Input
                         type="text"
                         value={category.name}
-                        onChange={(e) => setCategory({ ...category, name: e.target.value })}
+                        onChange={(e) => setCategory({...category, name: e.target.value})}
                         placeholder="Nom de la catégorie"
                         required
                         className="bg-gray-700 border border-gray-600 text-white"
                     />
 
-                    <Select onValueChange={(value) => setCategory({ ...category, type: value })}>
+                    <Select onValueChange={(value) => setCategory({...category, type: value})}>
                         <SelectTrigger className="bg-gray-700 border border-gray-600 text-white">
                             <span>{category.type}</span>
                         </SelectTrigger>

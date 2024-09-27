@@ -19,19 +19,19 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        // Fonction pour charger les données de l'utilisateur
-        const loadUser = async () => {
-            try {
-                const userData = await getUserById(parseInt(params.id));
-                setUser(userData);
-                setLoading(false);
-            } catch (error) {
-                console.error('Erreur lors du chargement du profil utilisateur:', error);
-                setLoading(false);
-            }
-        };
+    // Déplacer la fonction loadUser en dehors du useEffect
+    const loadUser = async () => {
+        try {
+            const userData = await getUserById(parseInt(params.id));
+            setUser(userData);
+            setLoading(false);
+        } catch (error) {
+            console.error('Erreur lors du chargement du profil utilisateur:', error);
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         // Fonction pour récupérer l'ID de l'utilisateur connecté via Firebase
         const loadCurrentUser = async () => {
             const firebaseId = sessionStorage.getItem('userId');
@@ -116,12 +116,14 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                         </Avatar>
                     </div>
                     <div className="md:w-2/3 text-center md:text-left mt-4 md:mt-0 md:ml-12">
-                        <p className="text-gray-300 mb-2">Nom complet : {user.first_name} {user.last_name}</p>
-                        <p className="text-gray-300 mb-4">Bio : {user.bio || "Aucune bio disponible"}</p>
+                        <p className="text-gray-300 mb-2">
+                            Nom complet : {user.first_name} {user.last_name}
+                        </p>
+                        <p className="text-gray-300 mb-4">Bio : {user.bio || 'Aucune bio disponible'}</p>
                         <div className="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-4 mt-4">
-                            {/*<Button type="button" className="bg-blue-500 text-black w-full md:w-auto" onClick={() => console.log('Demande envoyée')}>*/}
-                            {/*    Ajouter en ami*/}
-                            {/*</Button>*/}
+                            {/*<Button type="button" className="bg-blue-500 text-black w-full md:w-auto" onClick={() => console.log('Demande envoyée')}>
+                  Ajouter en ami
+                </Button>*/}
                             <Button onClick={() => router.back()} className="bg-yellow-500 text-black w-full md:w-auto">
                                 Retour
                             </Button>
@@ -168,8 +170,8 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
             </div>
 
             {/* Liste des évaluations existantes */}
-            <div className=" p-4 rounded-lg shadow-lg mt-4 w-full max-w-4xl mx-auto">
-                <h2 className="text-lg font-semibold   mb-4">Avis de cet utilisateur</h2>
+            <div className="p-4 rounded-lg shadow-lg mt-4 w-full max-w-4xl mx-auto">
+                <h2 className="text-lg font-semibold mb-4">Avis de cet utilisateur</h2>
                 {user.ratingsReceived?.length > 0 ? (
                     user.ratingsReceived.map((rating: any) => (
                         <Card key={rating.id} className="mb-4 bg-gray-500">
@@ -178,8 +180,8 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                                     <div className="flex space-x-1">
                                         {[...Array(5)].map((_, i) => (
                                             <span key={i} className="text-yellow-400 text-xl">
-                                                {i < rating.rating ? '★' : '☆'}
-                                            </span>
+                        {i < rating.rating ? '★' : '☆'}
+                      </span>
                                         ))}
                                     </div>
                                     <p className="text-gray-300 text-sm">Par {rating.sender.username}</p>
