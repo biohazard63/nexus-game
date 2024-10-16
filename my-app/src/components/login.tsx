@@ -155,10 +155,10 @@ export function LoginForm() {
                     <Button onClick={handleLogin} className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition-all">
                         Se connecter
                     </Button>
-                    <Button variant="outline" className="w-full border border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white transition-colors" onClick={handleGoogleLogin}>
+                    <Button variant="outline" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800" onClick={handleGoogleLogin}>
                         Connexion avec Google
                     </Button>
-                    <Button variant="outline" className="w-full border border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white transition-colors" onClick={handleGithubLogin}>
+                    <Button variant="outline" className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800" onClick={handleGithubLogin}>
                         Connexion avec GitHub
                     </Button>
                 </div>
