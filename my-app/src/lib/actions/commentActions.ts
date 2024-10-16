@@ -1,8 +1,23 @@
+/**
+ * @file commentActions.ts
+ *
+ * This file contains server-side functions for managing comments in the application.
+ * It includes functions to create, retrieve, update, and delete comments using Prisma ORM.
+ */
+
 'use server';
 
 import { prisma } from '@/server/db/db';
 
-// Fonction pour créer un nouveau commentaire
+/**
+ * Creates a new comment for a session.
+ *
+ * @param {number} sessionId - The ID of the session to add the comment to.
+ * @param {number} userId - The ID of the user adding the comment.
+ * @param {string} content - The content of the comment.
+ * @returns {Promise<any>} A promise that resolves to the newly created comment.
+ * @throws Will throw an error if the comment cannot be created.
+ */
 export async function addCommentToSession(sessionId: number, userId: number, content: string) {
     try {
         const newComment = await prisma.comment.create({
@@ -12,7 +27,7 @@ export async function addCommentToSession(sessionId: number, userId: number, con
                 content,
             },
             include: {
-                user: true,  // Inclure les informations sur l'utilisateur qui a posté le commentaire
+                user: true,  // Include user information
             },
         });
 
@@ -23,16 +38,22 @@ export async function addCommentToSession(sessionId: number, userId: number, con
     }
 }
 
-// Fonction pour récupérer tous les commentaires d'une session
+/**
+ * Retrieves all comments for a session.
+ *
+ * @param {number} sessionId - The ID of the session to retrieve comments for.
+ * @returns {Promise<any[]>} A promise that resolves to an array of comments.
+ * @throws Will throw an error if the comments cannot be retrieved.
+ */
 export async function getCommentsBySessionId(sessionId: number) {
     try {
         const comments = await prisma.comment.findMany({
             where: { sessionId },
             include: {
-                user: true,  // Inclure les informations sur l'utilisateur
+                user: true,  // Include user information
             },
             orderBy: {
-                createdAt: 'asc',  // Trier les commentaires par date de création croissante
+                createdAt: 'asc',  // Order comments by creation date ascending
             },
         });
 
@@ -43,7 +64,14 @@ export async function getCommentsBySessionId(sessionId: number) {
     }
 }
 
-// Fonction pour mettre à jour un commentaire
+/**
+ * Updates a comment.
+ *
+ * @param {number} commentId - The ID of the comment to update.
+ * @param {string} content - The new content of the comment.
+ * @returns {Promise<any>} A promise that resolves to the updated comment.
+ * @throws Will throw an error if the comment cannot be updated.
+ */
 export async function updateComment(commentId: number, content: string) {
     try {
         const updatedComment = await prisma.comment.update({
@@ -58,7 +86,13 @@ export async function updateComment(commentId: number, content: string) {
     }
 }
 
-// Fonction pour supprimer un commentaire
+/**
+ * Deletes a comment.
+ *
+ * @param {number} commentId - The ID of the comment to delete.
+ * @returns {Promise<Object>} A promise that resolves to an object indicating success.
+ * @throws Will throw an error if the comment cannot be deleted.
+ */
 export async function deleteComment(commentId: number) {
     try {
         await prisma.comment.delete({
@@ -70,5 +104,3 @@ export async function deleteComment(commentId: number) {
         throw new Error('Impossible de supprimer le commentaire.');
     }
 }
-
-

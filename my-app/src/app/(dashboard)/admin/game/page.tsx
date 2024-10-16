@@ -1,3 +1,16 @@
+/**
+ * GamesPage component
+ *
+ * This component is responsible for managing the games in the admin dashboard.
+ * It allows the user to add, edit, delete, and filter games by category and type.
+ *
+ * @component
+ * @example
+ * return (
+ *   <GamesPage />
+ * )
+ */
+
 'use client';
 
 import React, { useEffect, useState } from 'react';

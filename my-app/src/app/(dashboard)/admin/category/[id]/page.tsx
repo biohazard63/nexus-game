@@ -8,6 +8,21 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import AdminHeader from "@/components/AdminHeader";
 
+/**
+ * CategoryPage component
+ *
+ * This component renders a page displaying the details of a specific category, including the games within that category.
+ * It fetches the category data based on the provided category ID.
+ *
+ * @component
+ * @param {Object} props - The component props.
+ * @param {Object} props.params - The route parameters.
+ * @param {string} props.params.id - The ID of the category to display.
+ * @example
+ * return (
+ *   <CategoryPage params={{ id: '1' }} />
+ * )
+ */
 export default function CategoryPage({ params }: { params: { id: string } }) {
     const [category, setCategory] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -16,7 +31,6 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
 
     const categoryId = parseInt(params.id, 10);
 
-    console.log(category)
 
     useEffect(() => {
         const fetchCategory = async () => {

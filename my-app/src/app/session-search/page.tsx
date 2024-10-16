@@ -1,3 +1,16 @@
+/**
+ * PublicSessionsPage component
+ *
+ * This component displays a list of public sessions available for users to join.
+ * It includes filters for genre and game type, and fetches data from the backend.
+ *
+ * @component
+ * @example
+ * return (
+ *   <PublicSessionsPage />
+ * )
+ */
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -20,7 +33,6 @@ export default function PublicSessionsPage() {
     const [gameTypes, setGameTypes] = useState<string[]>([]); // Liste des types de jeux
     const router = useRouter();
 
-    console.log(sessions);
 
     useEffect(() => {
         const fetchSessions = async () => {

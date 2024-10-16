@@ -11,6 +11,18 @@ import CategoryEditForm from "@/components/CategoryEditForm";
 import Link from "next/link";
 import { Pagination } from '@/components/Pagination';
 
+/**
+ * CategoriesPage component
+ *
+ * This component renders a page for managing categories, including adding, editing, and deleting categories.
+ * It also includes pagination for navigating through the list of categories.
+ *
+ * @component
+ * @example
+ * return (
+ *   <CategoriesPage />
+ * )
+ */
 export default function CategoriesPage() {
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -35,13 +47,18 @@ export default function CategoriesPage() {
         fetchCategories();
     }, []);
 
+    /**
+     * Handles the deletion of a category.
+     *
+     * @param {number} categoryId - The ID of the category to delete.
+     */
     const handleDeleteCategory = async (categoryId: number) => {
         try {
             await deleteCategory(categoryId);
             const updatedCategories = categories.filter((category) => category.id !== categoryId);
             setCategories(updatedCategories);
 
-            // Ajuster la page actuelle si nécessaire
+            // Adjust the current page if necessary
             const totalPages = Math.ceil(updatedCategories.length / itemsPerPage);
             if (currentPage > totalPages) {
                 setCurrentPage(totalPages);
@@ -51,15 +68,28 @@ export default function CategoriesPage() {
         }
     };
 
+    /**
+     * Sets the category to be edited.
+     *
+     * @param {any} category - The category to edit.
+     */
     const handleEditCategory = (category: any) => {
         setEditingCategory(category);
     };
 
+    /**
+     * Updates the category in the state after editing.
+     *
+     * @param {any} updatedCategory - The updated category.
+     */
     const handleCategoryUpdated = (updatedCategory: any) => {
         setCategories(categories.map((c) => (c.id === updatedCategory.id ? updatedCategory : c)));
         setEditingCategory(null);
     };
 
+    /**
+     * Handles the addition of a new category.
+     */
     const handleAddCategory = async () => {
         try {
             const newCategory = await createCategory({ name: 'Nouvelle Catégorie', type: 'VIDEO_GAME' });
@@ -77,7 +107,7 @@ export default function CategoriesPage() {
         return <p>{error}</p>;
     }
 
-    // Calculer les catégories à afficher pour la page actuelle
+    // Calculate the categories to display for the current page
     const indexOfLastCategory = currentPage * itemsPerPage;
     const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
     const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
@@ -105,7 +135,7 @@ export default function CategoriesPage() {
                                 Ajouter une catégorie
                             </Button>
 
-                            {/* Affichage en cartes sur les petits écrans */}
+                            {/* Display cards on small screens */}
                             <div className="md:hidden">
                                 {currentCategories.map((category) => (
                                     <Card key={category.id} className="bg-gray-800 mb-4">
@@ -141,7 +171,7 @@ export default function CategoriesPage() {
                                 />
                             </div>
 
-                            {/* Affichage du tableau sur les écrans moyens et grands */}
+                            {/* Display table on medium and large screens */}
                             <div className="hidden md:block">
                                 <Table className="table-auto w-full">
                                     <TableHeader>

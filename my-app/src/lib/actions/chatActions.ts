@@ -1,8 +1,21 @@
+/**
+ * @file chatActions.ts
+ *
+ * This file contains server-side functions for managing chat messages in the application.
+ * It includes functions to retrieve and send chat messages using Prisma ORM.
+ */
+
 'use server';
 
 import { prisma } from '@/server/db/db';
 
-// Récupérer les messages d'un salon spécifique
+/**
+ * Fetches chat messages for a specific session.
+ *
+ * @param {number} sessionId - The ID of the session to retrieve messages for.
+ * @returns {Promise<any[]>} A promise that resolves to an array of chat messages.
+ * @throws Will throw an error if the messages cannot be retrieved.
+ */
 export async function getChatMessages(sessionId: number) {
     try {
         const messages = await prisma.chat.findMany({
@@ -24,7 +37,15 @@ export async function getChatMessages(sessionId: number) {
     }
 }
 
-// Envoyer un nouveau message dans le chat
+/**
+ * Sends a new message in the chat.
+ *
+ * @param {number} sessionId - The ID of the session to send the message to.
+ * @param {number} userId - The ID of the user sending the message.
+ * @param {string} message - The content of the message.
+ * @returns {Promise<any>} A promise that resolves to the newly created chat message.
+ * @throws Will throw an error if the message cannot be sent.
+ */
 export async function sendChatMessage(sessionId: number, userId: number, message: string) {
     try {
         const newMessage = await prisma.chat.create({

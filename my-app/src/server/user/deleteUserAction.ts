@@ -1,10 +1,21 @@
+/**
+ * @file deleteUserAction.ts
+ *
+ * This file contains a server-side function for deleting a user from PostgreSQL using Prisma ORM.
+ */
+
 'use server';
 
 import { prisma } from '../db/db'; // Import the Prisma client
 
-
-// Function to delete user from PostgreSQL
-export async function deleteUser(userId: number) {
+/**
+ * Deletes a user from PostgreSQL.
+ *
+ * @param {number} userId - The ID of the user to delete.
+ * @returns {Promise<void>} A promise that resolves when the user is deleted.
+ * @throws Will throw an error if the user cannot be deleted.
+ */
+export async function deleteUser(userId: number): Promise<void> {
     try {
         // 1. Delete the user from PostgreSQL
         await prisma.user.delete({

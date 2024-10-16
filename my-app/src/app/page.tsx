@@ -36,15 +36,15 @@ export default function Home() {
                 <title>GameMaster - Découvrez et Collectionnez Vos Jeux Vidéo, Jeux de Société, et Jeux de Rôle</title>
                 <meta
                     name="description"
-                    content="GameMaster est votre plateforme ultime pour découvrir des jeux vidéo, des jeux de société, et des jeux de rôle. Créez votre compte gratuitement et explorez notre vaste collection de jeux. Partagez vos expériences et connectez-vous avec d'autres joueurs."
+                    content="nexus est votre plateforme ultime pour découvrir des jeux vidéo, des jeux de société, et des jeux de rôle. Créez votre compte gratuitement et explorez notre vaste collection de jeux. Partagez vos expériences et connectez-vous avec d'autres joueurs."
                 />
                 <meta
                     name="keywords"
                     content="jeux vidéo, jeux de société, jeux de rôle, collection de jeux, plateforme de jeux, communauté de joueurs, découvrir des jeux, jouer en ligne"
                 />
-                <meta name="author" content="GameMaster" />
+                <meta name="author" content="nexus" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <link rel="canonical" href="https://www.gamemaster.com" />
+                <link rel="canonical" href="https://nexus-game.vercel.app/" />
             </Head>
 
             <main className="flex min-h-screen flex-col items-center justify-between bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white">

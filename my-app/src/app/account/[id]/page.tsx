@@ -1,3 +1,18 @@
+/**
+ * UserProfilePage component
+ *
+ * This component is responsible for displaying a user's profile, including their details and ratings.
+ * It fetches user data from the server and allows the current user to submit a rating and review.
+ *
+ * @component
+ * @example
+ * return (
+ *   <UserProfilePage params={{ id: '1' }} />
+ * )
+ *
+ * @param {Object} params - The parameters passed to the component.
+ * @param {string} params.id - The ID of the user whose profile is being viewed.
+ */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -121,9 +136,6 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                         </p>
                         <p className="text-gray-300 mb-4">Bio : {user.bio || 'Aucune bio disponible'}</p>
                         <div className="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-4 mt-4">
-                            {/*<Button type="button" className="bg-blue-500 text-black w-full md:w-auto" onClick={() => console.log('Demande envoyée')}>
-                  Ajouter en ami
-                </Button>*/}
                             <Button onClick={() => router.back()} className="bg-yellow-500 text-black w-full md:w-auto">
                                 Retour
                             </Button>
@@ -180,8 +192,8 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
                                     <div className="flex space-x-1">
                                         {[...Array(5)].map((_, i) => (
                                             <span key={i} className="text-yellow-400 text-xl">
-                        {i < rating.rating ? '★' : '☆'}
-                      </span>
+                                                {i < rating.rating ? '★' : '☆'}
+                                            </span>
                                         ))}
                                     </div>
                                     <p className="text-gray-300 text-sm">Par {rating.sender.username}</p>

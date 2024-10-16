@@ -1,3 +1,16 @@
+/**
+ * AdminSessionsPage component
+ *
+ * This component is responsible for displaying and managing sessions in the admin dashboard.
+ * It fetches all sessions, allows deletion of sessions, and supports pagination.
+ *
+ * @component
+ * @example
+ * return (
+ *   <AdminSessionsPage />
+ * )
+ */
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -63,8 +76,7 @@ export default function AdminSessionsPage() {
     const currentSessions = sessions.slice(indexOfFirstSession, indexOfLastSession);
 
     return (
-        <div
-            className="flex min-h-screen w-full flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white">
+        <div className="flex min-h-screen w-full flex-col bg-gradient-to-r from-purple-900 via-indigo-900 to-black text-white">
             <AdminHeader/>
 
             <main className="flex flex-1 flex-col gap-8 p-6 md:p-12">
@@ -148,5 +160,5 @@ export default function AdminSessionsPage() {
                 </div>
             </main>
         </div>
-);
+    );
 }

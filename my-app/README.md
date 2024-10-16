@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Nom du Projet
 
-## Getting Started
+Nom du Projet est une plateforme permettant aux utilisateurs de créer, rejoindre et gérer des sessions de jeux pour des jeux vidéo, jeux de société et jeux de rôle. Elle intègre diverses fonctionnalités comme le chat en direct, une wishlist de jeux, et des filtres pour découvrir des sessions publiques selon les types de jeux et genres disponibles.
 
-First, run the development server:
+## Table des Matières
+
+	-	Fonctionnalités
+	-	Technologies Utilisées
+	-	Prérequis
+	-	Installation
+	-	Initialisation du Projet
+	-	Utilisation et Maintenance
+	-	Déploiement sur Vercel
+	-	Contribution
+	-	Licence
+
+## Fonctionnalités
+
+	•	Gestion des Sessions : Créez, modifiez et supprimez des sessions de jeux avec une interface utilisateur interactive.
+	•	Recherche et Filtres : Recherchez des sessions publiques en fonction du type de jeu et du genre.
+	•	Chat en Direct : Communiquez avec les participants d’une session en temps réel.
+	•	Wishlist de Jeux : Ajoutez des jeux à une liste de souhaits pour un accès rapide.
+	•	Gestion des Utilisateurs : Profils utilisateurs avec Firebase, incluant la connexion, l’inscription et la gestion des profils.
+
+## Technologies Utilisées
+
+	•	Frontend : Next.js 14, TypeScript, React
+	•	Backend : Prisma pour la base de données, Firebase pour l’authentification
+	•	Base de Données : PostgreSQL avec Prisma ORM
+	•	Déploiement : Vercel
+
+## Prérequis
+
+	•	Node.js (version 16 ou supérieure)
+	•	PostgreSQL pour la base de données
+	•	Firebase pour l’authentification
+	•	Vercel CLI (facultatif pour le déploiement local)
+
+## Installation
+
+Clonez le projet depuis le dépôt Git :git clone https://github.com/biohazard63/nexus-game.git
+
+Accédez au répertoire du projet :
+
+
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd my-app
+``` 
+
+Installez les dépendances :
+    
+```bash
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Initialisation du Projet
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.	Configuration de l’Environnement : Copiez .env.example en .env et modifiez les valeurs selon vos configurations (Firebase, base de données, etc.).
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+2.	Configurer Prisma : Synchronisez Prisma avec votre base de données PostgreSQL.
 
-## Learn More
+```bash
+      npx prisma db push
+```
+3.	Lancer le Projet : Utilisez la commande suivante pour démarrer le serveur de développement.
+```bash
+      npm run dev
+```
+### Le projet est maintenant disponible sur http://localhost:3000.
 
-To learn more about Next.js, take a look at the following resources:
+## Utilisation et Maintenance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Gestion de la Base de Données
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Utilisez Prisma pour la gestion de la base de données. En cas de modification du schéma, exécutez les migrations :
+    
+```bash
+        npx prisma migrate dev --name nom_migration
+```
+### Requêtes de Données avec Prisma
 
-## Deploy on Vercel
+Prisma facilite les interactions avec la base de données grâce à un ORM intuitif. Utilisez prisma.session, prisma.user, etc., dans le projet pour interagir avec les tables correspondantes.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Authentification Firebase
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Vérifiez que les configurations Firebase (ID de l’application, API_KEY, etc.) sont correctes dans .env. Firebase gère l’authentification et la gestion des utilisateurs dans l’application.
+
+### Débogage et Logs
+
+Utilisez console.log pour le débogage pendant le développement. En production, intégrez une solution de monitoring comme Sentry pour capturer les erreurs.
+
+## Déploiement sur Vercel
+
+### Étape 1 : Configurer Vercel
+
+
+Connectez votre dépôt GitHub à Vercel. Pour ce faire :
+
+	1.	Connectez-vous à Vercel.
+	2.	Sélectionnez “New Project” et connectez le dépôt GitHub.
+	3.	Configurez les variables d’environnement dans le tableau de bord Vercel.
+
+### Étape 2 : Déployer
+
+      Lors de chaque commit, Vercel déclenche automatiquement un déploiement. 
+### Étape 3 : Configuration de la Base de Données
+
+ base de données PostgreSQL est hébergée sur neon.tech, assurez-vous que l’URL de connexion dans .env de Vercel pointe vers la base de données de production.
+
+## Contribution
+
+Les contributions sont les bienvenues ! Pour toute demande de fonctionnalité, ouvrez une issue, et pour une correction de code, créez une pull request. Assurez-vous de suivre les bonnes pratiques de codage pour les conventions TypeScript et Prisma.
+
+Licence
+
+Ce projet est sous licence MIT.

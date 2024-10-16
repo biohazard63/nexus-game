@@ -1,27 +1,38 @@
+/**
+ * WishlistPage component
+ *
+ * This component renders the wishlist page for the logged-in user. It fetches the user's wishlist
+ * and displays the games in a card layout. Users can remove games from their wishlist and navigate
+ * to game details or public sessions for the game.
+ *
+ * @component
+ * @example
+ * return (
+ *   <WishlistPage />
+ * )
+ */
 'use client';
 import { useState, useEffect } from 'react';
-
-import { Button } from '@/components/ui/button'; // Bouton stylisé
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'; // Composants de carte
-import { Trash2 } from 'lucide-react'; // Icône de suppression pour chaque jeu
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { getWishlist, removeFromWishlist, addToWishlist } from '@/lib/actions/wishlistActions';
-import {getUserByFirebaseId} from "@/lib/actions/userActions";
-import Image from "next/image"; // Importer les fonctions d'action
+import { getUserByFirebaseId } from "@/lib/actions/userActions";
+import Image from "next/image";
 
 export default function WishlistPage() {
     const [wishlist, setWishlist] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [userid, setUserid] = useState<number | null>(null); // État pour stocker l'ID de l'utilisateur
+    const [userid, setUserid] = useState<number | null>(null);
 
-    // Récupérer l'ID utilisateur à partir de sessionStorage
     useEffect(() => {
         const fetchUserId = async () => {
             try {
                 const firebaseId = sessionStorage.getItem('userId');
                 if (firebaseId) {
-                    const user = await getUserByFirebaseId(firebaseId); // Récupérer l'utilisateur via Firebase ID
-                    setUserid(user.id); // Stocker l'ID de l'utilisateur
+                    const user = await getUserByFirebaseId(firebaseId);
+                    setUserid(user.id);
                 } else {
                     console.error('Aucun utilisateur trouvé dans sessionStorage');
                 }
@@ -33,12 +44,11 @@ export default function WishlistPage() {
         fetchUserId();
     }, []);
 
-    // Charger la wishlist de l'utilisateur connecté
     useEffect(() => {
         const loadWishlist = async () => {
             try {
-                if (userid) { // S'assurer que l'ID utilisateur est disponible
-                    const games = await getWishlist(userid); // Utiliser l'ID de l'utilisateur connecté
+                if (userid) {
+                    const games = await getWishlist(userid);
                     setWishlist(games);
                     setLoading(false);
                 }
@@ -47,14 +57,13 @@ export default function WishlistPage() {
             }
         };
         loadWishlist();
-    }, [userid]); // Exécuter ce useEffect lorsque `userid` est mis à jour
+    }, [userid]);
 
-    // Supprimer un jeu de la wishlist
     const handleRemoveFromWishlist = async (gameId: number) => {
         try {
-            if (userid) { // S'assurer que l'ID utilisateur est disponible
-                await removeFromWishlist(userid, gameId); // Utiliser l'ID de l'utilisateur connecté
-                setWishlist(wishlist.filter((game) => game.gameId !== gameId)); // Mettre à jour la liste localement
+            if (userid) {
+                await removeFromWishlist(userid, gameId);
+                setWishlist(wishlist.filter((game) => game.gameId !== gameId));
             }
         } catch (error) {
             console.error('Erreur lors de la suppression du jeu de la wishlist:', error);
@@ -91,23 +100,17 @@ export default function WishlistPage() {
                                 </Button>
                             </CardHeader>
                             <CardContent className="p-4">
-                                <CardTitle
-                                    className="text-xl font-bold text-yellow-400">{wishlistItem.game.name}</CardTitle>
-                                <CardDescription
-                                    className="text-gray-300">{wishlistItem.game.description}</CardDescription>
+                                <CardTitle className="text-xl font-bold text-yellow-400">{wishlistItem.game.name}</CardTitle>
+                                <CardDescription className="text-gray-300">{wishlistItem.game.description}</CardDescription>
                                 <p className="text-sm text-gray-400 mt-2">Type : {wishlistItem.game.type}</p>
-                                <div
-                                    className="mt-4 flex flex-col items-center space-y-4 md:flex-row md:justify-between md:space-y-0 md:space-x-4">
+                                <div className="mt-4 flex flex-col items-center space-y-4 md:flex-row md:justify-between md:space-y-0 md:space-x-4">
                                     <Link href={`/games/${wishlistItem.gameId}`} className="w-full md:w-auto">
-                                        <Button
-                                            className="bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition w-full md:w-auto">
+                                        <Button className="bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition w-full md:w-auto">
                                             Voir plus
                                         </Button>
                                     </Link>
-                                    <Link href={`/session-search/${wishlistItem.gameId}/public-sessions`} passHref
-                                          className="w-full md:w-auto">
-                                        <Button
-                                            className="bg-purple-600 text-white hover:bg-purple-700 flex items-center w-full md:w-auto">
+                                    <Link href={`/session-search/${wishlistItem.gameId}/public-sessions`} passHref className="w-full md:w-auto">
+                                        <Button className="bg-purple-600 text-white hover:bg-purple-700 flex items-center w-full md:w-auto">
                                             Trouver une session <span className="ml-2">🎮</span>
                                         </Button>
                                     </Link>
@@ -120,8 +123,7 @@ export default function WishlistPage() {
                 <div className="text-center">
                     <p className="text-xl text-gray-300">Votre wishlist est vide pour l&apos;instant.</p>
                     <Link href="/games">
-                        <Button
-                            className="mt-6 bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition">
+                        <Button className="mt-6 bg-yellow-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-yellow-500 transition">
                             Explorer les jeux
                         </Button>
                     </Link>

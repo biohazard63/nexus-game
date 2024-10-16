@@ -1,3 +1,16 @@
+/**
+ * UserGamesPage component
+ *
+ * This component is responsible for displaying a list of games, allowing users to filter by type and category,
+ * and add games to their wishlist. It fetches games, categories, and the user's wishlist from the server.
+ *
+ * @component
+ * @example
+ * return (
+ *   <UserGamesPage />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';

@@ -1,9 +1,31 @@
+/**
+ * @file sessionActions.ts
+ *
+ * This file contains server-side functions for managing sessions in the application.
+ * It includes functions to create, update, retrieve, and delete sessions using Prisma ORM.
+ */
+
 'use server';
+
 import { prisma } from '@/server/db/db';
 import { SessionWithRelations } from "@/type/sessionWithRelation";
 import { SessionType } from "@prisma/client";
 
-// Créer une nouvelle session et ajouter l'utilisateur comme participant
+/**
+ * Creates a new session and adds the user as a participant.
+ *
+ * @param {Object} data - The data for the new session.
+ * @param {number} data.gameId - The ID of the game.
+ * @param {number} data.hostId - The ID of the host.
+ * @param {string} data.title - The title of the session.
+ * @param {SessionType} data.type_session - The type of the session.
+ * @param {Date} data.startTime - The start time of the session.
+ * @param {Date} data.endTime - The end time of the session.
+ * @param {string} data.location - The location of the session.
+ * @param {string} data.description - The description of the session.
+ * @returns {Promise<SessionWithRelations>} A promise that resolves to the newly created session.
+ * @throws Will throw an error if the session cannot be created.
+ */
 export async function createSession(data: {
     gameId: number;
     hostId: number;
@@ -15,7 +37,6 @@ export async function createSession(data: {
     description: string;
 }): Promise<SessionWithRelations> {
     try {
-        // Créer la session
         const newSession = await prisma.session.create({
             data: {
                 gameId: data.gameId,
@@ -28,8 +49,8 @@ export async function createSession(data: {
                 description: data.description,
                 participations: {
                     create: {
-                        userId: data.hostId, // Ajouter l'hôte en tant que participant
-                        status: 'Présent', // Définir le statut initial comme présent ou autre selon votre logique
+                        userId: data.hostId,
+                        status: 'Présent',
                     }
                 }
             },
@@ -37,21 +58,21 @@ export async function createSession(data: {
                 host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     }
                 },
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les détails des catégories via la table de jointure
+                                category: true,
                             },
                         },
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
                 characters: true,
@@ -68,9 +89,20 @@ export async function createSession(data: {
     }
 }
 
-
-
-// Mettre à jour une session
+/**
+ * Updates a session.
+ *
+ * @param {number} sessionId - The ID of the session to update.
+ * @param {Object} data - The data to update the session with.
+ * @param {number} data.hostId - The ID of the host.
+ * @param {SessionType} data.type_session - The type of the session.
+ * @param {Date} data.startTime - The start time of the session.
+ * @param {Date} data.endTime - The end time of the session.
+ * @param {string} data.location - The location of the session.
+ * @param {string} data.description - The description of the session.
+ * @returns {Promise<SessionWithRelations>} A promise that resolves to the updated session.
+ * @throws Will throw an error if the session cannot be updated.
+ */
 export async function updateSession(sessionId: number, data: {
     hostId: number;
     type_session: SessionType;
@@ -93,24 +125,24 @@ export async function updateSession(sessionId: number, data: {
                 description: data.description,
             },
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     }
                 },
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu
+                                category: true,
                             },
                         },
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
                 characters: true,
@@ -125,7 +157,13 @@ export async function updateSession(sessionId: number, data: {
     }
 }
 
-// Récupérer toutes les sessions créées par un utilisateur spécifique (hôte)
+/**
+ * Fetches all sessions created by a specific user (host).
+ *
+ * @param {string} firebaseId - The Firebase ID of the user.
+ * @returns {Promise<SessionWithRelations[]>} A promise that resolves to an array of sessions.
+ * @throws Will throw an error if the sessions cannot be retrieved.
+ */
 export async function getCreatedSessions(firebaseId: string): Promise<SessionWithRelations[]> {
     try {
         const user = await prisma.user.findUnique({
@@ -142,24 +180,24 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
                 hostId: user.id,
             },
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     }
                 },
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu
+                                category: true,
                             },
                         },
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
                 characters: true,
@@ -174,6 +212,12 @@ export async function getCreatedSessions(firebaseId: string): Promise<SessionWit
     }
 }
 
+/**
+ * Fetches all public sessions.
+ *
+ * @returns {Promise<SessionWithRelations[]>} A promise that resolves to an array of public sessions.
+ * @throws Will throw an error if the sessions cannot be retrieved.
+ */
 export async function getPublicSessions(): Promise<SessionWithRelations[]> {
     try {
         return await prisma.session.findMany({
@@ -181,30 +225,30 @@ export async function getPublicSessions(): Promise<SessionWithRelations[]> {
                 type_session: 'PUBLIC',
             },
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu via la table de pivot
+                                category: true,
                             },
                         },
                     },
                 },
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
     } catch (error) {
@@ -213,10 +257,15 @@ export async function getPublicSessions(): Promise<SessionWithRelations[]> {
     }
 }
 
-// Récupérer toutes les sessions où un utilisateur est participant
+/**
+ * Fetches all sessions where a user is a participant.
+ *
+ * @param {string} firebaseId - The Firebase ID of the user.
+ * @returns {Promise<SessionWithRelations[]>} A promise that resolves to an array of sessions.
+ * @throws Will throw an error if the sessions cannot be retrieved.
+ */
 export async function getParticipatingSessions(firebaseId: string): Promise<SessionWithRelations[]> {
     try {
-        // Récupérer l'utilisateur avec son firebaseId
         const user = await prisma.user.findUnique({
             where: { firebase_id: firebaseId },
             select: { id: true },
@@ -226,41 +275,40 @@ export async function getParticipatingSessions(firebaseId: string): Promise<Sess
             throw new Error('Utilisateur introuvable.');
         }
 
-        // Récupérer les sessions où l'utilisateur est participant
         return await prisma.session.findMany({
             where: {
                 participations: {
                     some: {
-                        userId: user.id, // Vérifie si l'utilisateur participe à la session
+                        userId: user.id,
                     },
                 },
-                hostId: { not: user.id }, // Exclure les sessions créées par l'utilisateur
+                hostId: { not: user.id },
             },
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     },
                 },
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu
+                                category: true,
                             },
                         },
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
     } catch (error) {
@@ -269,34 +317,40 @@ export async function getParticipatingSessions(firebaseId: string): Promise<Sess
     }
 }
 
+/**
+ * Fetches all sessions.
+ *
+ * @returns {Promise<SessionWithRelations[]>} A promise that resolves to an array of sessions.
+ * @throws Will throw an error if the sessions cannot be retrieved.
+ */
 export async function getAllSessions(): Promise<SessionWithRelations[]> {
     try {
         return await prisma.session.findMany({
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     },
                 },
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu
+                                category: true,
                             },
                         },
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
-                characters: true, // Inclure les personnages
-                statistics: true, // Inclure les statistiques
-                invitations: true, // Inclure les invitations
-                specialEvents: true, // Inclure les événements spéciaux
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
     } catch (error) {
@@ -305,36 +359,42 @@ export async function getAllSessions(): Promise<SessionWithRelations[]> {
     }
 }
 
-
+/**
+ * Fetches a session by its ID.
+ *
+ * @param {number} sessionId - The ID of the session to retrieve.
+ * @returns {Promise<SessionWithRelations>} A promise that resolves to the session data.
+ * @throws Will throw an error if the session cannot be retrieved.
+ */
 export async function getSessionById(sessionId: number): Promise<SessionWithRelations> {
     try {
         const session = await prisma.session.findUnique({
             where: { id: sessionId },
             include: {
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les catégories du jeu
+                                category: true,
                             },
                         },
                     },
                 },
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les participations
+                        user: true,
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
-                characters: true, // Inclure les personnages (peut-être null)
-                statistics: true, // Inclure les statistiques (peut-être null)
-                invitations: true, // Inclure les invitations (peut-être null)
-                specialEvents: true, // Inclure les événements spéciaux (peut-être null)
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
 
@@ -349,39 +409,45 @@ export async function getSessionById(sessionId: number): Promise<SessionWithRela
     }
 }
 
-// Récupérer toutes les sessions publiques pour un jeu spécifique
+/**
+ * Fetches all public sessions for a specific game.
+ *
+ * @param {string} gameId - The ID of the game.
+ * @returns {Promise<SessionWithRelations[]>} A promise that resolves to an array of public sessions.
+ * @throws Will throw an error if the sessions cannot be retrieved.
+ */
 export async function getPublicSessionsByGameId(gameId: string): Promise<SessionWithRelations[]> {
     try {
         return await prisma.session.findMany({
             where: {
-                type_session: 'PUBLIC', // Filtrer les sessions publiques
-                gameId: parseInt(gameId, 10), // Filtrer par l'ID du jeu
+                type_session: 'PUBLIC',
+                gameId: parseInt(gameId, 10),
             },
             include: {
                 game: {
                     include: {
                         categories: {
                             include: {
-                                category: true, // Inclure les détails des catégories via la table de pivot
+                                category: true,
                             },
                         },
                     },
                 },
-                host: true, // Inclure les détails de l'hôte
+                host: true,
                 participations: {
                     include: {
-                        user: true, // Inclure les utilisateurs participant à la session
+                        user: true,
                     },
                 },
                 comments: {
                     include: {
-                        user: true, // Inclure les utilisateurs dans les commentaires
+                        user: true,
                     },
                 },
-                characters: true, // Inclure les personnages (peut-être null)
-                statistics: true, // Inclure les statistiques (peut-être null)
-                invitations: true, // Inclure les invitations (peut-être null)
-                specialEvents: true, // Inclure les événements spéciaux (peut-être null)
+                characters: true,
+                statistics: true,
+                invitations: true,
+                specialEvents: true,
             },
         });
     } catch (error) {
@@ -390,16 +456,19 @@ export async function getPublicSessionsByGameId(gameId: string): Promise<Session
     }
 }
 
-// Fonction pour supprimer une session et ses relations
+/**
+ * Deletes a session and its relations.
+ *
+ * @param {number} sessionId - The ID of the session to delete.
+ * @returns {Promise<void>} A promise that resolves when the session is deleted.
+ * @throws Will throw an error if the session cannot be deleted.
+ */
 export async function deleteSessionWithRelations(sessionId: number): Promise<void> {
     try {
-        // Supprimer d'abord les relations liées à la session
         await prisma.participation.deleteMany({ where: { sessionId } });
         await prisma.comment.deleteMany({ where: { sessionId } });
         await prisma.chat.deleteMany({ where: { sessionId } });
 
-
-        // Ensuite, supprimer la session elle-même
         await prisma.session.delete({
             where: { id: sessionId },
         });

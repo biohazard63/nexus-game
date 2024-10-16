@@ -1,19 +1,31 @@
+/**
+ * @file gameActions.ts
+ *
+ * This file contains server-side functions for managing games in the application.
+ * It includes functions to retrieve, create, update, and delete games using Prisma ORM.
+ */
+
 'use server';
 
 import { prisma } from '@/server/db/db';
 import { GameWithRelations } from "@/type/gameWithRelation";
 
-// Récupérer tous les jeux avec leurs relations (catégories incluses)
+/**
+ * Fetches all games with their related categories.
+ *
+ * @returns {Promise<GameWithRelations[]>} A promise that resolves to an array of games with their relations.
+ * @throws Will throw an error if the games cannot be retrieved.
+ */
 export async function getGames(): Promise<GameWithRelations[]> {
     try {
         return await prisma.game.findMany({
             orderBy: {
-                createdAt: 'desc', // Trier par date de création
+                createdAt: 'desc', // Order by creation date
             },
             include: {
                 categories: {
                     include: {
-                        category: true, // Inclure les détails de la catégorie via la table pivot
+                        category: true, // Include category details via the pivot table
                     },
                 },
             },
@@ -24,7 +36,13 @@ export async function getGames(): Promise<GameWithRelations[]> {
     }
 }
 
-// Récupérer un jeu spécifique par ID avec ses relations (catégories incluses)
+/**
+ * Fetches a specific game by its ID with its related categories.
+ *
+ * @param {number} gameId - The ID of the game to retrieve.
+ * @returns {Promise<GameWithRelations | null>} A promise that resolves to the game with its relations, or null if not found.
+ * @throws Will throw an error if the game cannot be retrieved.
+ */
 export async function getGameById(gameId: number): Promise<GameWithRelations | null> {
     try {
         const game = await prisma.game.findUnique({
@@ -32,7 +50,7 @@ export async function getGameById(gameId: number): Promise<GameWithRelations | n
             include: {
                 categories: {
                     include: {
-                        category: true, // Inclure les détails de la catégorie via la table pivot
+                        category: true, // Include category details via the pivot table
                     },
                 },
             },
@@ -49,14 +67,26 @@ export async function getGameById(gameId: number): Promise<GameWithRelations | n
     }
 }
 
-// Créer un nouveau jeu avec catégories
+/**
+ * Creates a new game with categories.
+ *
+ * @param {Object} data - The data for the new game.
+ * @param {string} data.name - The name of the game.
+ * @param {string} data.type - The type of the game.
+ * @param {string} data.description - The description of the game.
+ * @param {string} [data.coverImage] - The cover image of the game.
+ * @param {number} [data.player_max] - The maximum number of players for the game.
+ * @param {number[]} [data.categoryIds] - The IDs of the categories to associate with the game.
+ * @returns {Promise<GameWithRelations>} A promise that resolves to the newly created game with its relations.
+ * @throws Will throw an error if the game cannot be created.
+ */
 export async function createGame(data: {
     name: string;
     type: string;
     description: string;
     coverImage?: string;
     player_max?: number;
-    categoryIds?: number[]; // Plusieurs catégories
+    categoryIds?: number[];
 }): Promise<GameWithRelations> {
     try {
         const newGame = await prisma.game.create({
@@ -75,7 +105,7 @@ export async function createGame(data: {
             include: {
                 categories: {
                     include: {
-                        category: true, // Inclure les détails de la catégorie via la table pivot
+                        category: true, // Include category details via the pivot table
                     },
                 },
             },
@@ -88,7 +118,20 @@ export async function createGame(data: {
     }
 }
 
-// Mettre à jour un jeu et ses catégories
+/**
+ * Updates a game and its categories.
+ *
+ * @param {number} gameId - The ID of the game to update.
+ * @param {Object} data - The new data for the game.
+ * @param {string} [data.name] - The new name of the game.
+ * @param {string} [data.type] - The new type of the game.
+ * @param {string} [data.description] - The new description of the game.
+ * @param {string} [data.coverImage] - The new cover image of the game.
+ * @param {number} [data.player_max] - The new maximum number of players for the game.
+ * @param {number[]} [data.categoryIds] - The new IDs of the categories to associate with the game.
+ * @returns {Promise<GameWithRelations>} A promise that resolves to the updated game with its relations.
+ * @throws Will throw an error if the game cannot be updated.
+ */
 export async function updateGame(
     gameId: number,
     data: {
@@ -97,11 +140,10 @@ export async function updateGame(
         description?: string;
         coverImage?: string;
         player_max?: number;
-        categoryIds?: number[]; // Mise à jour des catégories
+        categoryIds?: number[];
     }
 ): Promise<GameWithRelations> {
     try {
-        // Filtrer les ids de catégories pour éliminer les valeurs undefined
         const validCategoryIds = data.categoryIds?.filter(id => id !== undefined) || [];
 
         const updatedGame = await prisma.game.update({
@@ -113,7 +155,7 @@ export async function updateGame(
                 coverImage: data.coverImage || null,
                 player_max: data.player_max || null,
                 categories: {
-                    deleteMany: {}, // Supprimer les anciennes catégories
+                    deleteMany: {}, // Delete old categories
                     create: validCategoryIds.map(categoryId => ({
                         category: { connect: { id: categoryId } },
                     })),
@@ -122,7 +164,7 @@ export async function updateGame(
             include: {
                 categories: {
                     include: {
-                        category: true, // Inclure les détails de la catégorie via la table pivot
+                        category: true, // Include category details via the pivot table
                     },
                 },
             },
@@ -135,15 +177,17 @@ export async function updateGame(
     }
 }
 
-// Supprimer un jeu
+/**
+ * Deletes a game.
+ *
+ * @param {number} gameId - The ID of the game to delete.
+ * @returns {Promise<{ message: string }>} A promise that resolves to a message indicating successful deletion.
+ * @throws Will throw an error if the game cannot be deleted.
+ */
 export async function deleteGame(gameId: number): Promise<{ message: string }> {
     try {
-        // Supprimer d'abord les relations liées au jeu (par exemple, les catégories associées au jeu)
         await prisma.gameCategory.deleteMany({ where: { gameId } });
 
-
-
-        // Ensuite, supprimer le jeu lui-même
         await prisma.game.delete({
             where: { id: gameId },
         });

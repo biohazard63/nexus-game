@@ -1,3 +1,17 @@
+/**
+ * GameDetailsPage component
+ *
+ * This component is responsible for displaying the details of a specific game.
+ * It fetches the game data based on the game ID from the URL parameters and displays
+ * the game's name, description, type, maximum number of players, categories, and cover image.
+ *
+ * @component
+ * @example
+ * return (
+ *   <GameDetailsPage />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -57,8 +71,8 @@ export default function GameDetailsPage() {
                                         key={categoryRelation.category.id}
                                         className="text-white bg-purple-600 px-2 py-1 rounded-lg mr-2"
                                     >
-                    {categoryRelation.category.name}
-                  </span>
+                                        {categoryRelation.category.name}
+                                    </span>
                                 ))
                             ) : (
                                 'Aucune catégorie'

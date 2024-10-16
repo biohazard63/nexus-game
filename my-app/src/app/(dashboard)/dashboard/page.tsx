@@ -1,14 +1,27 @@
+/**
+ * AdminDashboard component
+ *
+ * This component is responsible for displaying the admin dashboard, including the current user's details and a list of the latest users.
+ * It fetches user data from PostgreSQL and displays it in both card and table formats.
+ *
+ * @component
+ * @example
+ * return (
+ *   <AdminDashboard />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { getUsersFromPostgreSQL } from '@/lib/actions/userActions'; // Nouvelle fonction pour récupérer depuis PostgreSQL
-import {Avatar, AvatarFallback, AvatarImage,} from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {Card, CardContent, CardHeader, CardTitle, CardDescription,} from '@/components/ui/card';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Users, ArrowUpRight } from 'lucide-react';
 import AdminHeader from "@/components/AdminHeader";
 import { UserWithRelations } from "@/type/userWithRelations";
@@ -53,9 +66,8 @@ export default function AdminDashboard() {
     console.log('Users:', users);
 
     return (
-        <div
-            className="flex min-h-screen w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
-            <AdminHeader/>
+        <div className="flex min-h-screen w-full flex-col bg-gradient-to-br from-blue-900 via-purple-900 to-black text-white">
+            <AdminHeader />
 
             {/* Main Dashboard Content */}
             <main className="flex flex-1 flex-col gap-8 p-6 md:p-12">
@@ -63,11 +75,10 @@ export default function AdminDashboard() {
                 <Card className="bg-gray-800 shadow-lg shadow-blue-800/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-lg font-semibold text-blue-400">Utilisateur connecté</CardTitle>
-                        <Users className="h-6 w-6 text-blue-400"/>
+                        <Users className="h-6 w-6 text-blue-400" />
                     </CardHeader>
                     <CardContent>
-                        <div
-                            className="text-2xl font-bold text-yellow-400">{userData?.username || userData?.email}</div>
+                        <div className="text-2xl font-bold text-yellow-400">{userData?.username || userData?.email}</div>
                         <p className="text-sm text-gray-300">
                             Rôle: <span className="font-semibold text-yellow-400">{userData?.accountType}</span>
                         </p>
@@ -90,7 +101,7 @@ export default function AdminDashboard() {
                         >
                             <Link href={"/admin/users"}>
                                 Voir tout
-                                <ArrowUpRight className="h-4 w-4"/>
+                                <ArrowUpRight className="h-4 w-4" />
                             </Link>
                         </Button>
                     </CardHeader>
@@ -101,8 +112,7 @@ export default function AdminDashboard() {
                                 <Card key={user.id} className="bg-gray-900">
                                     <CardHeader className="flex items-center">
                                         <Avatar className="mr-2 h-8 w-8 border border-yellow-400">
-                                            <AvatarImage src={user.profilePicture || ''}
-                                                         alt={user.username || 'User Avatar'}/>
+                                            <AvatarImage src={user.profilePicture || ''} alt={user.username || 'User Avatar'} />
                                             <AvatarFallback>{user.username?.charAt(0) || 'U'}</AvatarFallback>
                                         </Avatar>
                                         <div className="font-medium text-white">{user.username || 'Anonyme'}</div>
@@ -137,12 +147,10 @@ export default function AdminDashboard() {
                                             <TableCell>
                                                 <div className="flex items-center">
                                                     <Avatar className="mr-2 h-8 w-8 border border-yellow-400">
-                                                        <AvatarImage src={user.profilePicture || ''}
-                                                                     alt={user.username || 'User Avatar'}/>
+                                                        <AvatarImage src={user.profilePicture || ''} alt={user.username || 'User Avatar'} />
                                                         <AvatarFallback>{user.username?.charAt(0) || 'U'}</AvatarFallback>
                                                     </Avatar>
-                                                    <div
-                                                        className="font-medium text-white">{user.username || 'Anonyme'}</div>
+                                                    <div className="font-medium text-white">{user.username || 'Anonyme'}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-gray-300">{user.email}</TableCell>

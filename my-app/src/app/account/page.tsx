@@ -1,4 +1,17 @@
-// components/AccountPage.tsx
+/**
+ * AccountPage component
+ *
+ * This component is responsible for displaying and managing the user's account information.
+ * It fetches user data from Firestore and displays it, including user details, groups, comments, and ratings.
+ * It also allows the user to update their profile and log out.
+ *
+ * @component
+ * @example
+ * return (
+ *   <AccountPage />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';

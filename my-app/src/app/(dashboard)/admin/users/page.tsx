@@ -1,3 +1,16 @@
+/**
+ * UsersPage component
+ *
+ * This component is responsible for displaying and managing users in the admin dashboard.
+ * It fetches all users, allows deletion of users, and supports pagination.
+ *
+ * @component
+ * @example
+ * return (
+ *   <UsersPage />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';

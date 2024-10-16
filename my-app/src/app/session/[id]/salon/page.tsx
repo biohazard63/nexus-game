@@ -1,3 +1,16 @@
+/**
+ * SalonPage component
+ *
+ * This component renders the details of a session, including participants and a chat section.
+ * It fetches the session and user data, and initializes Socket.io for real-time chat.
+ *
+ * @component
+ * @example
+ * return (
+ *   <SalonPage params={{ id: '1' }} />
+ * )
+ */
+
 'use client';
 
 import { useEffect, useState } from 'react';

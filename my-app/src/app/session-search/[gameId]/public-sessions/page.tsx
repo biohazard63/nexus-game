@@ -1,3 +1,15 @@
+/**
+ * GamePublicSessionsPage component
+ *
+ * This component displays a list of public sessions available for a specific game.
+ * It fetches the sessions data from the backend using the game ID provided in the parameters.
+ *
+ * @component
+ * @example
+ * return (
+ *   <GamePublicSessionsPage params={{ gameId: '1' }} />
+ * )
+ */
 'use client';
 
 import React, { useEffect, useState } from 'react';

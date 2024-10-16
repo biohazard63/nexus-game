@@ -1,23 +1,35 @@
+/**
+ * @file wishlistActions.ts
+ *
+ * This file contains server-side functions for managing wishlists in the application.
+ * It includes functions to retrieve, add, and remove games from the wishlist using Prisma ORM.
+ */
+
 'use server';
 
 import { prisma } from '@/server/db/db';
-import {WishlistWithRelations} from "@/type/wishlistWithRelation"; // Importer Prisma Client
+import { WishlistWithRelations } from "@/type/wishlistWithRelation";
 
-// Obtenir la wishlist de l'utilisateur avec les relations
+/**
+ * Fetches the user's wishlist with related data.
+ *
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<WishlistWithRelations[]>} A promise that resolves to an array of wishlist items.
+ * @throws Will throw an error if the wishlist cannot be retrieved.
+ */
 export async function getWishlist(userId: number): Promise<WishlistWithRelations[]> {
     try {
-        // Vérifier si l'utilisateur existe
         const userExists = await prisma.user.findUnique({ where: { id: userId } });
         if (!userExists) throw new Error('Utilisateur introuvable');
 
         return await prisma.wishlist.findMany({
-            where: { userId }, // Filtrer par utilisateur
+            where: { userId },
             include: {
-                game: true, // Inclure les détails du jeu
-                user: true, // Inclure les détails de l'utilisateur
+                game: true,
+                user: true,
             },
             orderBy: {
-                createdAt: 'desc', // Trier par date d'ajout
+                createdAt: 'desc',
             },
         });
     } catch (error) {
@@ -26,17 +38,21 @@ export async function getWishlist(userId: number): Promise<WishlistWithRelations
     }
 }
 
-// Ajouter un jeu à la wishlist
-// Ajouter un jeu à la wishlist
+/**
+ * Adds a game to the user's wishlist.
+ *
+ * @param {number} userId - The ID of the user.
+ * @param {number} gameId - The ID of the game.
+ * @returns {Promise<WishlistWithRelations>} A promise that resolves to the newly added wishlist item.
+ * @throws Will throw an error if the game cannot be added to the wishlist.
+ */
 export async function addToWishlist(userId: number, gameId: number): Promise<WishlistWithRelations> {
     try {
-        // Vérifier si l'utilisateur et le jeu existent
         const userExists = await prisma.user.findUnique({ where: { id: userId } });
         const gameExists = await prisma.game.findUnique({ where: { id: gameId } });
         if (!userExists) throw new Error('Utilisateur introuvable');
         if (!gameExists) throw new Error('Jeu introuvable');
 
-        // Vérifier si le jeu est déjà dans la wishlist
         const existingWishlistItem = await prisma.wishlist.findFirst({
             where: {
                 userId,
@@ -48,15 +64,14 @@ export async function addToWishlist(userId: number, gameId: number): Promise<Wis
             throw new Error('Le jeu est déjà dans la wishlist.');
         }
 
-        // Ajouter le jeu à la wishlist
         return await prisma.wishlist.create({
             data: {
                 userId,
                 gameId,
             },
             include: {
-                game: true, // Inclure les détails du jeu ajouté
-                user: true, // Inclure les détails de l'utilisateur
+                game: true,
+                user: true,
             },
         });
     } catch (error) {
@@ -65,10 +80,16 @@ export async function addToWishlist(userId: number, gameId: number): Promise<Wis
     }
 }
 
-// Supprimer un jeu de la wishlist
+/**
+ * Removes a game from the user's wishlist.
+ *
+ * @param {number} userId - The ID of the user.
+ * @param {number} gameId - The ID of the game.
+ * @returns {Promise<WishlistWithRelations>} A promise that resolves to the removed wishlist item.
+ * @throws Will throw an error if the game cannot be removed from the wishlist.
+ */
 export async function removeFromWishlist(userId: number, gameId: number): Promise<WishlistWithRelations> {
     try {
-        // Vérifier si l'utilisateur et le jeu existent dans la wishlist
         const wishlistItem = await prisma.wishlist.findUnique({
             where: {
                 userId_gameId: {
@@ -82,7 +103,6 @@ export async function removeFromWishlist(userId: number, gameId: number): Promis
             throw new Error('Le jeu n\'est pas dans la wishlist.');
         }
 
-        // Supprimer le jeu de la wishlist
         return await prisma.wishlist.delete({
             where: {
                 userId_gameId: {
@@ -91,8 +111,8 @@ export async function removeFromWishlist(userId: number, gameId: number): Promis
                 },
             },
             include: {
-                game: true, // Inclure les détails du jeu supprimé
-                user: true, // Inclure les détails de l'utilisateur
+                game: true,
+                user: true,
             },
         });
     } catch (error) {

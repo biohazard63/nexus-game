@@ -1,14 +1,27 @@
-// src/lib/actions/participationActions.ts
+/**
+ * @file participationActions.ts
+ *
+ * This file contains server-side functions for managing participations in the application.
+ * It includes functions to retrieve, create, update, and delete participations using Prisma ORM.
+ */
+
 'use server';
+
 import { prisma } from '@/server/db/db';
 
-// Fonction pour récupérer toutes les participations d'une session
+/**
+ * Fetches all participations for a session.
+ *
+ * @param {number} sessionId - The ID of the session to retrieve participations for.
+ * @returns {Promise<any[]>} A promise that resolves to an array of participations.
+ * @throws Will throw an error if the participations cannot be retrieved.
+ */
 export async function getParticipationsBySession(sessionId: number) {
     try {
         return await prisma.participation.findMany({
             where: { sessionId },
             include: {
-                user: true, // Inclure les informations sur l'utilisateur participant
+                user: true, // Include user information
             },
         });
     } catch (error) {
@@ -17,14 +30,20 @@ export async function getParticipationsBySession(sessionId: number) {
     }
 }
 
-// Fonction pour récupérer une participation spécifique par son ID
+/**
+ * Fetches a specific participation by its ID.
+ *
+ * @param {number} participationId - The ID of the participation to retrieve.
+ * @returns {Promise<any>} A promise that resolves to the participation data.
+ * @throws Will throw an error if the participation cannot be retrieved.
+ */
 export async function getParticipationById(participationId: number) {
     try {
         return await prisma.participation.findUnique({
             where: { id: participationId },
             include: {
-                user: true,  // Inclure les informations de l'utilisateur
-                session: true,  // Inclure les informations de la session
+                user: true,  // Include user information
+                session: true,  // Include session information
             },
         });
     } catch (error) {
@@ -33,7 +52,16 @@ export async function getParticipationById(participationId: number) {
     }
 }
 
-// Fonction pour ajouter un utilisateur à une session
+/**
+ * Adds a user to a session.
+ *
+ * @param {Object} data - The data for the new participation.
+ * @param {number} data.sessionId - The ID of the session.
+ * @param {number} data.userId - The ID of the user.
+ * @param {string} data.status - The status of the participation.
+ * @returns {Promise<any>} A promise that resolves to the newly created participation.
+ * @throws Will throw an error if the participation cannot be created.
+ */
 export async function createParticipation(data: {
     sessionId: number;
     userId: number;
@@ -49,7 +77,14 @@ export async function createParticipation(data: {
     }
 }
 
-// Fonction pour mettre à jour le statut d'un participant
+/**
+ * Updates the status of a participant.
+ *
+ * @param {number} participationId - The ID of the participation to update.
+ * @param {string} status - The new status of the participation.
+ * @returns {Promise<any>} A promise that resolves to the updated participation.
+ * @throws Will throw an error if the status cannot be updated.
+ */
 export async function updateParticipantStatus(participationId: number, status: string) {
     try {
         return await prisma.participation.update({
@@ -62,7 +97,13 @@ export async function updateParticipantStatus(participationId: number, status: s
     }
 }
 
-// Fonction pour supprimer un participant d'une session
+/**
+ * Deletes a participant from a session.
+ *
+ * @param {number} participationId - The ID of the participation to delete.
+ * @returns {Promise<void>} A promise that resolves when the participation is deleted.
+ * @throws Will throw an error if the participation cannot be deleted.
+ */
 export async function deleteParticipation(participationId: number) {
     try {
         await prisma.participation.delete({
@@ -74,6 +115,13 @@ export async function deleteParticipation(participationId: number) {
     }
 }
 
+/**
+ * Removes a participant.
+ *
+ * @param {number} participationId - The ID of the participant to remove.
+ * @returns {Promise<any>} A promise that resolves to the removed participant.
+ * @throws Will throw an error if the participant cannot be removed.
+ */
 export async function removeParticipant(participationId: number) {
     try {
         return await prisma.participation.delete({

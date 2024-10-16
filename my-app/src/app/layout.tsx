@@ -8,7 +8,7 @@ import ClientLayout from '@/components/ClientLayout'; // Créez un composant cli
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-    title: 'My Game App',
+    title: 'nexus',
     description: 'Welcome to the ultimate gaming experience!',
 };
 

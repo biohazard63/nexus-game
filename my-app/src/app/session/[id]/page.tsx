@@ -1,3 +1,16 @@
+/**
+ * SessionPage component
+ *
+ * This component renders the details of a session, including participants, comments, and session information.
+ * It allows users to join, leave, or manage the session based on their role (host or participant).
+ *
+ * @component
+ * @example
+ * return (
+ *   <SessionPage params={{ id: '1' }} />
+ * )
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';

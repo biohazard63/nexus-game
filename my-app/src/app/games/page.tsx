@@ -1,3 +1,15 @@
+/**
+ * UserGamesPage component
+ *
+ * This component is responsible for displaying a list of games, allowing users to filter by type and category,
+ * and add games to their wishlist. It fetches games, categories, and the user's wishlist from the server.
+ *
+ * @component
+ * @example
+ * return (
+ *   <UserGamesPage />
+ * )
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,40 +27,36 @@ import Image from "next/image"; // Icône pour le bouton de wishlist
 export default function UserGamesPage() {
     const [games, setGames] = useState<any[]>([]);
     const [filteredGames, setFilteredGames] = useState<any[]>([]);
-    const [wishlist, setWishlist] = useState<number[]>([]); // Wishlist pour stocker les IDs des jeux ajoutés
+    const [wishlist, setWishlist] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
     const [selectedType, setSelectedType] = useState<string>('ALL');
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-    const [userId, setUserId] = useState<number | null>(null); // Stocker l'ID utilisateur
-
-    console.log(games)
+    const [userId, setUserId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchGamesAndCategories = async () => {
             try {
-                const fetchedGames = await getGames(); // Récupérer la liste des jeux
-                const fetchedCategories = await getCategories(); // Récupérer la liste des catégories
+                const fetchedGames = await getGames();
+                const fetchedCategories = await getCategories();
 
-                // Récupérer l'ID de l'utilisateur depuis sessionStorage
-                const userFirebaseId = sessionStorage.getItem('userId'); // Remplacez par la clé exacte utilisée dans sessionStorage
+                const userFirebaseId = sessionStorage.getItem('userId');
                 if (!userFirebaseId) {
                     throw new Error("Utilisateur non connecté, l'ID Firebase est manquant dans le sessionStorage.");
                 }
 
                 const fetchedUserId = await getUserIdByFirebaseId(userFirebaseId);
                 if (fetchedUserId) {
-                    const userWishlist = await getWishlist(fetchedUserId); // Récupérer la wishlist
+                    const userWishlist = await getWishlist(fetchedUserId);
                     const wishlistIds = userWishlist.map((item: any) => item.gameId);
-                    setWishlist(wishlistIds); // Stocker les jeux déjà dans la wishlist
-                    setUserId(fetchedUserId); // Stocker l'ID utilisateur
+                    setWishlist(wishlistIds);
+                    setUserId(fetchedUserId);
                 }
 
-                // Trier les jeux par ordre alphabétique
                 const sortedGames = fetchedGames.sort((a, b) => a.name.localeCompare(b.name));
                 setGames(sortedGames);
-                setFilteredGames(sortedGames); // Par défaut, tous les jeux sont affichés
+                setFilteredGames(sortedGames);
                 setCategories(fetchedCategories);
             } catch (error) {
                 console.error('Erreur lors de la récupération des jeux et catégories :', error);
@@ -61,8 +69,6 @@ export default function UserGamesPage() {
         fetchGamesAndCategories();
     }, []);
 
-
-    // Ajouter un jeu à la wishlist
     const handleAddToWishlist = async (gameId: number) => {
         try {
             if (userId) {
@@ -76,7 +82,6 @@ export default function UserGamesPage() {
         }
     };
 
-    // Gérer le filtrage des jeux en fonction des filtres sélectionnés
     const handleFilterChange = () => {
         let filtered = games;
 
@@ -95,7 +100,7 @@ export default function UserGamesPage() {
 
     useEffect(() => {
         handleFilterChange();
-    }, [selectedType, selectedCategory ]);
+    }, [selectedType, selectedCategory]);
 
     if (loading) {
         return <p>Chargement...</p>;

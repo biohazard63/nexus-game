@@ -1,11 +1,23 @@
+/**
+ * @file userActions.ts
+ *
+ * This file contains server-side functions for managing users in the application.
+ * It includes functions to retrieve, create, update, and delete users using Prisma ORM and Firebase.
+ */
+
 'use server';
+
 import { auth } from '@/lib/firebase'; // Firebase Auth
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { prisma } from '@/server/db/db';
 
-
-// Fonction pour récupérer tous les utilisateurs depuis PostgreSQL
+/**
+ * Fetches all users from PostgreSQL.
+ *
+ * @returns {Promise<any[]>} A promise that resolves to an array of users.
+ * @throws Will throw an error if the users cannot be retrieved.
+ */
 export async function getUsersFromPostgreSQL() {
     try {
         const users = await prisma.user.findMany({
@@ -21,10 +33,10 @@ export async function getUsersFromPostgreSQL() {
                 firebase_id: true,
                 profilePicture: true,
                 bio: true,
-                first_name: true, // Inclure first_name
-                last_name: true,  // Inclure last_name
-                password: true,   // Inclure password
-                updatedAt: true,  // Inclure updatedAt
+                first_name: true,
+                last_name: true,
+                password: true,
+                updatedAt: true,
                 ratingsReceived: {
                     select: {
                         rating: true,
@@ -71,18 +83,30 @@ export async function getUsersFromPostgreSQL() {
     }
 }
 
-
-
+/**
+ * Fetches the role of a user by their Firebase UID.
+ *
+ * @param {string} uid - The Firebase UID of the user.
+ * @returns {Promise<string>} A promise that resolves to the role of the user.
+ * @throws Will throw an error if the user cannot be found.
+ */
 export async function getUserRole(uid: string): Promise<string> {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
         const userData = userDoc.data();
-        return userData.role || 'user'; // Retourner le rôle ou 'user' par défaut
+        return userData.role || 'user';
     }
     throw new Error('Utilisateur non trouvé');
 }
 
-export async function getUserById(userId: number) {
+/**
+ * Fetches a user by their ID.
+ *
+ * @param {number} userId - The ID of the user to retrieve.
+ * @returns {Promise<any>} A promise that resolves to the user data.
+ * @throws Will throw an error if the user cannot be retrieved.
+ */
+export async function getUserById(userId: number): Promise<any> {
     try {
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -139,7 +163,20 @@ export async function getUserById(userId: number) {
     }
 }
 
-// Mettre à jour un utilisateur dans PostgreSQL avec gestion des relations imbriquées
+/**
+ * Updates a user in PostgreSQL with nested relations management.
+ *
+ * @param {number} userId - The ID of the user to update.
+ * @param {Object} data - The new data for the user.
+ * @param {string} data.username - The new username of the user.
+ * @param {string} data.first_name - The new first name of the user.
+ * @param {string} data.last_name - The new last name of the user.
+ * @param {string} data.email - The new email of the user.
+ * @param {string} data.profilePicture - The new profile picture of the user.
+ * @param {string} data.bio - The new bio of the user.
+ * @returns {Promise<any>} A promise that resolves to the updated user.
+ * @throws Will throw an error if the user cannot be updated.
+ */
 export async function updateUser(userId: number, data: {
     username: string;
     first_name: string;
@@ -160,7 +197,6 @@ export async function updateUser(userId: number, data: {
                 email: data.email,
                 profilePicture: data.profilePicture,
                 bio: data.bio,
-                // Omettre les relations imbriquées comme api_key, groups, etc.
             },
         });
     } catch (error) {
@@ -169,6 +205,13 @@ export async function updateUser(userId: number, data: {
     }
 }
 
+/**
+ * Fetches a user by their Firebase ID.
+ *
+ * @param {string} firebaseId - The Firebase ID of the user to retrieve.
+ * @returns {Promise<any>} A promise that resolves to the user data.
+ * @throws Will throw an error if the user cannot be retrieved.
+ */
 export async function getUserByFirebaseId(firebaseId: string) {
     try {
         const user = await prisma.user.findUnique({
@@ -194,9 +237,13 @@ export async function getUserByFirebaseId(firebaseId: string) {
     }
 }
 
-
-
-// Fonction pour récupérer l'ID utilisateur à partir du firebase_id
+/**
+ * Fetches the user ID by their Firebase ID.
+ *
+ * @param {string} firebaseId - The Firebase ID of the user.
+ * @returns {Promise<number | null>} A promise that resolves to the user ID or null if not found.
+ * @throws Will throw an error if the user ID cannot be retrieved.
+ */
 export async function getUserIdByFirebaseId(firebaseId: string): Promise<number | null> {
     try {
         const user = await prisma.user.findUnique({

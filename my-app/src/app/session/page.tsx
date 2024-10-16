@@ -1,3 +1,15 @@
+/**
+ * UserSessionsPage component
+ *
+ * This component is responsible for displaying the user's created and participating sessions.
+ * It fetches the sessions from the server and allows the user to navigate to session details or create/search sessions.
+ *
+ * @component
+ * @example
+ * return (
+ *   <UserSessionsPage />
+ * )
+ */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,7 +25,7 @@ export default function UserSessionsPage() {
     const [participatingSessions, setParticipatingSessions] = useState<any[]>([]); // Remplacer invitedSessions par participatingSessions
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    
+
     console.log(participatingSessions);
 
     useEffect(() => {
